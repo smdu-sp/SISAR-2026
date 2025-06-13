@@ -30,7 +30,11 @@ async function Publicacoes({
 }) {
 	let { pagina = 1, limite = 10, total = 0 } = await searchParams;
 	let ok = false;
-	const { busca = '', tipo_documento = 'all', colegiado = 'all' } = await searchParams;
+	const {
+		busca = '',
+		tipo_documento = 'all',
+		colegiado = 'all',
+	} = await searchParams;
 	let dados: IPublicacao[] = [];
 
 	const session = await auth();
@@ -41,7 +45,7 @@ async function Publicacoes({
 			+limite,
 			busca as string,
 			tipo_documento as string,
-			colegiado as string
+			colegiado as string,
 		);
 		const { data } = response;
 		ok = response.ok;
@@ -60,7 +64,7 @@ async function Publicacoes({
 
 	return (
 		<div className=' w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto'>
-			<h1 className='text-xl md:text-4xl font-bold'>Publicações</h1>
+			<h1 className='text-xl md:text-4xl font-bold'>Página Inicial</h1>
 			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5   w-full '>
 				<Filtros
 					camposFiltraveis={[
@@ -83,7 +87,7 @@ async function Publicacoes({
 							tipo: 2,
 							default: 'all',
 							valores: colegiados,
-						}
+						},
 					]}
 				/>
 				<DataTable

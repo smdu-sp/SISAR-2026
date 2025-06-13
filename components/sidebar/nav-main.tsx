@@ -1,6 +1,19 @@
 /** @format */
 
-import { ChevronRight, House, LucideProps, Users } from 'lucide-react';
+import {
+	ChevronRight,
+	House,
+	LucideProps,
+	Users,
+	FolderUp,
+	Building2,
+	Landmark,
+	List,
+	ChartSpline,
+	Activity,
+	ClipboardCheck,
+	FolderOpen,
+} from 'lucide-react';
 
 import {
 	Collapsible,
@@ -49,6 +62,21 @@ export async function NavMain() {
 			titulo: 'Página Inicial',
 			url: '/',
 		},
+		{
+			icone: FolderOpen,
+			titulo: 'Processos',
+			url: '/processos',
+		},
+		{
+			icone: ClipboardCheck,
+			titulo: 'Admissibilidade',
+			url: '/admissibilidade',
+		},
+		{
+			icone: Activity,
+			titulo: 'Em Análise',
+			url: '/analise',
+		},
 	];
 
 	const menuAdmin: IMenu[] = [
@@ -56,6 +84,36 @@ export async function NavMain() {
 			icone: Users,
 			titulo: 'Usuários',
 			url: '/usuarios',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: FolderUp,
+			titulo: 'Importar',
+			url: '/importar',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: Building2,
+			titulo: 'Unidades',
+			url: '/unidades',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: Landmark,
+			titulo: 'Subprefeitura',
+			url: '/subprefeitura',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: List,
+			titulo: 'Tipos de Alvará',
+			url: '/alvara',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: ChartSpline,
+			titulo: 'Relatórios',
+			url: '/relatorios',
 			permissao: 'usuario_buscar_tudo',
 		},
 	];

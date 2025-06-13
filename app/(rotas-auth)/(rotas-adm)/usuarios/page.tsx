@@ -111,6 +111,7 @@ async function Usuarios({
 							tag: 'permissao',
 							tipo: 2,
 							valores: permissaoSelect,
+							default: 'all',
 						},
 					]}
 				/>

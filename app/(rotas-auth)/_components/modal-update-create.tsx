@@ -30,10 +30,15 @@ export default async function ModalUpdateAndCreate({
 	const tecnicosSelect: ITecnicoFuncionario[] = [];
 	const session = await auth();
 	if (!session) redirect('/login');
-	const coordenadoriasResposta = await coordenadorias.listaCompleta(session.access_token);
-	if (coordenadoriasResposta.ok) coordenadoriasSelect.push(...coordenadoriasResposta.data as ICoordenadoriaSelect[]);
+	const coordenadoriasResposta = await coordenadorias.listaCompleta(
+		session.access_token,
+	);
+	if (coordenadoriasResposta.ok && Array.isArray(coordenadoriasResposta.data))
+		coordenadoriasSelect.push(...coordenadoriasResposta.data);
 	const tecnicosResposta = await listaTecnicos(session.access_token);
-	if (tecnicosResposta.ok) tecnicosSelect.push(...tecnicosResposta.data as ITecnicoFuncionario[]);
+	if (tecnicosResposta.ok && Array.isArray(tecnicosResposta.data)) {
+		tecnicosSelect.push(...(tecnicosResposta.data as ITecnicoFuncionario[]));
+	}
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
@@ -60,9 +65,13 @@ export default async function ModalUpdateAndCreate({
 			</DialogTrigger>
 			<DialogContent>
 				<DialogHeader>
-					<DialogTitle>{isUpdating ? 'Editar ' : 'Criar '}Publicação</DialogTitle>
+					<DialogTitle>
+						{isUpdating ? 'Editar ' : 'Criar '}Publicação
+					</DialogTitle>
 					<DialogDescription>
-						{isUpdating ? 'Gerencie as informações da publicação selecionada' : 'Insira os dados da nova publicação'}
+						{isUpdating
+							? 'Gerencie as informações da publicação selecionada'
+							: 'Insira os dados da nova publicação'}
 					</DialogDescription>
 				</DialogHeader>
 				<FormPublicacao
