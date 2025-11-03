@@ -1,0 +1,1 @@
+export { buscarTudo, buscarPorId } from "./query-functions"

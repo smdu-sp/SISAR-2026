@@ -1,0 +1,1 @@
+export { gerarRelatorio } from './getRelatorio'

@@ -6,9 +6,13 @@ import * as React from 'react';
 
 import { cn } from '@/lib/utils';
 
-function Table({ className, ...props }: React.ComponentProps<'table'>) {
+type TableProps = {
+	roundednone: string,
+} & React.ComponentProps<'table'>
+
+function Table({ className, ...props }: TableProps) {
 	return (
-		<div className=' w-full relative overflow-auto rounded-xl'>
+		<div className={`w-full relative overflow-auto ${props.roundednone === 'false' ? 'rounded-xl' : ''}`}>
 			<table
 				data-slot='table'
 				className={cn('w-full caption-bottom text-sm', className)}
