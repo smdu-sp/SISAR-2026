@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx"
+import { Label } from "recharts";
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -13,26 +14,26 @@ export function validaCPF_CNPJ(cpf_cnpj: string) {
   if (cpf_cnpjLimpo.length === 11) {
     if (cpfs_invalidos.includes(cpf_cnpjLimpo)) return false;
     let soma = 0;
-    for (let i = 0; i < 9; i++) 
+    for (let i = 0; i < 9; i++)
       soma += parseInt(cpf_cnpjLimpo[i]) * (10 - i);
     let resto = (soma * 10) % 11;
     if (resto === 10 || resto === 11) resto = 0;
     if (resto !== parseInt(cpf_cnpjLimpo[9])) return false;
     soma = 0;
-    for (let i = 0; i < 10; i++) 
+    for (let i = 0; i < 10; i++)
       soma += parseInt(cpf_cnpjLimpo[i]) * (11 - i);
     resto = (soma * 10) % 11;
     if (resto === 10 || resto === 11) resto = 0;
     if (resto !== parseInt(cpf_cnpjLimpo[10])) return false;
-    return true; 
+    return true;
   }
   if (cpf_cnpjLimpo.length === 14) {
     if (cnpjs_invalidos.includes(cpf_cnpjLimpo)) return false;
-    const b = [ 6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2 ];
+    const b = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
     for (let i = 0, n = 0; i < 12; n += +cpf_cnpjLimpo[i] * b[++i])
-      if(+cpf_cnpjLimpo[12] != (((n %= 11) < 2) ? 0 : 11 - n)) return false;
+      if (+cpf_cnpjLimpo[12] != (((n %= 11) < 2) ? 0 : 11 - n)) return false;
     for (let i = 0, n = 0; i <= 12; n += +cpf_cnpjLimpo[i] * b[i++])
-      if(+cpf_cnpjLimpo[13] != (((n %= 11) < 2) ? 0 : 11 - n)) return false;
+      if (+cpf_cnpjLimpo[13] != (((n %= 11) < 2) ? 0 : 11 - n)) return false;
     return true;
   }
   return false;
@@ -72,6 +73,36 @@ export const tipos_documento = [
   { value: 'COMUNIQUESE', label: 'Comunique-se' },
   { value: 'INDEFERIMENTO', label: 'Indeferimento' },
   { value: 'DEFERIMENTO', label: 'Deferimento' },
+]
+
+export const tipos_unidades = [
+  { value: 'ativos', label: 'Ativos' },
+  { value: 'inativos', label: 'Inativos' },
+]
+
+export const tipos_subprefeituras = [
+  { value: 'ativos', label: 'Ativos' },
+  { value: 'inativos', label: 'Inativos' },
+]
+
+export const tipos_alvaras = [
+  { value: 'ativos', label: 'Ativos' },
+  { value: 'inativos', label: 'Inativos' },
+]
+
+export const tipos_relatorios = [
+  { value: 'ar-quantitativo', label: 'Aprova Rápido - Status e Resumo Quantitativo' },
+  { value: 'rr-quantitativo', label: 'Requalifica Rápido - Status e Resumo Quantitativo' },
+  { value: 'ar-progressao-mensal', label: 'Aprova Rápido - Gráfico de Progressão Mensal' },
+  { value: 'ar-gabinete-prefeito', label: 'Aprova Rápido - Controle Gabinete Prefeito' },
+  { value: 'ar-analise-admissibilidade', label: 'Aprova Rápido - Análise de Admissibilidade' },
+  { value: 'rr-analise-admissibilidade', label: 'Requalifica Rápido - Análise de Admissibilidade' },
+  { value: 'ar-gabinete-prefeito', label: 'Aprova Rápido - Gabinete do Prefeito' },
+]
+
+export const tipos_extensao_arquivo = [
+  { value: 'PDF', label: 'PDF' },
+  { value: 'XLSX', label: 'XLSX (Excel)' }
 ]
 
 export function verificaData(dataInicio: string, dataFim: string): [Date, Date] {

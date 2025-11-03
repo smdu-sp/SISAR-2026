@@ -32,58 +32,64 @@ export const Colegiados = {
   CTLU: "CTLU",
 }
 
+export const Unidades = {
+  CODIGO: 'Código',
+  SIGLA: 'Sigla',
+  NOME: 'Nome',
+}
+
 export interface IPublicacao {
-    id: string
-    numero_processo: string
-    colegiado: Colegiado
-    tipo_documento: Tipo_Documento
-    tecnico_id: string
-    coordenadoria_id: string
-    data_emissao: Date
-    data_publicacao: Date
-    prazo: number
-    criadoEm: Date
-    atualizadoEm: Date
-    tecnico?: IUsuario
-    coordenadoria?: any
+  id: string
+  numero_processo: string
+  colegiado: Colegiado
+  tipo_documento: Tipo_Documento
+  tecnico_id: string
+  coordenadoria_id: string
+  data_emissao: Date
+  data_publicacao: Date
+  prazo: number
+  criadoEm: Date
+  atualizadoEm: Date
+  tecnico?: IUsuario
+  coordenadoria?: any
 }
 
 export interface ICreatePublicacao {
-    numero_processo: string
-    tipo_documento: string
-    colegiado: string
-    tecnico_rf: string
-    coordenadoria_id: string
-    data_emissao: Date
-    data_publicacao: Date
-    prazo: number
+  numero_processo: string
+  tipo_documento: string
+  colegiado: string
+  tecnico_rf: string
+  coordenadoria_id: string
+  data_emissao: Date
+  data_publicacao: Date
+  prazo: number
 }
 
 export interface IUpdatePublicacao {
-    numero_processo: string
-    tipo_documento: string
-    colegiado: string
-    tecnico_rf: string
-    coordenadoria_id: string
-    data_emissao: Date
-    data_publicacao: Date
-    prazo: number
+  numero_processo: string
+  tipo_documento: string
+  colegiado: string
+  tecnico_rf: string
+  coordenadoria_id: string
+  data_emissao: Date
+  data_publicacao: Date
+  prazo: number
 }
 
 export interface IPaginadoPublicacao {
-	data: IPublicacao[];
-	total: number;
-	pagina: number;
-	limite: number;
+  data: IPublicacao[];
+  total: number;
+  pagina: number;
+  limite: number;
 }
 
 export interface IRespostaPublicacao {
-	ok: boolean;
-	error: string | null;
-	data:
-		| IPublicacao
-		| IPublicacao[]
-		| IPaginadoPublicacao
-		| null;
-	status: number;
+  ok: boolean;
+  error: string | null;
+  data:
+  | IPublicacao
+  | IPublicacao[]
+  | IPaginadoPublicacao
+  | null;
+  status: number;
 }
