@@ -4,12 +4,16 @@ export {
     buscarNovo,
     listaCompleta,
     validaUsuario,
-    listaTecnicos
+    listaTecnicos,
+    buscarAdministrativos,
 } from './query-functions';
 
 export {
     atualizar,
     criar,
     desativar,
-    autorizar
+    autorizar,
+    adicionarFerias,
+    adicionarSubstituto,
+    removerSubstituto,
 } from './server-functions';

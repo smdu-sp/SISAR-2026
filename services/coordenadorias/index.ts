@@ -1,5 +1,3 @@
-export { listaCompleta } from './query-functions';
-
-export function listaTecnicos(access_token: string) {
-	throw new Error('Function not implemented.');
-}
+export { listaCompleta } from './query-functions/lista-completa';
+export { buscarTudo } from './query-functions/buscar-tudo';
+export { criar, atualizar, remover } from './server-functions/mutations';

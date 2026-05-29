@@ -43,9 +43,12 @@ export interface IRespostaAlvaras {
 }
 
 export interface IAlvarasTipos {
+    id?: string;
     nome: string;
+    admissibilidade?: number;
     analise1: number;
     analise2: number;
     analiseMult1: number;
     analiseMult2: number;
+    status?: number;
 }

@@ -5,9 +5,11 @@ export const Unidades = {
 }
 
 export interface IUnidades {
-    codigo: string,
-    sigla: string,
-    nome: string,
+    id: string;
+    codigo: string;
+    sigla: string;
+    nome: string;
+    status: number;
 }
 
 export interface IPaginadoUnidades {

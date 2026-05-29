@@ -5,6 +5,7 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { format } from 'date-fns';
 import { ISubprefeitura } from '@/types/subprefeituras';
+import ModalSubprefeitura from './modal-subprefeitura';
 
 
 export const SubprefeituraColumns: ColumnDef<ISubprefeitura>[] = [
@@ -33,6 +34,15 @@ export const SubprefeituraColumns: ColumnDef<ISubprefeitura>[] = [
             <p className='flex text-left'>
                 {row.original.status}
             </p>
+        ),
+    },
+    {
+        id: 'actions',
+        header: () => <p className='text-center'>Ações</p>,
+        cell: ({ row }) => (
+            <div className='flex justify-center'>
+                <ModalSubprefeitura item={row.original} isUpdating />
+            </div>
         ),
     },
 ];

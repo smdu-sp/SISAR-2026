@@ -14,10 +14,16 @@ export async function listaCompleta(access_token: string): Promise<IRespostaCoor
 			next: { tags: ['coordenadorias'], revalidate: 120 },
         });
         const data = await alvaraTipos.json();
+        const lista = Array.isArray(data)
+            ? data.map((c: { id: string; nome: string; sigla?: string }) => ({
+                  value: c.id,
+                  label: c.sigla ? `${c.sigla} - ${c.nome}` : c.nome,
+              }))
+            : [];
         return {
             ok: true,
             error: null,
-            data: data as ICoordenadoriaSelect[],
+            data: lista as ICoordenadoriaSelect[],
             status: 200,
         };
     } catch (error) {

@@ -7,6 +7,9 @@ import { ColumnDef } from '@tanstack/react-table';
 import ModalUpdateCreate from './modal-update-create';
 import ModalDelete from './modal-delete';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { ExternalLink } from 'lucide-react';
 
 export const columns: ColumnDef<IUsuario>[] = [
 	{
@@ -43,6 +46,14 @@ export const columns: ColumnDef<IUsuario>[] = [
 				<div
 					className='flex gap-2 items-center justify-center'
 					key={row.id}>
+					<Button
+						asChild
+						size='icon'
+						variant='outline'>
+						<Link href={`/usuarios/${row.original.id}`}>
+							<ExternalLink className='size-4' />
+						</Link>
+					</Button>
 					<ModalUpdateCreate
 						user={row.original}
 						isUpdating={true}

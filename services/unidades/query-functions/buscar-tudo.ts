@@ -7,13 +7,14 @@ export async function buscarTudo(
     pagina: number = 1,
     limite: number = 10,
     busca: string = '',
-    codigo: string = 'all',
-    sigla: string = 'all',
+    filtro: string = 'all',
 ): Promise<IRespostaUnidades> {
     const baseURL = process.env.NEXT_PUBLIC_API_URL;
+    const filtroParam =
+        filtro !== 'all' && filtro !== '' ? `&filtro=${filtro}` : '';
     try {
         const unidades = await fetch(
-            `${baseURL}unidades/buscar-tudo?pagina=${pagina}&limite=${limite}&busca=${busca}&codigo=${codigo}&sigla=${sigla}`,
+            `${baseURL}unidades/buscar-tudo?pagina=${pagina}&limite=${limite}&busca=${encodeURIComponent(busca)}${filtroParam}`,
             {
                 method: 'GET',
                 headers: {

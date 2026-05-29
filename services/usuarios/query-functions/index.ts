@@ -4,3 +4,4 @@ export { buscarNovo } from './buscar-novo';
 export { listaCompleta } from './lista-completa';
 export { validaUsuario } from './valida-usuario';
 export { listaTecnicos } from './lista-tecnicos';
+export { buscarAdministrativos } from './buscar-administrativos';

@@ -11,7 +11,7 @@ export async function buscarTudo(
     const baseURL = process.env.NEXT_PUBLIC_API_URL;
     try {
         const subprefeituras = await fetch(
-            `${baseURL}subprefeitura?pagina=${pagina}&limite=${limite}&busca=${busca}`,
+            `${baseURL}subprefeitura/buscar-tudo?pagina=${pagina}&limite=${limite}&busca=${encodeURIComponent(busca)}`,
             {
                 method: 'GET',
                 headers: {

@@ -9,6 +9,8 @@ import { Suspense } from 'react';
 import { IPaginadoUnidades, IUnidades } from '@/types/unidades';
 import { tipos_unidades } from '@/lib/utils';
 import { unidadeColumns } from './_components/unidadeColumns';
+import ModalUnidade from './_components/modal-unidade';
+import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
 
 export default async function UnidadesSuspense({
 	searchParams,
@@ -39,7 +41,7 @@ async function Unidades({
 			+pagina,
 			+limite,
 			busca as string,
-			tipo_unidade as string,
+			tipo_unidade === 'ativos' ? '1' : tipo_unidade === 'inativos' ? '0' : 'all',
 		);
 		const { data } = response;
 		ok = response.ok;
@@ -81,6 +83,9 @@ async function Unidades({
 					<Pagination total={+total} pagina={+pagina} limite={+limite} />
 				)}
 			</div>
+			<BotaoCadastroFlutuante>
+				<ModalUnidade />
+			</BotaoCadastroFlutuante>
 		</div>
 	);
 }

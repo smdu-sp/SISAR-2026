@@ -46,9 +46,16 @@ export function capitalize(str: string) {
   return splitStr.join(' ');
 }
 
+export function formatarSei(value: string): string {
+  if (!value) return value;
+  const onlyNumbers = value.toString().replace(/\D/g, '').substring(0, 16);
+  if (onlyNumbers.length <= 4) return onlyNumbers.replace(/(\d{0,4})/, '$1');
+  if (onlyNumbers.length <= 8) return onlyNumbers.replace(/(\d{0,4})(\d{0,4})/, '$1.$2');
+  if (onlyNumbers.length <= 15) return onlyNumbers.replace(/(\d{0,4})(\d{0,4})(\d{0,7})/, '$1.$2/$3');
+  return onlyNumbers.replace(/(\d{0,4})(\d{0,4})(\d{0,7})(\d{0,1})/, '$1.$2/$3-$4');
+}
+
 export function formataProcesso(processo: string) {
-  //2018-0.035.189-1
-  //0000.2001/0215515-8
   const processoSeparado = processo.replaceAll('.', '').replaceAll('-', '').replaceAll('/', '').substring(0, 16);
   if (processoSeparado.length <= 4) return processoSeparado.replace(/(\d{0,4})/, '$1');
   if (processoSeparado.length <= 5) return processoSeparado.replace(/(\d{0,4})(\d{0,1})/, '$1-$2');
@@ -97,7 +104,6 @@ export const tipos_relatorios = [
   { value: 'ar-gabinete-prefeito', label: 'Aprova Rápido - Controle Gabinete Prefeito' },
   { value: 'ar-analise-admissibilidade', label: 'Aprova Rápido - Análise de Admissibilidade' },
   { value: 'rr-analise-admissibilidade', label: 'Requalifica Rápido - Análise de Admissibilidade' },
-  { value: 'ar-gabinete-prefeito', label: 'Aprova Rápido - Gabinete do Prefeito' },
 ]
 
 export const tipos_extensao_arquivo = [

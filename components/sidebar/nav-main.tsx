@@ -13,6 +13,13 @@ import {
 	Activity,
 	ClipboardCheck,
 	FolderOpen,
+	Tag,
+	FileText,
+	ClipboardList,
+	Network,
+	Gavel,
+	CalendarDays,
+	LayoutDashboard,
 } from 'lucide-react';
 
 import {
@@ -63,6 +70,11 @@ export async function NavMain() {
 			url: '/',
 		},
 		{
+			icone: CalendarDays,
+			titulo: 'Agenda',
+			url: '/agenda',
+		},
+		{
 			icone: FolderOpen,
 			titulo: 'Processos',
 			url: '/processos',
@@ -111,9 +123,51 @@ export async function NavMain() {
 			permissao: 'usuario_buscar_tudo',
 		},
 		{
+			icone: Gavel,
+			titulo: 'Pareceres',
+			url: '/parecer-admissibilidade',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: Tag,
+			titulo: 'Categorias',
+			url: '/categorias',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: FileText,
+			titulo: 'Motivos Inadmissão',
+			url: '/motivos-inadmissao',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: ClipboardList,
+			titulo: 'Pedidos',
+			url: '/pedidos',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: Network,
+			titulo: 'Coordenadorias',
+			url: '/coordenadorias',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: Network,
+			titulo: 'Diretorias',
+			url: '/diretorias',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
 			icone: ChartSpline,
 			titulo: 'Relatórios',
 			url: '/relatorios',
+			permissao: 'usuario_buscar_tudo',
+		},
+		{
+			icone: LayoutDashboard,
+			titulo: 'Dashboard Admissibilidade',
+			url: '/dashboard/admissibilidade',
 			permissao: 'usuario_buscar_tudo',
 		},
 	];

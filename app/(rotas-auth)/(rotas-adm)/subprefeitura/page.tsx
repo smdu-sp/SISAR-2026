@@ -8,6 +8,8 @@ import { IPaginadoSubprefeituras, ISubprefeitura } from '@/types/subprefeituras'
 import * as subprefeitura from "../../../../services/subprefeituras";
 import { tipos_subprefeituras } from '@/lib/utils';
 import Pagination from '@/components/pagination';
+import ModalSubprefeitura from './_components/modal-subprefeitura';
+import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
 
 import React from 'react';
 
@@ -69,6 +71,9 @@ export default async function SubprefeituraPage({
 					<Pagination total={+total} pagina={+pagina} limite={+limite} />
 				)}
 			</div>
+			<BotaoCadastroFlutuante>
+				<ModalSubprefeitura />
+			</BotaoCadastroFlutuante>
 		</div>
 	)
 }

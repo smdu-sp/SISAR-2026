@@ -1,11 +1,34 @@
 /** @format */
 
+export interface IFerias {
+	id: string;
+	inicio: Date;
+	final: Date;
+}
+
+export interface ISubstituto {
+	id: string;
+	substituto_id: string;
+	substituto?: IUsuario;
+}
+
+export interface IUnidadeRef {
+	id: string;
+	nome: string;
+	sigla?: string;
+}
+
 export interface IUsuario {
 	id: string;
 	nome: string;
 	login: string;
 	email: string;
 	permissao: IPermissao;
+	cargo?: string;
+	unidade_id?: string;
+	unidade?: IUnidadeRef;
+	ferias?: IFerias[];
+	substitutos?: ISubstituto[];
 	avatar?: string;
 	status: boolean;
 	ultimoLogin: Date;
@@ -27,6 +50,8 @@ export interface ICreateUsuario {
 	login: string;
 	avatar?: string;
 	permissao?: IPermissao;
+	cargo?: string;
+	unidade_id?: string;
 	status?: boolean;
 	nomeSocial?: string;
 }
@@ -37,6 +62,8 @@ export interface IUpdateUsuario {
 	nomeSocial?: string;
 	avatar?: string;
 	permissao?: IPermissao;
+	cargo?: string;
+	unidade_id?: string;
 }
 
 export interface IPaginadoUsuario {
