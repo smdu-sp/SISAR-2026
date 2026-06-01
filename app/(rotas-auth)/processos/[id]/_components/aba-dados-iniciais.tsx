@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatarSei, formataProcesso } from '@/lib/utils';
 import { IProcesso } from '@/types/processos';
+import CardPrazoFase from './card-prazo-fase';
 
 const TIPO_REQUERIMENTO: Record<number, string> = {
 	1: 'IPTU',
@@ -12,6 +13,8 @@ const TIPO_REQUERIMENTO: Record<number, string> = {
 
 export default function AbaDadosIniciais({ processo }: { processo: IProcesso }) {
 	return (
+		<div className='space-y-4'>
+			<CardPrazoFase fase='dados' processo={processo} />
 		<Card>
 			<CardHeader>
 				<CardTitle>Dados iniciais</CardTitle>
@@ -61,6 +64,7 @@ export default function AbaDadosIniciais({ processo }: { processo: IProcesso }) 
 				)}
 			</CardContent>
 		</Card>
+		</div>
 	);
 }
 

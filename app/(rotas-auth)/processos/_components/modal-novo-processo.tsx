@@ -18,11 +18,9 @@ import * as processos from '@/services/processos';
 import { IProcesso } from '@/types/processos';
 import { Plus } from 'lucide-react';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 import { useState } from 'react';
 
 export default function ModalNovoProcesso() {
-	const { data: session } = useSession();
 	const [open, setOpen] = useState(false);
 	const [sei, setSei] = useState('');
 	const [processoExistente, setProcessoExistente] = useState<IProcesso | null>(
@@ -39,12 +37,9 @@ export default function ModalNovoProcesso() {
 		setProcessoExistente(null);
 
 		const numeros = formatado.replace(/\D/g, '');
-		if (numeros.length === 16 && session?.access_token) {
+		if (numeros.length === 16) {
 			setVerificando(true);
-			const response = await processos.verificaSei(
-				session.access_token,
-				numeros,
-			);
+			const response = await processos.verificaSei(numeros);
 			if (response.ok && response.data) {
 				setProcessoExistente(response.data as IProcesso);
 			}

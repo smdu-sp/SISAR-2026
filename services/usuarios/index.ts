@@ -6,7 +6,9 @@ export {
     validaUsuario,
     listaTecnicos,
     buscarAdministrativos,
+    buscarFuncionarios,
 } from './query-functions';
+export type { IFuncionarios } from './query-functions';
 
 export {
     atualizar,

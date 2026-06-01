@@ -10,7 +10,6 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from '@/components/ui/dialog';
 import {
 	Select,
@@ -24,20 +23,25 @@ import { formatarSei } from '@/lib/utils';
 import * as admissibilidade from '@/services/admissibilidade';
 import * as parecerAdmissibilidade from '@/services/parecer-admissibilidade';
 import { IParecerAdmissibilidade } from '@/types/parecer-admissibilidade';
-import { Hand, Loader2 } from 'lucide-react';
+import { Loader2, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import ModalMotivos from './modal-motivos';
 
 interface ModalInadmitirProps {
+	open: boolean;
+	onOpenChange: (open: boolean) => void;
 	inicialId: number;
 	sei: string;
 }
 
-export default function ModalInadmitir({ inicialId, sei }: ModalInadmitirProps) {
+export default function ModalInadmitir({
+	open,
+	onOpenChange,
+	inicialId,
+	sei,
+}: ModalInadmitirProps) {
 	const router = useRouter();
-	const [open, setOpen] = useState(false);
 	const [pareceres, setPareceres] = useState<IParecerAdmissibilidade[]>([]);
 	const [parecerId, setParecerId] = useState('');
 	const [carregandoPareceres, setCarregandoPareceres] = useState(false);
@@ -51,8 +55,11 @@ export default function ModalInadmitir({ inicialId, sei }: ModalInadmitirProps) 
 	}
 
 	useEffect(() => {
-		if (open) carregarPareceres();
-	}, [open]);
+		if (open) {
+			setParecerId('');
+			carregarPareceres();
+		}
+	}, [open, inicialId]);
 
 	function handleInadmitir() {
 		if (!parecerId) {
@@ -69,7 +76,7 @@ export default function ModalInadmitir({ inicialId, sei }: ModalInadmitirProps) 
 
 			if (response.ok) {
 				toast.success('Processo inadmitido com sucesso');
-				setOpen(false);
+				onOpenChange(false);
 				setParecerId('');
 				router.refresh();
 				return;
@@ -80,16 +87,7 @@ export default function ModalInadmitir({ inicialId, sei }: ModalInadmitirProps) 
 	}
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
-			<DialogTrigger asChild>
-				<Button
-					size='icon'
-					variant='outline'
-					className='text-amber-600 hover:text-amber-700'
-					title='Inadmitir'>
-					<Hand className='h-4 w-4' />
-				</Button>
-			</DialogTrigger>
+		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent>
 				<DialogHeader>
 					<DialogTitle>Inadmitir processo</DialogTitle>
@@ -103,15 +101,31 @@ export default function ModalInadmitir({ inicialId, sei }: ModalInadmitirProps) 
 						<Input value={formatarSei(sei)} readOnly />
 					</div>
 					<div className='grid gap-2'>
-						<div className='flex items-center justify-between'>
+						<div className='flex items-center justify-between gap-2'>
 							<p className='text-sm font-medium'>Motivo</p>
-							<ModalMotivos compact onMotivoCriado={carregarPareceres} />
+							<Button
+								type='button'
+								variant='ghost'
+								size='sm'
+								className='h-auto px-2 text-xs'
+								onClick={carregarPareceres}
+								disabled={carregandoPareceres}>
+								<RefreshCw
+									className={`mr-1 h-3 w-3 ${carregandoPareceres ? 'animate-spin' : ''}`}
+								/>
+								Atualizar
+							</Button>
 						</div>
 						{carregandoPareceres ? (
 							<div className='flex items-center gap-2 text-sm text-muted-foreground'>
 								<Loader2 className='h-4 w-4 animate-spin' />
 								Carregando motivos...
 							</div>
+						) : pareceres.length === 0 ? (
+							<p className='text-sm text-muted-foreground'>
+								Nenhum motivo ativo cadastrado. Use o botão{' '}
+								<strong>Motivos</strong> acima da tabela para cadastrar.
+							</p>
 						) : (
 							<Select value={parecerId} onValueChange={setParecerId}>
 								<SelectTrigger>
@@ -130,12 +144,16 @@ export default function ModalInadmitir({ inicialId, sei }: ModalInadmitirProps) 
 				</div>
 				<DialogFooter>
 					<Button
+						type='button'
 						variant='outline'
-						onClick={() => setOpen(false)}
+						onClick={() => onOpenChange(false)}
 						disabled={isPending}>
 						Cancelar
 					</Button>
-					<Button onClick={handleInadmitir} disabled={isPending}>
+					<Button
+						type='button'
+						onClick={handleInadmitir}
+						disabled={isPending || pareceres.length === 0}>
 						{isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
 						Enviar
 					</Button>

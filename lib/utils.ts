@@ -55,6 +55,30 @@ export function formatarSei(value: string): string {
   return onlyNumbers.replace(/(\d{0,4})(\d{0,4})(\d{0,7})(\d{0,1})/, '$1.$2/$3-$4');
 }
 
+export function validaDigitoSei(sei: string): boolean {
+  let valido = false;
+  let limpo = sei && sei.toString().replace(/\D/g, '').substring(0, 16);
+  if (limpo.length > 16) limpo = limpo.slice(-16);
+  if (limpo.length === 16) {
+    limpo = limpo.toString().trim();
+    let soma = 0;
+    const verificador = [2, 3, 4, 5, 6, 7, 8, 9];
+    const digito = parseInt(limpo[15]);
+    let j = 0;
+    for (let i = 14; i >= 0; i--) {
+      if (j === 8) j = 0;
+      soma += parseInt(limpo[i]) * verificador[j];
+      j++;
+    }
+    soma = soma % 11;
+    soma = soma === 1 || soma === 0 ? 0 : 11 - soma;
+    valido = soma === digito;
+  } else {
+    return true;
+  }
+  return valido;
+}
+
 export function formataProcesso(processo: string) {
   const processoSeparado = processo.replaceAll('.', '').replaceAll('-', '').replaceAll('/', '').substring(0, 16);
   if (processoSeparado.length <= 4) return processoSeparado.replace(/(\d{0,4})/, '$1');

@@ -1,9 +1,11 @@
 /** @format */
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatarSei } from '@/lib/utils';
+import { auth } from '@/lib/auth/auth';
+import * as alvaras from '@/services/alvaras';
+import { IAlvaras } from '@/types/alvaras';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import FormNovoProcesso from './_components/form-novo-processo';
 
 export default async function NovoProcessoPage({
 	searchParams,
@@ -11,6 +13,15 @@ export default async function NovoProcessoPage({
 	searchParams: Promise<{ sei?: string }>;
 }) {
 	const { sei = '' } = await searchParams;
+	const session = await auth();
+	if (!session?.access_token) redirect('/login');
+
+	const alvarasResp = await alvaras.listaCompleta(session.access_token);
+	const tiposAlvara = (
+		alvarasResp.ok && Array.isArray(alvarasResp.data)
+			? alvarasResp.data
+			: []
+	) as IAlvaras[];
 
 	return (
 		<div className='px-0 md:px-8 container mx-auto space-y-6'>
@@ -18,29 +29,7 @@ export default async function NovoProcessoPage({
 				← Voltar para processos
 			</Link>
 			<h1 className='text-xl md:text-3xl font-bold'>Novo processo</h1>
-			<Card>
-				<CardHeader>
-					<CardTitle>Cadastro</CardTitle>
-				</CardHeader>
-				<CardContent className='space-y-4'>
-					{sei ? (
-						<p>
-							SEI informado:{' '}
-							<span className='font-medium'>{formatarSei(sei)}</span>
-						</p>
-					) : (
-						<p className='text-muted-foreground'>
-							Nenhum SEI informado. Utilize o botão + na listagem de processos.
-						</p>
-					)}
-					<p className='text-sm text-muted-foreground'>
-						O formulário completo de cadastro será disponibilizado em breve.
-					</p>
-					<Button asChild variant='outline'>
-						<Link href='/processos'>Retornar à listagem</Link>
-					</Button>
-				</CardContent>
-			</Card>
+			<FormNovoProcesso seiInicial={sei} tiposAlvara={tiposAlvara} />
 		</div>
 	);
 }

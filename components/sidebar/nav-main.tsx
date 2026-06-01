@@ -10,8 +10,6 @@ import {
 	Landmark,
 	List,
 	ChartSpline,
-	Activity,
-	ClipboardCheck,
 	FolderOpen,
 	Tag,
 	FileText,
@@ -79,16 +77,6 @@ export async function NavMain() {
 			titulo: 'Processos',
 			url: '/processos',
 		},
-		{
-			icone: ClipboardCheck,
-			titulo: 'Admissibilidade',
-			url: '/admissibilidade',
-		},
-		{
-			icone: Activity,
-			titulo: 'Em Análise',
-			url: '/analise',
-		},
 	];
 
 	const menuAdmin: IMenu[] = [
@@ -118,7 +106,7 @@ export async function NavMain() {
 		},
 		{
 			icone: List,
-			titulo: 'Tipos de Alvará',
+			titulo: 'Prazos por alvará',
 			url: '/alvara',
 			permissao: 'usuario_buscar_tudo',
 		},

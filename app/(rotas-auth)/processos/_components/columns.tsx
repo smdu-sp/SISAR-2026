@@ -2,8 +2,14 @@
 
 'use client';
 
+import {
+	colunaDataProtocolo,
+	colunaDiasPrazoEtapa,
+	colunaIdentificadorProcesso,
+	colunaTipoAlvara,
+} from '@/app/(rotas-auth)/_components/colunas-processo-listagem';
 import { Badge } from '@/components/ui/badge';
-import { formatarSei, formataProcesso } from '@/lib/utils';
+import { urlProcesso } from '@/lib/processo-navegacao';
 import { IProcesso } from '@/types/processos';
 import { ColumnDef } from '@tanstack/react-table';
 import Link from 'next/link';
@@ -19,30 +25,19 @@ const STATUS_PROCESSO: Record<
 	4: { label: 'Indeferido', variant: 'destructive' },
 };
 
-const TIPO_PROCESSO: Record<number, string> = {
-	1: 'Próprio SMUL',
-	2: 'Múltiplas Interfaces',
-};
-
-function formatarData(valor?: string | Date | null) {
-	if (!valor) return '-';
-	const data = new Date(valor);
-	if (Number.isNaN(data.getTime())) return '-';
-	return data.toLocaleDateString('pt-BR');
-}
-
 export const columns: ColumnDef<IProcesso>[] = [
 	{
 		accessorKey: 'id',
 		header: '#',
 		cell: ({ row }) => (
 			<Link
-				href={`/processos/${row.original.id}`}
+				href={urlProcesso(row.original.id, row.original.status)}
 				className='font-medium text-primary hover:underline'>
 				{row.original.id}
 			</Link>
 		),
 	},
+	colunaIdentificadorProcesso(),
 	{
 		accessorKey: 'status',
 		header: 'Status',
@@ -52,48 +47,7 @@ export const columns: ColumnDef<IProcesso>[] = [
 			return <Badge variant={config.variant}>{config.label}</Badge>;
 		},
 	},
-	{
-		accessorKey: 'sei',
-		header: 'SEI',
-		cell: ({ row }) => (
-			<Link
-				href={`/processos/${row.original.id}`}
-				className='hover:underline'>
-				{formatarSei(row.original.sei)}
-			</Link>
-		),
-	},
-	{
-		accessorKey: 'processo_fisico',
-		header: 'Processo',
-		cell: ({ row }) =>
-			row.original.processo_fisico
-				? formataProcesso(row.original.processo_fisico)
-				: '-',
-	},
-	{
-		accessorKey: 'requerimento',
-		header: 'Req.',
-	},
-	{
-		accessorKey: 'data_protocolo',
-		header: 'Protocolo',
-		cell: ({ row }) => formatarData(row.original.data_protocolo),
-	},
-	{
-		id: 'alvara_tipo',
-		header: 'Tipo de Alvará',
-		cell: ({ row }) => row.original.alvara_tipo?.nome ?? '-',
-	},
-	{
-		accessorKey: 'alterado_em',
-		header: 'Última alteração',
-		cell: ({ row }) => formatarData(row.original.alterado_em),
-	},
-	{
-		accessorKey: 'tipo_processo',
-		header: 'Tipo',
-		cell: ({ row }) =>
-			TIPO_PROCESSO[row.original.tipo_processo ?? 1] ?? '-',
-	},
+	colunaDataProtocolo(),
+	colunaTipoAlvara(),
+	colunaDiasPrazoEtapa(),
 ];

@@ -16,6 +16,7 @@ import {
 	TableHeader,
 	TableRow,
 } from './ui/table';
+import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
 import { boolean } from 'zod';
 
@@ -29,13 +30,15 @@ interface DataTableProps<TData, TValue> {
 	data: TData[];
 	roundednone?: boolean;
 	stickers?: ISticker;
+	getRowClassName?: (row: TData) => string | undefined;
 }
 
 export default function DataTable<TData, TValue>({
 	columns,
 	data,
 	roundednone = false,
-	stickers
+	stickers,
+	getRowClassName,
 }: DataTableProps<TData, TValue>) {
 	const table = useReactTable({
 		data,
@@ -73,7 +76,10 @@ export default function DataTable<TData, TValue>({
 					{table.getRowModel().rows?.length ? (
 						table.getRowModel().rows.map((row) => (
 							<TableRow
-								className='px-4'
+								className={cn(
+									'px-4',
+									getRowClassName?.(row.original),
+								)}
 								key={row.id}
 								data-state={row.getIsSelected() && 'selected'}>
 								{row.getVisibleCells().map((cell, index) => {

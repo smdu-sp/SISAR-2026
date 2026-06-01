@@ -35,7 +35,8 @@ export async function atualizar(
 
 		if (response.status === 200) {
 			revalidateTag('admissibilidade');
-			revalidatePath('/admissibilidade');
+			revalidatePath('/processos');
+			revalidatePath(`/processos/${inicialId}`);
 			return {
 				ok: true,
 				error: null,

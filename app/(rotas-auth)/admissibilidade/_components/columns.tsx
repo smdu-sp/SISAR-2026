@@ -5,11 +5,13 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { formatarSei } from '@/lib/utils';
-import { IAdmissibilidade } from '@/types/admissibilidade';
+import {
+	dataEnvioAdmissibilidade,
+	IAdmissibilidade,
+} from '@/types/admissibilidade';
 import { ColumnDef } from '@tanstack/react-table';
-import { FilePlus } from 'lucide-react';
+import { FilePlus, Hand } from 'lucide-react';
 import Link from 'next/link';
-import ModalInadmitir from './modal-inadmitir';
 
 export const STATUS_ADMISSIBILIDADE: Record<
 	number,
@@ -59,85 +61,100 @@ function calcularPrazo(
 	return { label: 'Em atraso', variant: 'destructive' };
 }
 
-export const columns: ColumnDef<IAdmissibilidade>[] = [
-	{
-		accessorKey: 'inicial_id',
-		header: '#',
-		cell: ({ row }) => (
-			<Link
-				href={`/processos/${row.original.inicial_id}`}
-				className='font-medium text-primary hover:underline'>
-				{row.original.inicial_id}
-			</Link>
-		),
-	},
-	{
-		id: 'sei',
-		header: 'SEI',
-		cell: ({ row }) =>
-			row.original.inicial?.sei
-				? formatarSei(row.original.inicial.sei)
-				: '-',
-	},
-	{
-		id: 'envio',
-		header: 'Data envio',
-		cell: ({ row }) =>
-			formatarData(row.original.inicial?.envio_admissibilidade),
-	},
-	{
-		accessorKey: 'criado_em',
-		header: 'Data criação',
-		cell: ({ row }) => formatarData(row.original.criado_em),
-	},
-	{
-		accessorKey: 'status',
-		header: 'Status',
-		cell: ({ row }) => {
-			const config =
-				STATUS_ADMISSIBILIDADE[row.original.status] ??
-				STATUS_ADMISSIBILIDADE[1];
-			return <Badge variant={config.variant}>{config.label}</Badge>;
+export function createColumns(
+	onInadmitir: (inicialId: number, sei: string) => void,
+): ColumnDef<IAdmissibilidade>[] {
+	return [
+		{
+			accessorKey: 'inicial_id',
+			header: '#',
+			cell: ({ row }) => (
+				<Link
+					href={`/processos/${row.original.inicial_id}`}
+					className='font-medium text-primary hover:underline'>
+					{row.original.inicial_id}
+				</Link>
+			),
 		},
-	},
-	{
-		id: 'prazo',
-		header: 'Prazo',
-		cell: ({ row }) => {
-			const prazo = calcularPrazo(
-				row.original.inicial?.data_limiteSmul,
-				row.original.status,
-			);
-			return <Badge variant={prazo.variant}>{prazo.label}</Badge>;
+		{
+			id: 'sei',
+			header: 'SEI',
+			cell: ({ row }) =>
+				row.original.inicial?.sei
+					? formatarSei(row.original.inicial.sei)
+					: '-',
 		},
-	},
-	{
-		id: 'acoes',
-		header: () => <p className='text-center'>Ações</p>,
-		cell: ({ row }) => {
-			const { status, inicial_id, inicial } = row.original;
-			if (status === 0) return null;
+		{
+			id: 'envio',
+			header: 'Data envio',
+			cell: ({ row }) =>
+				formatarData(dataEnvioAdmissibilidade(row.original)),
+		},
+		{
+			accessorKey: 'criado_em',
+			header: 'Data criação',
+			cell: ({ row }) => formatarData(row.original.criado_em),
+		},
+		{
+			accessorKey: 'status',
+			header: 'Status',
+			cell: ({ row }) => {
+				const config =
+					STATUS_ADMISSIBILIDADE[row.original.status] ??
+					STATUS_ADMISSIBILIDADE[1];
+				return <Badge variant={config.variant}>{config.label}</Badge>;
+			},
+		},
+		{
+			id: 'prazo',
+			header: 'Prazo',
+			cell: ({ row }) => {
+				const prazo = calcularPrazo(
+					row.original.inicial?.data_limiteSmul,
+					row.original.status,
+				);
+				return <Badge variant={prazo.variant}>{prazo.label}</Badge>;
+			},
+		},
+		{
+			id: 'acoes',
+			header: () => <p className='text-center'>Ações</p>,
+			cell: ({ row }) => {
+				const { status, inicial_id, inicial } = row.original;
+				if (status === 0) return null;
 
-			return (
-				<div className='flex gap-2 items-center justify-center'>
-					{status !== 2 && status !== 3 && (
-						<ModalInadmitir
-							inicialId={inicial_id}
-							sei={inicial?.sei ?? ''}
-						/>
-					)}
-					<Button
-						size='icon'
-						variant='outline'
-						className='text-green-600 hover:text-green-700'
-						title='Admitir'
-						asChild>
-						<Link href={`/processos/${inicial_id}`}>
-							<FilePlus className='h-4 w-4' />
-						</Link>
-					</Button>
-				</div>
-			);
+				return (
+					<div
+						className='flex gap-2 items-center justify-center'
+						onClick={(e) => e.stopPropagation()}>
+						{status !== 2 && status !== 3 && (
+							<Button
+								type='button'
+								size='icon'
+								variant='outline'
+								className='text-amber-600 hover:text-amber-700'
+								title='Inadmitir'
+								onClick={() =>
+									onInadmitir(inicial_id, inicial?.sei ?? '')
+								}>
+								<Hand className='h-4 w-4' />
+							</Button>
+						)}
+						<Button
+							type='button'
+							size='icon'
+							variant='outline'
+							className='text-green-600 hover:text-green-700'
+							title='Admitir'
+							asChild>
+							<Link
+								href={`/processos/${inicial_id}?tab=admissibilidade&from=admissibilidade`}>
+								<FilePlus className='h-4 w-4' />
+							</Link>
+						</Button>
+					</div>
+				);
+			},
 		},
-	},
-];
+	];
+}
