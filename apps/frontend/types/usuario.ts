@@ -89,6 +89,11 @@ export interface ITecnicoFuncionario {
 	label: string;
 }
 
+export interface IFuncionarios {
+	administrativos: IUsuario[];
+	tecnicos: IUsuario[];
+}
+
 export interface IRespostaUsuario {
 	ok: boolean;
 	error: string | null;
@@ -99,6 +104,7 @@ export interface IRespostaUsuario {
 		| IUsuarioTecnico[]
 		| IPaginadoUsuario
 		| ITecnicoFuncionario[]
+		| IFuncionarios
 		| { autorizado: boolean }
 		| { desativado: boolean }
 		| null;

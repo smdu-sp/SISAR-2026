@@ -25,7 +25,7 @@ export function TabelaARQuantitativo({ sectionTitle, period, access_token }: ITa
                 try {
                     const resultado = await gerarRelatorio({ period, access_token })
                     if (resultado.ok && resultado.data) {
-                        setLista(resultado.data as IRelatorioStatusResumoQuantitativo)
+                        setLista(resultado.data as unknown as IRelatorioStatusResumoQuantitativo)
                     } else {
                         setError(resultado.error ? String(resultado.error) : "Erro desconhecido ao buscar relatório.")
                     }

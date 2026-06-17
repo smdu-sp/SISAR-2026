@@ -34,7 +34,7 @@ export default async function ModalUpdateAndCreate({
 		session.access_token,
 	);
 	if (coordenadoriasResposta.ok && Array.isArray(coordenadoriasResposta.data))
-		coordenadoriasSelect.push(...coordenadoriasResposta.data);
+		coordenadoriasSelect.push(...coordenadoriasResposta.data as ICoordenadoriaSelect[]);
 	const tecnicosResposta = await listaTecnicos(session.access_token);
 	if (tecnicosResposta.ok && Array.isArray(tecnicosResposta.data)) {
 		tecnicosSelect.push(...(tecnicosResposta.data as ITecnicoFuncionario[]));

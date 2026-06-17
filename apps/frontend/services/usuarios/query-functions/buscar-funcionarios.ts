@@ -1,11 +1,8 @@
 /** @format */
 
-import { IRespostaUsuario, IUsuario } from '@/types/usuario';
+import { IFuncionarios, IRespostaUsuario } from '@/types/usuario';
 
-export interface IFuncionarios {
-	administrativos: IUsuario[];
-	tecnicos: IUsuario[];
-}
+export type { IFuncionarios };
 
 export async function buscarFuncionarios(
 	access_token: string,

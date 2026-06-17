@@ -70,7 +70,7 @@ async function ProcessoDetalhe({
 
 	const funcionarios =
 		funcResp.ok && funcResp.data
-			? (funcResp.data as IFuncionarios)
+			? (funcResp.data as unknown as IFuncionarios)
 			: null;
 	const administrativos = funcionarios?.administrativos ?? [];
 	const tecnicos = funcionarios?.tecnicos ?? [];
@@ -91,7 +91,7 @@ async function ProcessoDetalhe({
 	return (
 		<ProcessoTabs
 			processo={processo}
-			abaInicial={tab ?? abaInicialProcesso(processo.status) ?? null}
+			abaInicial={tab ?? abaInicialProcesso(processo.status ?? undefined) ?? null}
 			voltarPara='/processos'
 			administrativos={administrativos}
 			tecnicos={tecnicos}

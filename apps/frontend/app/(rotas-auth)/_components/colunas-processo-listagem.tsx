@@ -26,7 +26,7 @@ export function colunaIdentificadorProcesso(): ColumnDef<IProcesso> {
 		header: 'Processo',
 		cell: ({ row }) => (
 			<Link
-				href={urlProcesso(row.original.id, row.original.status)}
+				href={urlProcesso(row.original.id, row.original.status ?? undefined)}
 				className='font-medium text-primary hover:underline'>
 				{rotuloProcessoListagem(row.original)}
 			</Link>

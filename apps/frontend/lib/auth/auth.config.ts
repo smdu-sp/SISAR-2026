@@ -37,7 +37,7 @@ async function renovarTokens(refresh_token: string) {
 	};
 }
 
-function obterTokenArmazenado(token: { user?: unknown }): TokenArmazenado {
+function obterTokenArmazenado(token: Record<string, unknown>): TokenArmazenado {
 	return (token.user as TokenArmazenado | undefined) ?? {};
 }
 

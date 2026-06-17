@@ -188,10 +188,10 @@ export default function AbaAnalise({ processo }: { processo: IProcesso }) {
 	}
 
 	function registrarResposta() {
-		if (!ctx.comunique_aberto) return;
+		if (!ctx?.comunique_aberto) return;
 		startTransition(async () => {
 			const res = await analise.registrarRespostaComuniqueSe(
-				ctx.comunique_aberto!.id,
+				ctx!.comunique_aberto!.id,
 				processo.id,
 				dataRespostaCs,
 			);

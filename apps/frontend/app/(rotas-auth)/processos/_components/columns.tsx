@@ -31,7 +31,7 @@ export const columns: ColumnDef<IProcesso>[] = [
 		header: '#',
 		cell: ({ row }) => (
 			<Link
-				href={urlProcesso(row.original.id, row.original.status)}
+				href={urlProcesso(row.original.id, row.original.status ?? undefined)}
 				className='font-medium text-primary hover:underline'>
 				{row.original.id}
 			</Link>
