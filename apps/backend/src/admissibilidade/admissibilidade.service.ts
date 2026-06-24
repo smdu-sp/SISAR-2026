@@ -32,7 +32,7 @@ export class AdmissibilidadeService {
       });
     };
     if (tipo_processo === 2 && interfaces) {
-      const interface_nova = this.prisma.interface.upsert({
+      await this.prisma.interface.upsert({
         where: { inicial_id },
         create: {
           inicial_id,
@@ -224,7 +224,7 @@ export class AdmissibilidadeService {
     };
     if (tipo_processo === 2 && interfaces) {
       this.ultimaAtualizacao(id)
-      const interface_nova = this.prisma.interface.upsert({
+      await this.prisma.interface.upsert({
         where: { inicial_id },
         create: {
           inicial_id,

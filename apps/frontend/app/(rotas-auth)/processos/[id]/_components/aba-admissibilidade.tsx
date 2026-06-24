@@ -5,7 +5,6 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -87,16 +86,25 @@ export default function AbaAdmissibilidade({
 			: hoje,
 	);
 	const [interfaces, setInterfaces] = useState<IInterfacesAdmissibilidade>({
-		interface_sehab: false,
-		interface_siurb: false,
-		interface_smc: false,
-		interface_smt: false,
-		interface_svma: false,
-		num_sehab: '',
-		num_siurb: '',
-		num_smc: '',
-		num_smt: '',
-		num_svma: '',
+		interface_sehab: processo.interfaces?.interface_sehab ?? false,
+		interface_siurb: processo.interfaces?.interface_siurb ?? false,
+		interface_smc: processo.interfaces?.interface_smc ?? false,
+		interface_smt: processo.interfaces?.interface_smt ?? false,
+		interface_svma: processo.interfaces?.interface_svma ?? false,
+		num_sehab: processo.interfaces?.num_sehab ?? '',
+		num_siurb: processo.interfaces?.num_siurb ?? '',
+		num_smc: processo.interfaces?.num_smc ?? '',
+		num_smt: processo.interfaces?.num_smt ?? '',
+		num_svma: processo.interfaces?.num_svma ?? '',
+	});
+	const [interfacesAlteradas, setInterfacesAlteradas] = useState<
+		Partial<Record<keyof IInterfacesAdmissibilidade, boolean>>
+	>({
+		num_sehab: false,
+		num_siurb: false,
+		num_smc: false,
+		num_smt: false,
+		num_svma: false,
 	});
 
 	if (!adm) {
@@ -123,14 +131,21 @@ export default function AbaAdmissibilidade({
 		(item) => item.label !== 'SEHAB' || mostrarSehab,
 	);
 
-	function atualizarInterface(
-		campo: keyof IInterfacesAdmissibilidade,
-		valor: boolean | string,
-	) {
+	function atualizarInterface(campo: keyof IInterfacesAdmissibilidade, valor: string) {
 		setInterfaces((prev) => ({ ...prev, [campo]: valor }));
+		setInterfacesAlteradas((prev) => ({ ...prev, [campo]: true }));
 	}
 
-	function seiInvalido(valor?: string) {
+	function normalizarNumeroInterface(valor?: string | null) {
+		const limpo = valor?.replace(/\D/g, '') ?? '';
+		return limpo.length > 0 ? limpo : null;
+	}
+
+	function campoInterfacePreenchido(campo: keyof IInterfacesAdmissibilidade) {
+		return normalizarNumeroInterface(interfaces[campo] as string | null | undefined) !== null;
+	}
+
+	function seiInvalido(valor?: string | null) {
 		if (!valor || valor.replace(/\D/g, '').length <= 18) return false;
 		return !validaDigitoSei(valor);
 	}
@@ -139,12 +154,12 @@ export default function AbaAdmissibilidade({
 		if (!subprefeituraId || !unidadeId || !dataDecisao) return false;
 		if (+tipoProcesso === 2) {
 			const algumMarcado = interfacesVisiveis.some(
-				(item) => interfaces[item.key],
+				(item) => campoInterfacePreenchido(item.numKey),
 			);
 			if (!algumMarcado) return false;
 			const algumSeiInvalido = interfacesVisiveis.some((item) => {
-				if (!interfaces[item.key]) return false;
 				const num = interfaces[item.numKey] as string;
+				if (!normalizarNumeroInterface(num)) return false;
 				return seiInvalido(num);
 			});
 			if (algumSeiInvalido) return false;
@@ -169,27 +184,23 @@ export default function AbaAdmissibilidade({
 			};
 
 			if (+tipoProcesso === 2) {
+				const numSehab = normalizarNumeroInterface(interfaces.num_sehab);
+				const numSiurb = normalizarNumeroInterface(interfaces.num_siurb);
+				const numSmc = normalizarNumeroInterface(interfaces.num_smc);
+				const numSmt = normalizarNumeroInterface(interfaces.num_smt);
+				const numSvma = normalizarNumeroInterface(interfaces.num_svma);
+
 				payload.interfaces = {
-					interface_sehab: interfaces.interface_sehab,
-					interface_siurb: interfaces.interface_siurb,
-					interface_smc: interfaces.interface_smc,
-					interface_smt: interfaces.interface_smt,
-					interface_svma: interfaces.interface_svma,
-					num_sehab: interfaces.interface_sehab
-						? interfaces.num_sehab?.replace(/\D/g, '')
-						: undefined,
-					num_siurb: interfaces.interface_siurb
-						? interfaces.num_siurb?.replace(/\D/g, '')
-						: undefined,
-					num_smc: interfaces.interface_smc
-						? interfaces.num_smc?.replace(/\D/g, '')
-						: undefined,
-					num_smt: interfaces.interface_smt
-						? interfaces.num_smt?.replace(/\D/g, '')
-						: undefined,
-					num_svma: interfaces.interface_svma
-						? interfaces.num_svma?.replace(/\D/g, '')
-						: undefined,
+					interface_sehab: !!numSehab,
+					interface_siurb: !!numSiurb,
+					interface_smc: !!numSmc,
+					interface_smt: !!numSmt,
+					interface_svma: !!numSvma,
+					num_sehab: numSehab,
+					num_siurb: numSiurb,
+					num_smc: numSmc,
+					num_smt: numSmt,
+					num_svma: numSvma,
 				};
 			}
 
@@ -360,18 +371,10 @@ export default function AbaAdmissibilidade({
 							<div
 								key={item.label}
 								className='grid gap-3 sm:grid-cols-[120px_1fr] items-center'>
-								<div className='flex items-center gap-2'>
-									<Checkbox
-										id={item.label}
-										checked={!!interfaces[item.key]}
-										onCheckedChange={(checked) =>
-											atualizarInterface(item.key, checked === true)
-										}
-									/>
-									<Label htmlFor={item.label}>{item.label}</Label>
-								</div>
+								<Label htmlFor={item.label}>{item.label}</Label>
 								<div className='grid gap-1'>
 									<Input
+										id={item.label}
 										placeholder={`Processo ${item.label}`}
 										value={(interfaces[item.numKey] as string) ?? ''}
 										onChange={(e) =>
@@ -380,9 +383,8 @@ export default function AbaAdmissibilidade({
 												formatarSei(e.target.value),
 											)
 										}
-										disabled={!interfaces[item.key]}
 									/>
-									{interfaces[item.key] &&
+									{interfacesAlteradas[item.numKey] &&
 										seiInvalido(interfaces[item.numKey] as string) && (
 											<p className='text-sm text-destructive'>SEI inválido</p>
 										)}

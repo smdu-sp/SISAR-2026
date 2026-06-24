@@ -24,11 +24,11 @@ export interface IInterfacesAdmissibilidade {
 	interface_smc?: boolean;
 	interface_smt?: boolean;
 	interface_svma?: boolean;
-	num_sehab?: string;
-	num_siurb?: string;
-	num_smc?: string;
-	num_smt?: string;
-	num_svma?: string;
+	num_sehab?: string | null;
+	num_siurb?: string | null;
+	num_smc?: string | null;
+	num_smt?: string | null;
+	num_svma?: string | null;
 }
 
 export interface IUpdateAdmissibilidade {

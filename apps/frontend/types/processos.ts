@@ -1,6 +1,6 @@
 /** @format */
 
-import { IAdmissibilidade } from './admissibilidade';
+import { IAdmissibilidade, IInterfacesAdmissibilidade } from './admissibilidade';
 import {
 	IComuniqueSe,
 	IDecisaoProcesso,
@@ -40,6 +40,7 @@ export interface IProcesso {
 	decisoes?: IDecisaoProcesso[];
 	reunioes?: IReuniaoProcesso[];
 	reconsideracao_admissibilidade?: IReconsideracaoAdmissibilidade | null;
+	interfaces?: IInterfacesAdmissibilidade | null;
 	criado_em?: string | Date;
 	alterado_em?: string | Date;
 }
