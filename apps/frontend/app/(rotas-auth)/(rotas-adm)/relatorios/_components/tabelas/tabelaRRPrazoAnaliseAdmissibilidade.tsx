@@ -101,7 +101,7 @@ export function TabelaRRPrazoAnaliseAdmissibilidade({ sectionTitle, dataInicial,
     return (
         <>
             {cabecalho && (
-                <div className="mb-4 p-4 bg-gray-50 rounded">
+                <div className="mb-4 rounded border bg-muted/40 p-4">
                     <h3 className="text-lg font-semibold mb-2">{sectionTitle}</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
                         <div>

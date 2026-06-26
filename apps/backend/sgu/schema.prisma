@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = env("SGU_DATABASE_URL")
+  url = env("SGU_DATABASE_URL")
 }
 
 model tblUsuarios {

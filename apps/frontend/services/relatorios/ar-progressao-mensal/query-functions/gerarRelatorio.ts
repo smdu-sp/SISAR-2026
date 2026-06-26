@@ -18,6 +18,7 @@ export async function gerarRelatorio({ anoInit, anoFinal, access_token }: IGerar
     } else {
         URLFetch = `${baseURL}relatorio/ar/progressao-mensal/`
     }
+
     try {
         const response = await fetch(URLFetch, {
             method: 'GET',

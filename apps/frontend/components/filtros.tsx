@@ -122,7 +122,7 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 						filtros.push(RenderTexto(campo));
 						break;
 					case TiposFiltros.DATA:
-						filtros.push(RenderDataRange(campo));
+						filtros.push(RenderDataInputs(campo));
 						break;
 					case TiposFiltros.SELECT:
 						filtros.push(RenderSelect(campo));
@@ -139,7 +139,7 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 	function RenderTexto(campo: CampoFiltravel) {
 		return (
 			<div
-				className='flex flex-col w-full text-sm xl:text-base  xl:max-w-60'
+				className='flex flex-col w-full md:w-60 text-sm xl:text-base'
 				key={campo.tag}>
 				<p>{campo.nome}</p>
 				<Input
@@ -155,9 +155,15 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 	}
 
 	function RenderSelect(campo: CampoFiltravel) {
+		const valores = (campo.valores as CampoSelect[]) || [];
+		const temOpcaoTodos = valores.some((item) => {
+			const label = item.label.toLowerCase();
+			return item.value.toString() === 'all' || label === 'todos' || label === 'todas';
+		});
+
 		return (
 			<div
-				className='flex flex-col w-full text-sm xl:text-base xl:max-w-60'
+				className='flex flex-col w-full md:w-60 text-sm xl:text-base'
 				key={campo.tag}>
 				<p>{campo.nome}</p>
 				<Select
@@ -165,25 +171,26 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 						setFiltros((prev) => ({ ...prev, [campo.tag]: value }))
 					}
 					value={filtros[campo.tag]}>
-					<SelectTrigger className='w-full  xl:max-w-60 text-nowrap bg-background'>
+					<SelectTrigger className='w-full text-nowrap bg-background'>
 						<SelectValue placeholder={campo.placeholder} />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem
-							value='all'
-							className='text-nowrap'>
-							Tudo
-						</SelectItem>
-						{campo.valores &&
-							(campo.valores as CampoSelect[]).map((item) => {
-								return (
-									<SelectItem
-										key={item.value}
-										value={item.value.toString()}>
-										{item.label}
-									</SelectItem>
-								);
-							})}
+						{!temOpcaoTodos && (
+							<SelectItem
+								value='all'
+								className='text-nowrap'>
+								Todos
+							</SelectItem>
+						)}
+						{valores.map((item) => {
+							return (
+								<SelectItem
+									key={item.value}
+									value={item.value.toString()}>
+									{item.label}
+								</SelectItem>
+							);
+						})}
 					</SelectContent>
 				</Select>
 			</div>
@@ -243,6 +250,83 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 						</Command>
 					</PopoverContent>
 				</Popover>
+			</div>
+		);
+	}
+
+	function RenderDataInputs(campo: CampoFiltravel) {
+		const param = searchParams.get(campo.tag);
+		const datas = param ? param.split(',') : ['', ''];
+		const [from, to] =
+			datas[0] !== '' && datas[1] !== ''
+				? verificaData(datas[0], datas[1])
+				: [undefined, undefined];
+		const [dataInicial, setDataInicial] = useState(
+			from ? dataParaInput(from) : '',
+		);
+		const [dataFinal, setDataFinal] = useState(to ? dataParaInput(to) : '');
+
+		function dataParaInput(data: Date) {
+			return data.toISOString().split('T')[0];
+		}
+
+		function dataParaFiltro(data: string) {
+			const [ano, mes, dia] = data.split('-');
+			return `${dia}-${mes}-${ano}`;
+		}
+
+		function atualizaPeriodo(inicio: string, fim: string) {
+			const periodo =
+				inicio !== '' && fim !== ''
+					? `${dataParaFiltro(inicio)},${dataParaFiltro(fim)}`
+					: '';
+
+			setFiltros((prev) => ({ ...prev, [campo.tag]: periodo }));
+		}
+
+		useEffect(() => {
+			const paramUpdate = searchParams.get(campo.tag);
+			const datas =
+				paramUpdate && paramUpdate !== '' ? paramUpdate.split(',') : ['', ''];
+
+			if (datas[0] !== '' && datas[1] !== '') {
+				const [from, to] = verificaData(datas[0], datas[1]);
+				setDataInicial(dataParaInput(from));
+				setDataFinal(dataParaInput(to));
+				return;
+			}
+
+			setDataInicial('');
+			setDataFinal('');
+		}, [searchParams]);
+
+		return (
+			<div
+				className='grid gap-2 text-sm xl:text-base w-full md:w-[360px]'
+				key={campo.tag}>
+				<p>{campo.nome}</p>
+				<div className='grid grid-cols-1 sm:grid-cols-2 gap-2'>
+					<Input
+						type='date'
+						value={dataInicial}
+						aria-label='Data inicial'
+						onChange={(e) => {
+							const value = e.target.value;
+							setDataInicial(value);
+							atualizaPeriodo(value, dataFinal);
+						}}
+					/>
+					<Input
+						type='date'
+						value={dataFinal}
+						aria-label='Data final'
+						onChange={(e) => {
+							const value = e.target.value;
+							setDataFinal(value);
+							atualizaPeriodo(dataInicial, value);
+						}}
+					/>
+				</div>
 			</div>
 		);
 	}
@@ -328,11 +412,11 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 	}
 
 	return (
-		<div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 md:items-end gap-4 w-full xl:w-fit'>
+		<div className='flex flex-wrap items-end gap-4 w-full'>
 			{renderFiltros()}
-			<div className='isolate flex -space-x-px'>
+			<div className='isolate flex -space-x-px basis-full w-full xl:basis-auto xl:w-auto shrink-0'>
 				<Button
-					className='rounded-r-none w-full xl:w-fit'
+					className='rounded-r-none flex-1 xl:flex-none'
 					disabled={isPending}
 					onClick={() => startTransition(() => atualizaFiltros())}
 					title='Aplicar filtros'>
@@ -341,7 +425,7 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 				<Button
 					variant={'destructive'}
 					disabled={isPending}
-					className='rounded-l-none w-full xl:w-fit'
+					className='rounded-l-none flex-1 xl:flex-none'
 					onClick={() => startTransition(() => limpaFiltros())}
 					title='Limpar filtros'>
 					<X />

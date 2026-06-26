@@ -5,21 +5,11 @@ import React, { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
-import { IListaARProgressaoMensal, IRelatorioFiltrosState } from '@/types/relatorios';
-import { TabelaProgressaoARProtocoladas } from './_components/tabelas/tabelaArProtocoladas';
-import { verificaData, tipos_relatorios, tipos_extensao_arquivo } from '@/lib/utils';
+import { IRelatorioFiltrosState } from '@/types/relatorios';
+import { verificaData, tipos_relatorios } from '@/lib/utils';
 import { Filtros, TiposFiltros } from '@/components/filtros';
 import TabelaDianmica from './_components/tabelaDinamica';
-
-interface IRelatorisPage {
-	tipoRelatorio: string,
-	extensaoArquivo: string,
-	periodoString: string,
-	dataInicial: string,
-	dataFinal: string,
-	anoInicial: string,
-	anoFinal: string,
-}
+import { BotoesExportacao } from './_components/botoesExportacao';
 
 
 export default function RelatoriosPage() {
@@ -33,16 +23,13 @@ export default function RelatoriosPage() {
 		anoFinal: '',
 	});
 
-	const [lista, setLista] = useState([])
-
 	const searchParams = useSearchParams();
-	const { data: session, status } = useSession();
+	const { data: session } = useSession();
 	const accessToken = session?.access_token;
 
 
 	useEffect(() => {
 		const tipoRelatorioParam = searchParams.get('tipo_relatorio');
-		const extensaoArquivoParam = searchParams.get('extensao_arquivo');
 		const periodoParam = searchParams.get('periodo');
 
 		let dataInicioObj: Date | string | null = null;
@@ -50,7 +37,6 @@ export default function RelatoriosPage() {
 
 		if (periodoParam) {
 			const datasArray = periodoParam.split(',');
-			console.log("datasArray", datasArray);
 			if (datasArray.length === 2 && datasArray[0] && datasArray[1]) {
 				[dataInicioObj, dataFimObj] = verificaData(datasArray[0], datasArray[1]);
 			}
@@ -58,7 +44,7 @@ export default function RelatoriosPage() {
 
 		setFiltrosAtuais({
 			tipoRelatorio: tipoRelatorioParam,
-			extensaoArquivo: extensaoArquivoParam,
+			extensaoArquivo: null,
 			periodoString: periodoParam,
 			anoInicial: dataInicioObj ? format(dataInicioObj, 'yyyy') : dataInicioObj,
 			anoFinal: dataFimObj ? format(dataFimObj, 'yyyy') : dataFimObj,
@@ -84,22 +70,25 @@ export default function RelatoriosPage() {
 							valores: tipos_relatorios,
 						},
 						{
-							nome: 'Extensão de arquivo',
-							tag: 'extensao_arquivo',
-							tipo: TiposFiltros.SELECT,
-							valores: tipos_extensao_arquivo,
-						},
-						{
 							nome: 'Período',
 							tag: 'periodo',
 							tipo: TiposFiltros.DATA,
 						},
 					]}
 				/>
-				<div className={`grid grid-cols-1 ${filtrosAtuais.tipoRelatorio === 'ar-progressao-mensal' ? 'md:grid-cols-2' : ''} max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full justify-around`}>
+				<BotoesExportacao
+					tipoRelatorio={filtrosAtuais.tipoRelatorio}
+					periodoString={filtrosAtuais.periodoString}
+					anoInicial={filtrosAtuais.anoInicial}
+					anoFinal={filtrosAtuais.anoFinal}
+					dataInicial={filtrosAtuais.dataInicial}
+					dataFinal={filtrosAtuais.dataFinal}
+					accessToken={accessToken}
+				/>
+				<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full justify-around'>
 					<TabelaDianmica
 						tipoRelatorio={filtrosAtuais.tipoRelatorio}
-						extensaoArquivo={filtrosAtuais.extensaoArquivo}
+						extensaoArquivo={null}
 						periodoString={filtrosAtuais.periodoString as string}
 						anoInicial={filtrosAtuais.anoInicial}
 						anoFinal={filtrosAtuais.anoFinal}
