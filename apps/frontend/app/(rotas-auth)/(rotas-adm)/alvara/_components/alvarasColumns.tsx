@@ -11,9 +11,13 @@ import { Badge } from '@/components/ui/badge';
 export const AlvarasColumns: ColumnDef<IAlvaras>[] = [
 	{
 		accessorKey: 'nome',
-		header: () => <p className='text-left min-w-[220px]'>Tipo de alvará</p>,
+		header: () => (
+			<p className='text-left w-[260px] min-w-[220px]'>Tipo de alvará</p>
+		),
 		cell: ({ row }) => (
-			<p className='text-left font-medium max-w-xs'>{row.original.nome}</p>
+			<p className='text-left font-medium w-[260px] min-w-[220px] whitespace-normal break-words leading-snug'>
+				{row.original.nome}
+			</p>
 		),
 	},
 	{

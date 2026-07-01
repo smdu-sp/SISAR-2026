@@ -10,7 +10,7 @@ import * as diretorias from '@/services/diretorias';
 import { ICoordenadoriaSelect } from '@/types/coordenadorias';
 import { IDiretoria, IPaginadoDiretorias } from '@/types/diretorias';
 import { Suspense } from 'react';
-import { getDiretoriaColumns } from './_components/columns';
+import { DiretoriasDataTable } from './_components/diretorias-data-table';
 import ModalDiretoria from './_components/modal-diretoria';
 
 export default function DiretoriasSuspense({
@@ -80,7 +80,10 @@ async function DiretoriasPage({
 						},
 					]}
 				/>
-				<DataTable columns={getDiretoriaColumns(opcoesCoord)} data={dados} />
+				<DiretoriasDataTable
+					dados={dados}
+					coordenadorias={opcoesCoord}
+				/>
 				{dados.length > 0 && (
 					<Pagination total={+total} pagina={+pagina} limite={+limite} />
 				)}
