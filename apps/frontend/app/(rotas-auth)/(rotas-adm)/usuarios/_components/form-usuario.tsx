@@ -34,7 +34,8 @@ const formSchemaUsuario = z.object({
 	nome: z.string(),
 	login: z.string(),
 	email: z.string().email(),
-	permissao: z.enum(['DEV', 'TEC', 'ADM', 'USR']),
+	permissao: z.enum(['DEV', 'SUP', 'ADM', 'USR']),
+	cargo: z.enum(['TEC', 'ADM']),
 });
 
 const formSchema = z.object({
@@ -55,7 +56,8 @@ export default function FormUsuario({ isUpdating, user }: FormUsuarioProps) {
 			login: user?.login || '',
 			nome: user?.nome || '',
 			permissao:
-				(user?.permissao as unknown as 'DEV' | 'TEC' | 'ADM' | 'USR') ?? 'USR',
+				(user?.permissao as unknown as 'DEV' | 'SUP' | 'ADM' | 'USR') ?? 'USR',
+			cargo: (user?.cargo as 'TEC' | 'ADM') ?? 'TEC',
 		},
 	});
 
@@ -95,6 +97,7 @@ export default function FormUsuario({ isUpdating, user }: FormUsuarioProps) {
 			if (isUpdating && user?.id) {
 				const resp = await usuario.atualizar(user?.id, {
 					permissao: values.permissao as unknown as IPermissao,
+					cargo: values.cargo,
 				});
 
 				if (resp.error) {
@@ -113,12 +116,13 @@ export default function FormUsuario({ isUpdating, user }: FormUsuarioProps) {
 					document.getElementById('close-dialog-voltar')?.click();
 				}
 			} else {
-				const { email, login, nome, permissao } = values;
+				const { email, login, nome, permissao, cargo } = values;
 				const resp = await usuario.criar({
 					email,
 					login,
 					nome,
 					permissao: permissao as unknown as IPermissao,
+					cargo,
 				});
 				if (resp.error) {
 					toast.error('Algo deu errado', { description: resp.error });
@@ -244,9 +248,32 @@ export default function FormUsuario({ isUpdating, user }: FormUsuarioProps) {
 									</FormControl>
 									<SelectContent>
 										<SelectItem value='DEV'>Desenvolvedor</SelectItem>
-										<SelectItem value='TEC'>Técnico</SelectItem>
+										<SelectItem value='SUP'>Supervisor</SelectItem>
 										<SelectItem value='ADM'>Administrador</SelectItem>
 										<SelectItem value='USR'>Usuário</SelectItem>
+									</SelectContent>
+								</Select>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={formUsuario.control}
+						name='cargo'
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Cargo</FormLabel>
+								<Select
+									onValueChange={field.onChange}
+									defaultValue={field.value}>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue placeholder={'Defina o cargo'} />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										<SelectItem value='TEC'>Técnico</SelectItem>
+										<SelectItem value='ADM'>Administrativo</SelectItem>
 									</SelectContent>
 								</Select>
 								<FormMessage />
