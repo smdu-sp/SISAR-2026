@@ -1,8 +1,10 @@
 /** @format */
 
-import { InfoPrazoFase, prazoEtapaAtualListagem } from '@/lib/prazo-fase';
+import { InfoPrazoFase, inferirFasePrazoAtual, prazoEtapaAtualListagem } from '@/lib/prazo-fase';
 import { formatarSei, formataProcesso } from '@/lib/utils';
 import { IProcesso } from '@/types/processos';
+
+export type SituacaoPrazo = 'vencido' | 'hoje' | 'avencer' | 'noprazo' | 'finalizado';
 
 export type NivelAlertaPrazo = 'neutro' | 'ok' | 'atencao' | 'critico' | 'atraso';
 
@@ -81,4 +83,25 @@ export function resumoPrazoListagem(processo: IProcesso): {
 export function classeLinhaProcesso(processo: IProcesso): string | undefined {
 	const { nivel } = resumoPrazoListagem(processo);
 	return classeLinhaAlertaPrazo(nivel);
+}
+
+export function calcSituacaoPrazo(processo: IProcesso): SituacaoPrazo {
+	if (processo.status === 3 || processo.status === 4) return 'finalizado';
+	const info = prazoEtapaAtualListagem(processo);
+	const dias = info.diasRestantes;
+	if (dias == null) return 'noprazo';
+	if (dias < 0) return 'vencido';
+	if (dias === 0) return 'hoje';
+	if (dias <= 3) return 'avencer';
+	return 'noprazo';
+}
+
+export function textoFaseAtual(processo: IProcesso): string {
+	switch (inferirFasePrazoAtual(processo)) {
+		case 'finalizacao': return 'Finalização';
+		case 'analise': return 'Análise';
+		case 'admissibilidade': return 'Admissibilidade';
+		case 'distribuicao': return 'Distribuição';
+		default: return 'Dados';
+	}
 }

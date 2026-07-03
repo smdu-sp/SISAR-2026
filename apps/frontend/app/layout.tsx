@@ -5,11 +5,20 @@ import { AuthProvider } from '@/providers/AuthProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import type { Metadata } from 'next';
-import localFont from 'next/font/local';
+import { Hanken_Grotesk, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 
-const myFont = localFont({
-	src: './Sora-VariableFont_wght.woff2',
+const hankenGrotesk = Hanken_Grotesk({
+	subsets: ['latin'],
+	variable: '--font-hanken',
+	display: 'swap',
+	weight: ['400', '500', '600', '700', '800'],
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+	subsets: ['latin'],
+	weight: ['400', '500', '600'],
+	variable: '--font-ibm-mono',
 	display: 'swap',
 });
 
@@ -27,7 +36,7 @@ export default function RootLayout({
 		<html
 			lang='pt-BR'
 			suppressHydrationWarning
-			className={`${myFont.className} antialised `}>
+			className={`${hankenGrotesk.variable} ${ibmPlexMono.variable} antialiased`}>
 			<head>
 				<link
 					rel='apple-touch-icon'

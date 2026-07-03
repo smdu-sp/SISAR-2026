@@ -20,21 +20,25 @@ function decodificarUsuario(access_token: string): IUsuarioSession | null {
 }
 
 async function renovarTokens(refresh_token: string) {
-	const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}refresh`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify({ refresh_token }),
-	});
-	if (!response.ok) return null;
-	const data = (await response.json()) as {
-		access_token?: string;
-		refresh_token?: string;
-	};
-	if (!data.access_token) return null;
-	return {
-		access_token: data.access_token,
-		refresh_token: data.refresh_token ?? refresh_token,
-	};
+	try {
+		const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}refresh`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify({ refresh_token }),
+		});
+		if (!response.ok) return null;
+		const data = (await response.json()) as {
+			access_token?: string;
+			refresh_token?: string;
+		};
+		if (!data.access_token) return null;
+		return {
+			access_token: data.access_token,
+			refresh_token: data.refresh_token ?? refresh_token,
+		};
+	} catch {
+		return null;
+	}
 }
 
 function obterTokenArmazenado(token: Record<string, unknown>): TokenArmazenado {
@@ -53,16 +57,20 @@ export default {
 			async authorize(credentials) {
 				if (credentials?.login && credentials?.senha) {
 					const { login, senha } = credentials;
-					const response = await fetch(
-						`${process.env.NEXT_PUBLIC_API_URL}login`,
-						{
-							method: 'POST',
-							headers: { 'Content-Type': 'application/json' },
-							body: JSON.stringify({ login, senha }),
-						},
-					);
-					const usuario = await response.json();
-					if (usuario && response.ok) return usuario;
+					try {
+						const response = await fetch(
+							`${process.env.NEXT_PUBLIC_API_URL}login`,
+							{
+								method: 'POST',
+								headers: { 'Content-Type': 'application/json' },
+								body: JSON.stringify({ login, senha }),
+							},
+						);
+						const usuario = await response.json();
+						if (usuario && response.ok) return usuario;
+					} catch {
+						return null;
+					}
 				}
 				return null;
 			},

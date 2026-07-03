@@ -1,111 +1,117 @@
 /** @format */
 
-import DataTable, { TableSkeleton } from '@/components/data-table';
-import { Filtros } from '@/components/filtros';
-import Pagination from '@/components/pagination';
 import { auth } from '@/lib/auth/auth';
-import * as publicacao from '@/services/publicacoes';
+import { buscarTudo } from '@/services/processos/query-functions/buscar-tudo';
+import { IProcesso } from '@/types/processos';
+import { inferirFasePrazoAtual, prazoEtapaAtualListagem, FasePrazoProcesso } from '@/lib/prazo-fase';
+import { rotuloProcessoListagem } from '@/lib/listagem-processo';
 import { Suspense } from 'react';
-import { columns } from './_components/columns';
-import { IPaginadoPublicacao, IPublicacao } from '@/types/publicacao';
-import ModalUpdateAndCreate from './_components/modal-update-create';
-import { colegiados, tipos_documento } from '@/lib/utils';
+import PainelClient, { ProcessoPainel, SituacaoPrazo } from './_components/painel-client';
 
-export default async function PublicacoesSuspense({
-	searchParams,
-}: {
-	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
+function calcSituacao(processo: IProcesso): SituacaoPrazo {
+	if (processo.status === 3 || processo.status === 4) return 'finalizado';
+	const info = prazoEtapaAtualListagem(processo);
+	const dias = info.diasRestantes;
+	if (dias == null) return 'noprazo';
+	if (dias < 0) return 'vencido';
+	if (dias === 0) return 'hoje';
+	if (dias <= 3) return 'avencer';
+	return 'noprazo';
+}
+
+function calcFaseGrupo(fase: FasePrazoProcesso): string {
+	if (fase === 'finalizacao') return 'Finalização';
+	if (fase === 'analise') return 'Análise';
+	return 'Admissibilidade';
+}
+
+export default async function PainelSuspense() {
 	return (
-		<Suspense fallback={<TableSkeleton />}>
-			<Publicacoes searchParams={searchParams} />
+		<Suspense fallback={<PainelSkeleton />}>
+			<PainelPage />
 		</Suspense>
 	);
 }
 
-async function Publicacoes({
-	searchParams,
-}: {
-	searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-	let { pagina = 1, limite = 10, total = 0 } = await searchParams;
-	let ok = false;
-	const {
-		busca = '',
-		tipo_documento = 'all',
-		colegiado = 'all',
-	} = await searchParams;
-	let dados: IPublicacao[] = [];
-
+async function PainelPage() {
 	const session = await auth();
-	if (session && session.access_token) {
-		const response = await publicacao.buscarTudo(
-			session.access_token || '',
-			+pagina,
-			+limite,
-			busca as string,
-			tipo_documento as string,
-			colegiado as string,
-		);
-		const { data } = response;
-		ok = response.ok;
-		if (ok) {
-			if (data) {
-				const paginado = data as IPaginadoPublicacao;
-				pagina = paginado.pagina || 1;
-				limite = paginado.limite || 10;
-				total = paginado.total || 0;
-				dados = paginado.data || [];
+	let processos: IProcesso[] = [];
+
+	if (session?.access_token) {
+		try {
+			const resp = await buscarTudo(session.access_token, 1, 500, '', '-1');
+			if (resp.ok && resp.data && 'data' in resp.data) {
+				processos = resp.data.data;
 			}
-			const paginado = data as IPaginadoPublicacao;
-			dados = paginado.data || [];
+		} catch {
+			// noop — show empty painel if fetch fails
 		}
 	}
 
-	return (
-		<div className=' w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto'>
-			<h1 className='text-xl md:text-4xl font-bold'>Página Inicial</h1>
-			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5   w-full '>
-				<Filtros
-					camposFiltraveis={[
-						{
-							nome: 'Busca',
-							tag: 'busca',
-							tipo: 0,
-							placeholder: 'Digite o nome, email ou login',
-						},
-						{
-							nome: 'Tipo',
-							tag: 'tipo_documento',
-							tipo: 2,
-							default: 'all',
-							valores: tipos_documento,
-						},
-						{
-							nome: 'Colegiado',
-							tag: 'colegiado',
-							tipo: 2,
-							default: 'all',
-							valores: colegiados,
-						},
-					]}
-				/>
-				<DataTable
-					columns={columns}
-					data={dados || []}
-				/>
+	const processados: ProcessoPainel[] = processos.map((p) => {
+		const fase = inferirFasePrazoAtual(p);
+		const info = prazoEtapaAtualListagem(p);
+		const situacao = calcSituacao(p);
+		return {
+			id: p.id,
+			rotulo: rotuloProcessoListagem(p),
+			requerimento: p.requerimento ?? null,
+			status: p.status ?? null,
+			alvaraNome: p.alvara_tipo?.nome ?? null,
+			situacao,
+			diasRestantes: info.diasRestantes ?? null,
+			fase,
+			faseGrupo: calcFaseGrupo(fase),
+			tecnico: p.distribuicao?.tecnico_responsavel?.nome ?? null,
+		};
+	});
 
-				{dados && dados.length > 0 && (
-					<Pagination
-						total={+total}
-						pagina={+pagina}
-						limite={+limite}
-					/>
-				)}
+	const counts = {
+		vencido: processados.filter((p) => p.situacao === 'vencido').length,
+		hoje: processados.filter((p) => p.situacao === 'hoje').length,
+		avencer: processados.filter((p) => p.situacao === 'avencer').length,
+		noprazo: processados.filter((p) => p.situacao === 'noprazo').length,
+		finalizado: processados.filter((p) => p.situacao === 'finalizado').length,
+	};
+
+	const ativosList = processados.filter((p) => p.situacao !== 'finalizado');
+	const porFase = [
+		{ nome: 'Admissibilidade', n: ativosList.filter((p) => p.faseGrupo === 'Admissibilidade').length },
+		{ nome: 'Análise', n: ativosList.filter((p) => p.faseGrupo === 'Análise').length },
+		{ nome: 'Finalização', n: ativosList.filter((p) => p.faseGrupo === 'Finalização').length },
+	];
+	const maxFase = Math.max(...porFase.map((x) => x.n), 1);
+	const criticos = counts.vencido + counts.hoje;
+
+	return (
+		<PainelClient
+			processos={processados}
+			counts={counts}
+			ativos={ativosList.length}
+			criticos={criticos}
+			porFase={porFase}
+			maxFase={maxFase}
+		/>
+	);
+}
+
+function PainelSkeleton() {
+	return (
+		<div className='w-full max-w-screen-xl mx-auto px-0 md:px-2 py-2 space-y-5'>
+			<div>
+				<div className='h-7 w-48 rounded-lg bg-muted animate-pulse' />
+				<div className='h-4 w-72 rounded-lg bg-muted animate-pulse mt-1.5' />
 			</div>
-			<div className='absolute bottom-10 md:bottom-5 right-2 md:right-8 hover:scale-110'>
-				<ModalUpdateAndCreate isUpdating={false} />
+			<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3'>
+				{Array.from({ length: 5 }).map((_, i) => (
+					<div key={i} className='h-28 rounded-xl bg-card animate-pulse' />
+				))}
 			</div>
+			<div className='grid grid-cols-1 md:grid-cols-[1fr_280px] gap-4'>
+				<div className='h-48 rounded-xl bg-card animate-pulse' />
+				<div className='h-48 rounded-xl bg-card animate-pulse' />
+			</div>
+			<div className='h-64 rounded-xl bg-card animate-pulse' />
 		</div>
 	);
 }

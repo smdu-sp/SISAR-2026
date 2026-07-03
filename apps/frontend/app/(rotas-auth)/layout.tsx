@@ -21,13 +21,13 @@ export default async function RotasAuth({
 	const session = await auth();
 	if (!session) redirect('/login');
 	return (
-		<div className='relative w-full bg-muted/50 dark:bg-background '>
-			<ModeToggle className='absolute top-4 right-4 z-50' />
+		<div className='relative w-full bg-background'>
+			<ModeToggle className='absolute top-4 right-4 z-50 sm:hidden' />
 			<SidebarProvider>
 				<AppSidebar />
 				<SidebarInset>
-					<header className='h-16 bg-muted/50 dark:bg-background shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 hidden sm:flex'>
-						<div className='flex items-center gap-2 px-4'>
+					<header className='h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 hidden sm:flex sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-md backdrop-saturate-[1.4]'>
+						<div className='flex items-center gap-2 px-4 flex-1'>
 							<SidebarTrigger className='-ml-1 md:hidden' />
 							<Separator
 								orientation='vertical'
@@ -35,8 +35,11 @@ export default async function RotasAuth({
 							/>
 							<Breadcrumbs />
 						</div>
+						<div className='px-4'>
+							<ModeToggle />
+						</div>
 					</header>
-					<div className='h-full gap-4 p-4 sm:pt-0 items-center w-full bg-muted/50 dark:bg-background pt-10'>
+					<div className='h-full gap-4 p-4 sm:pt-0 items-center w-full pt-10'>
 						{children}
 					</div>
 				</SidebarInset>

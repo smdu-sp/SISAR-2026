@@ -94,23 +94,34 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 	}, [searchParams]);
 
 	function atualizaFiltros() {
-		let urlParams = '';
+		// Preserva params desconhecidos (ex: aba=publicacoes) ao atualizar os filtros
+		const params = new URLSearchParams(searchParams.toString());
 		for (const [key, value] of Object.entries(filtros)) {
-			urlParams += `${key}=${value}&`;
+			if (value && value !== '') {
+				params.set(key, value);
+			} else {
+				params.delete(key);
+			}
 		}
-		router.push(`${pathname}?${urlParams}`);
+		router.push(`${pathname}?${params.toString()}`);
 	}
 
 	function limpaFiltros() {
-		setFiltros(
-			camposFiltraveis
-				? camposFiltraveis.reduce(
-					(acc, item) => ({ ...acc, [item.tag]: '' }),
-					{},
-				)
-				: {},
-		);
-		router.push(pathname);
+		const defaults = camposFiltraveis
+			? camposFiltraveis.reduce(
+				(acc, item) => ({ ...acc, [item.tag]: item.default || '' }),
+				{} as Record<string, string>,
+			)
+			: {};
+		setFiltros(defaults);
+
+		// Remove apenas os params dos filtros conhecidos, preserva o restante
+		const params = new URLSearchParams(searchParams.toString());
+		for (const campo of (camposFiltraveis ?? [])) {
+			params.delete(campo.tag);
+		}
+		const paramStr = params.toString();
+		router.push(paramStr ? `${pathname}?${paramStr}` : pathname);
 	}
 
 	function renderFiltros() {
