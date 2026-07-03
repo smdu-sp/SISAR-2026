@@ -1,13 +1,15 @@
-import { Controller, Get, HttpCode, HttpStatus, Param, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
 import { IsPublic } from 'src/auth/decorators/is-public.decorator';
-import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RelatorioResopnseDto } from './relatorio-ar-quantitativo/dto/response-relatorio.dto';
 import { RelatorioService } from './relatorio-ar-quantitativo/relatorio-ar.service';
 import { RelatorioRRService } from './relatorio-rr-quantitativo/relatorio-rr.service';
 import { ArGraficoProgressaoMensalService } from './ar-grafico-progressao-mensal/ar-grafico-progressao-mensal.service';
 import { RelatorioComplementarService } from './relatorio-complementar/relatorio-complementar.service';
 import { RelatorioExportacaoService } from './exportacao/relatorio-exportacao.service';
+import { EnviarRelatorioEmailDto } from './dto/enviar-relatorio-email.dto';
+import { RelatorioEmailService } from './email/relatorio-email.service';
 
 @Controller('relatorio')
 @ApiTags('Relatórios')
@@ -18,6 +20,7 @@ export class RelatorioController {
     private readonly arGraficoProgressaoMensal: ArGraficoProgressaoMensalService,
     private readonly relatorioComplementarService: RelatorioComplementarService,
     private readonly relatorioExportacaoService: RelatorioExportacaoService,
+    private readonly relatorioEmailService: RelatorioEmailService,
   ) { }
 
   @IsPublic()
@@ -313,5 +316,49 @@ export class RelatorioController {
     );
     res.setHeader('Content-Length', arquivo.buffer.length);
     return res.send(arquivo.buffer);
+  }
+
+  @IsPublic()
+  @Post('enviar-email/:tipoRelatorio/:formato')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({
+    name: 'tipoRelatorio',
+    type: 'string',
+    enum: [
+      'ar-quantitativo',
+      'rr-quantitativo',
+      'ar-progressao-mensal',
+      'ar-gabinete-prefeito',
+      'ar-analise-admissibilidade',
+      'rr-analise-admissibilidade',
+    ],
+    required: true,
+  })
+  @ApiParam({ name: 'formato', type: 'string', enum: ['excel', 'pdf'], required: true })
+  @ApiBody({ type: EnviarRelatorioEmailDto })
+  @ApiOperation({
+    description:
+      'Gera o relatorio informado em memoria e envia o arquivo como anexo por email usando Resend.',
+    summary: 'Enviar relatorio por email.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Retorna os dados do email enviado e o nome do arquivo anexado.',
+    schema: {
+      example: {
+        id: '49a3999c-0ce1-4ea6-ab68-afcd6dc2e794',
+        filename: 'ar-quantitativo-2026-07-01.xlsx',
+        destinatarios: ['usuario@dominio.gov.br'],
+      },
+    },
+  })
+  @ApiResponse({ status: 400, description: 'Retorna 400 se dados, formato ou filtros forem invalidos.' })
+  @ApiResponse({ status: 401, description: 'Retorna 401 se nao autorizado.' })
+  async enviarRelatorioPorEmail(
+    @Param('tipoRelatorio') tipoRelatorio: string,
+    @Param('formato') formato: string,
+    @Body() dto: EnviarRelatorioEmailDto,
+  ) {
+    return this.relatorioEmailService.enviar(tipoRelatorio, formato, dto);
   }
 }

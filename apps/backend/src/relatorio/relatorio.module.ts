@@ -5,8 +5,11 @@ import { RelatorioRRService } from './relatorio-rr-quantitativo/relatorio-rr.ser
 import { ArGraficoProgressaoMensalService } from './ar-grafico-progressao-mensal/ar-grafico-progressao-mensal.service';
 import { RelatorioComplementarService } from './relatorio-complementar/relatorio-complementar.service';
 import { RelatorioExportacaoService } from './exportacao/relatorio-exportacao.service';
+import { EmailModule } from 'src/email/email.module';
+import { RelatorioEmailService } from './email/relatorio-email.service';
 
 @Module({
+  imports: [EmailModule],
   controllers: [RelatorioController],
   providers: [
     RelatorioService,
@@ -14,6 +17,7 @@ import { RelatorioExportacaoService } from './exportacao/relatorio-exportacao.se
     ArGraficoProgressaoMensalService,
     RelatorioComplementarService,
     RelatorioExportacaoService,
+    RelatorioEmailService,
   ],
 })
 export class RelatorioModule {}
