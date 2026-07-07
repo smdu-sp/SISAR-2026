@@ -12,7 +12,7 @@ import {
 	DialogTrigger,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Check, Loader2, Pencil, Plus, SquarePen, Trash2, X } from 'lucide-react';
+import { Check, Loader2, Pencil, Plus, SquarePen, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { ReactNode, useState, useTransition } from 'react';
 import { toast } from 'sonner';

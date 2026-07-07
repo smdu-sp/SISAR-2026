@@ -12,10 +12,8 @@ import {
     SelectContent,
     SelectGroup,
     SelectItem,
-    SelectLabel,
     SelectTrigger,
     SelectValue,
-    SelectSeparator,
 } from '@/components/ui/select';
 
 export function MenuUnidades() {

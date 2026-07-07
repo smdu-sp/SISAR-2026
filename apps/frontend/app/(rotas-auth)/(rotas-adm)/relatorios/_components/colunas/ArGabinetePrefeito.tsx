@@ -48,7 +48,7 @@ export function TabelaArGabinetePrefeito({ sectionTitle, access_token }: ITabela
                     const dadosRecebidos = response.data
                     setDadosBrutosApi(dadosRecebidos)
                 }
-            } catch (err) {
+            } catch {
                 setError("Erro inesperado ao carregar dados")
                 setDadosBrutosApi(null)
             } finally {

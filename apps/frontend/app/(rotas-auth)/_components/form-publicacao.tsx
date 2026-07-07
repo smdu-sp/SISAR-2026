@@ -54,7 +54,7 @@ interface FormPublicacaoProps {
 	tecnicos: ITecnicoFuncionario[];
 }
 
-export default function FormPublicacao({ isUpdating, publicacao, coordenadorias, tecnicos }: FormPublicacaoProps) {
+export default function FormPublicacao({ isUpdating, coordenadorias, tecnicos }: FormPublicacaoProps) {
 	const [isPending, startTransition] = useTransition();
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),

@@ -13,7 +13,7 @@ interface ITabelaArPrazoAnaliseAdmissibilidadeProps {
 
 export function TabelaArPrazoAnaliseAdmissibilidade({ sectionTitle, dataInicial, dataFinal, access_token }: ITabelaArPrazoAnaliseAdmissibilidadeProps) {
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [, setIsLoading] = useState(false);
     const [dadosBrutosApi, setDadosBrutosApi] = useState<IRelatorioPrazoAnaliseRetorno | null>(null);
     const [dadosTransformados, setDadosTransformados] = useState<IAdmissibilidadesAnalise[]>([]);
     const [cabecalho, setCabecalho] = useState<ICabecalhoRelatorioPrazoAnaliseAdmissibilidade | null>(null);
@@ -24,10 +24,10 @@ export function TabelaArPrazoAnaliseAdmissibilidade({ sectionTitle, dataInicial,
         const dadosPlanos: IAdmissibilidadesAnalise[] = [];
 
         // Iterar pelos anos (2024, 2025, etc.)
-        Object.entries(dados).forEach(([ano, mesesData]) => {
+        Object.entries(dados).forEach(([, mesesData]) => {
             // Iterar pelos meses dentro de cada ano
             if (mesesData && typeof mesesData === 'object') {
-                Object.entries(mesesData).forEach(([mes, admissibilidades]) => {
+                Object.entries(mesesData).forEach(([, admissibilidades]) => {
                     // Se o mês tem dados (array não vazio)
                     if (admissibilidades && Array.isArray(admissibilidades) && admissibilidades.length > 0) {
                         dadosPlanos.push(...admissibilidades);
@@ -72,7 +72,7 @@ export function TabelaArPrazoAnaliseAdmissibilidade({ sectionTitle, dataInicial,
                     }
                 }
 
-            } catch (err) {
+            } catch {
                 setError("Erro inesperado ao carregar dados");
                 setDadosBrutosApi(null);
                 setDadosTransformados([]);

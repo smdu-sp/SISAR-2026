@@ -4,7 +4,9 @@ import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
 import DataTable, { TableSkeleton } from '@/components/data-table';
 import { Filtros } from '@/components/filtros';
 import Pagination from '@/components/pagination';
+import { PageHeader } from '@/components/page-header';
 import { auth } from '@/lib/auth/auth';
+import { pageContainerComBotaoFlutuante } from '@/lib/utils';
 import * as alvaras from '@/services/alvaras';
 import { IAlvaras, IPaginadoAlvaras } from '@/types/alvaras';
 import { Suspense } from 'react';
@@ -50,12 +52,11 @@ async function PrazosAlvaraPage({
 	}
 
 	return (
-		<div className='w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto'>
-			<h1 className='text-xl md:text-4xl font-bold'>Prazos por tipo de alvará</h1>
-			<p className='text-sm text-muted-foreground mt-1 max-w-3xl'>
-				Cadastre e consulte os prazos em dias por etapa de análise. O total de
-				análise é calculado automaticamente (soma das cinco etapas da matriz).
-			</p>
+		<div className={pageContainerComBotaoFlutuante}>
+			<PageHeader
+				title='Prazos por tipo de alvará'
+				subtitle='Cadastre e consulte os prazos em dias por etapa de análise. O total de análise é calculado automaticamente (soma das cinco etapas da matriz).'
+			/>
 			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full'>
 				<Filtros
 					camposFiltraveis={[

@@ -96,8 +96,8 @@ interface IResumoTableRow {
 export function TabelaRRQuantitativo({ sectionTitle, period, access_token }: ITabelaResumoQuantitativo) {
     const [lista, setLista] = useState<IDataRRQuantitativo>()
     const [unidades, setUnidades] = useState<IUnidades[]>([])
-    const [isLoading, setIsLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [, setIsLoading] = useState(false)
+    const [, setError] = useState<string | null>(null)
 
     useEffect(() => {
         const fetchRelatorio = async () => {
@@ -111,7 +111,7 @@ export function TabelaRRQuantitativo({ sectionTitle, period, access_token }: ITa
                     } else {
                         setError(resultado.error ? String(resultado.error) : "Erro desconhecido ao buscar relatório.")
                     }
-                } catch (err) {
+                } catch {
                     setError("Erro ao buscar relatório.")
                 } finally {
                     setIsLoading(false)
@@ -127,7 +127,7 @@ export function TabelaRRQuantitativo({ sectionTitle, period, access_token }: ITa
                 try {
                     const response = await buscarTudo(access_token, 1, 1000)
                     if (response.ok && response.data) {
-                        const paginado = response.data as any
+                        const paginado = response.data as { data?: IUnidades[] }
                         if (paginado.data) {
                             setUnidades(paginado.data)
                         }

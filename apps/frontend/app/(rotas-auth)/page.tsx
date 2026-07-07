@@ -5,6 +5,7 @@ import { buscarTudo } from '@/services/processos/query-functions/buscar-tudo';
 import { IProcesso } from '@/types/processos';
 import { inferirFasePrazoAtual, prazoEtapaAtualListagem, FasePrazoProcesso } from '@/lib/prazo-fase';
 import { rotuloProcessoListagem } from '@/lib/listagem-processo';
+import { pageContainer } from '@/lib/utils';
 import { Suspense } from 'react';
 import PainelClient, { ProcessoPainel, SituacaoPrazo } from './_components/painel-client';
 
@@ -97,7 +98,7 @@ async function PainelPage() {
 
 function PainelSkeleton() {
 	return (
-		<div className='w-full max-w-screen-xl mx-auto px-0 md:px-2 py-2 space-y-5'>
+		<div className={pageContainer}>
 			<div>
 				<div className='h-7 w-48 rounded-lg bg-muted animate-pulse' />
 				<div className='h-4 w-72 rounded-lg bg-muted animate-pulse mt-1.5' />

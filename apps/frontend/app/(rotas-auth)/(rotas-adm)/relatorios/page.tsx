@@ -6,10 +6,11 @@ import { useSession } from 'next-auth/react';
 import { useSearchParams } from 'next/navigation';
 import { format } from 'date-fns';
 import { IRelatorioFiltrosState } from '@/types/relatorios';
-import { verificaData, tipos_relatorios } from '@/lib/utils';
+import { verificaData, tipos_relatorios, pageContainer } from '@/lib/utils';
 import { Filtros, TiposFiltros } from '@/components/filtros';
 import TabelaDianmica from './_components/tabelaDinamica';
 import { BotoesExportacao } from './_components/botoesExportacao';
+import { PageHeader } from '@/components/page-header';
 
 
 export default function RelatoriosPage() {
@@ -58,8 +59,8 @@ export default function RelatoriosPage() {
 
 
 	return (
-		<div className='w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto'>
-			<h1 className='text-xl md:text-4xl font-bold'>Relatórios</h1>
+		<div className={pageContainer}>
+			<PageHeader title='Relatórios' />
 			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full '>
 				<Filtros
 					camposFiltraveis={[

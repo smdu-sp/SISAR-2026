@@ -4,7 +4,9 @@ import DataTable, { TableSkeleton } from '@/components/data-table';
 import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
 import { Filtros } from '@/components/filtros';
 import Pagination from '@/components/pagination';
+import { PageHeader } from '@/components/page-header';
 import { auth } from '@/lib/auth/auth';
+import { pageContainerComBotaoFlutuante } from '@/lib/utils';
 import * as motivos from '@/services/motivos-inadmissao';
 import { IMotivoInadmissao, IPaginadoMotivosInadmissao } from '@/types/motivos-inadmissao';
 import { Suspense } from 'react';
@@ -50,11 +52,11 @@ async function MotivosPage({
 	}
 
 	return (
-		<div className='w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto'>
-			<h1 className='text-xl md:text-4xl font-bold'>Motivos de Inadmissão</h1>
-			<p className='text-sm text-muted-foreground mt-1'>
-				Motivos vinculados aos processos inadmitidos (tabela motivos_inadmissao).
-			</p>
+		<div className={pageContainerComBotaoFlutuante}>
+			<PageHeader
+				title='Motivos de Inadmissão'
+				subtitle='Motivos vinculados aos processos inadmitidos (tabela motivos_inadmissao).'
+			/>
 			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full'>
 				<Filtros
 					camposFiltraveis={[

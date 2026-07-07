@@ -25,10 +25,11 @@ import { CoordenadoriaModule } from './coordenadoria/coordenadoria.module';
 import { DiretoriaModule } from './diretoria/diretoria.module';
 import { AnaliseModule } from './analise/analise.module';
 import { ReconsideracaoModule } from './reconsideracao/reconsideracao.module';
+import { PublicacoesModule } from './publicacoes/publicacoes.module';
 
 @Global()
 @Module({
-  imports: [UsuariosModule, AuthModule, PrismaModule, SGUModule, AlvaraTipoModule, InicialModule, UnidadesModule, SubprefeituraModule, ReunioesModule, AdmissibilidadeModule, DistribuicaoModule, AvisosModule, ParecerAdmissibilidadeModule, RelatorioModule, FinalizacaoModule, CategoriaModule, MotivoInadmissaoModule, PedidoModule, CoordenadoriaModule, DiretoriaModule, AnaliseModule, ReconsideracaoModule],
+  imports: [UsuariosModule, AuthModule, PrismaModule, SGUModule, AlvaraTipoModule, InicialModule, UnidadesModule, SubprefeituraModule, ReunioesModule, AdmissibilidadeModule, DistribuicaoModule, AvisosModule, ParecerAdmissibilidadeModule, RelatorioModule, FinalizacaoModule, CategoriaModule, MotivoInadmissaoModule, PedidoModule, CoordenadoriaModule, DiretoriaModule, AnaliseModule, ReconsideracaoModule, PublicacoesModule],
   controllers: [],
   providers: [
     AppService,

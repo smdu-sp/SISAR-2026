@@ -6,9 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface IInputSearchUnidades extends React.HTMLAttributes<HTMLInputElement> {
-
-}
+type IInputSearchUnidades = React.HTMLAttributes<HTMLInputElement>;
 
 export function InputSearchUnidades({ ...rest }: IInputSearchUnidades) {
     return (
@@ -33,6 +31,7 @@ export function InputSearchUnidades({ ...rest }: IInputSearchUnidades) {
                 )}
                 placeholder="Buscar..."
                 type="text"
+                {...rest}
             />
         </div>
     );

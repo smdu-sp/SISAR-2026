@@ -9,6 +9,8 @@ import { IPaginadoUsuario, IUsuario } from '@/types/usuario';
 import { Suspense } from 'react';
 import { columns } from './_components/columns';
 import ModalUpdateAndCreate from './_components/modal-update-create';
+import { PageHeader } from '@/components/page-header';
+import { pageContainerComBotaoFlutuante } from '@/lib/utils';
 
 export default async function UsuariosSuspense({
 	searchParams,
@@ -88,8 +90,8 @@ async function Usuarios({
 	];
 
 	return (
-		<div className='  px-0 md:px-8 relative pb-20 md:pb-14 h-full container mx-auto '>
-			<h1 className='text-xl md:text-4xl font-bold'>Usuários</h1>
+		<div className={pageContainerComBotaoFlutuante}>
+			<PageHeader title='Usuários' />
 			<div className='grid grid-cols-1  gap-y-3 my-5 '>
 				<Filtros
 					camposFiltraveis={[

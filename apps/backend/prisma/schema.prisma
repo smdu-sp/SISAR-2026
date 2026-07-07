@@ -144,15 +144,51 @@ model Controle_Prazo {
 }
 
 model Coordenadoria {
-  id          String      @id @default(uuid())
-  nome        String      @unique
-  sigla       String      @unique
+  id          String       @id @default(uuid())
+  nome        String       @unique
+  sigla       String       @unique
   diretorias  Diretoria[]
+  publicacoes Publicacao[]
 
-  criado_em   DateTime    @default(now())
-  alterado_em DateTime    @default(now()) @updatedAt
+  criado_em   DateTime     @default(now())
+  alterado_em DateTime     @default(now()) @updatedAt
 
   @@map("coordenadorias")
+}
+
+model Publicacao {
+  id               String         @id @default(uuid())
+  numero_processo  String
+  tipo_documento   Tipo_Documento
+  colegiado        Colegiado
+  data_emissao     DateTime       @db.Date
+  data_publicacao  DateTime       @db.Date
+  prazo            Int
+  tecnico          Usuario        @relation(fields: [tecnico_id], references: [id])
+  tecnico_id       String
+  coordenadoria    Coordenadoria  @relation(fields: [coordenadoria_id], references: [id])
+  coordenadoria_id String
+
+  criado_em        DateTime       @default(now())
+  alterado_em      DateTime       @default(now()) @updatedAt
+
+  @@map("publicacoes")
+}
+
+enum Tipo_Documento {
+  COMUNIQUESE
+  INDEFERIMENTO
+  DEFERIMENTO
+}
+
+enum Colegiado {
+  AR
+  RR
+  CEUSO
+  CAIEPS
+  CAEHIS
+  CPPU
+  CTLU
 }
 
 model Decisao {
@@ -435,6 +471,7 @@ model Usuario {
   substitutos    Substituto[]   @relation(name: "substituto")
   usuarios       Substituto[]   @relation(name: "usuario")
   avisos         Avisos[]
+  publicacoes    Publicacao[]
 
   criado_em      DateTime       @default(now())
   alterado_em    DateTime       @default(now()) @updatedAt

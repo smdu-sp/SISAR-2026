@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 
 const ABAS = [
@@ -11,7 +11,6 @@ const ABAS = [
 type AbaValue = (typeof ABAS)[number]['value'];
 
 export function AbasProcessos({ aba }: { aba: string }) {
-	const searchParams = useSearchParams();
 	const router = useRouter();
 	const pathname = usePathname();
 

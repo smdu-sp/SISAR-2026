@@ -1,10 +1,12 @@
 /** @format */
 
-import DataTable, { TableSkeleton } from '@/components/data-table';
+import { TableSkeleton } from '@/components/data-table';
 import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
 import { Filtros } from '@/components/filtros';
 import Pagination from '@/components/pagination';
+import { PageHeader } from '@/components/page-header';
 import { auth } from '@/lib/auth/auth';
+import { pageContainerComBotaoFlutuante } from '@/lib/utils';
 import * as coordenadorias from '@/services/coordenadorias';
 import * as diretorias from '@/services/diretorias';
 import { ICoordenadoriaSelect } from '@/types/coordenadorias';
@@ -65,8 +67,8 @@ async function DiretoriasPage({
 	];
 
 	return (
-		<div className='w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto'>
-			<h1 className='text-xl md:text-4xl font-bold'>Diretorias</h1>
+		<div className={pageContainerComBotaoFlutuante}>
+			<PageHeader title='Diretorias' />
 			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full'>
 				<Filtros
 					camposFiltraveis={[

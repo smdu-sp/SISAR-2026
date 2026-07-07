@@ -7,10 +7,11 @@ import { auth } from '@/lib/auth/auth';
 import * as unidades from '@/services/unidades';
 import { Suspense } from 'react';
 import { IPaginadoUnidades, IUnidades } from '@/types/unidades';
-import { tipos_unidades } from '@/lib/utils';
+import { tipos_unidades, pageContainerComBotaoFlutuante } from '@/lib/utils';
 import { unidadeColumns } from './_components/unidadeColumns';
 import ModalUnidade from './_components/modal-unidade';
 import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
+import { PageHeader } from '@/components/page-header';
 
 export default async function UnidadesSuspense({
 	searchParams,
@@ -57,8 +58,8 @@ async function Unidades({
 	}
 
 	return (
-		<div className='w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto'>
-			<h1 className='text-xl md:text-4xl font-bold'>Unidades</h1>
+		<div className={pageContainerComBotaoFlutuante}>
+			<PageHeader title='Unidades' />
 			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full'>
 				<Filtros
 					camposFiltraveis={[

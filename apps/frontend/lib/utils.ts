@@ -1,5 +1,4 @@
 import { clsx, type ClassValue } from "clsx"
-import { Label } from "recharts";
 import { twMerge } from "tailwind-merge"
 
 export function cn(...inputs: ClassValue[]) {
@@ -159,3 +158,9 @@ export function verificaData(dataInicio: string, dataFim: string): [Date, Date] 
   }
   return [inicio, fim];
 }
+
+export const pageContainer =
+  'w-full max-w-screen-xl mx-auto px-0 md:px-2 pt-2 pb-2 space-y-5';
+
+export const pageContainerComBotaoFlutuante =
+  'w-full max-w-screen-xl mx-auto px-0 md:px-2 pt-2 pb-20 md:pb-14 relative h-full space-y-5';

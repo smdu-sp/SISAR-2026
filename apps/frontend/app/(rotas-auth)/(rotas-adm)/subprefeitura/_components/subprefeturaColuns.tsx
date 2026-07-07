@@ -3,7 +3,6 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
 import { ISubprefeitura } from '@/types/subprefeituras';
 import ModalSubprefeitura from './modal-subprefeitura';
 

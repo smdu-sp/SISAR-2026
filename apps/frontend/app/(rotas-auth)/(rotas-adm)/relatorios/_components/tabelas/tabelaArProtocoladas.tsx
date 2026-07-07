@@ -41,9 +41,9 @@ export function TabelaProgressaoARProtocoladas({ dataInicial, dataFinal, access_
                         setError(resultado.error || "Erro desconhecido na API.");
                         setDadosBrutosApi(null); // Limpa dados em caso de erro
                     }
-                } catch (err: any) {
+                } catch (err) {
                     console.error('Erro ao gerar relatório:', err);
-                    setError(err.message || "Erro ao conectar com a API.");
+                    setError(err instanceof Error ? err.message : "Erro ao conectar com a API.");
                     setDadosBrutosApi(null);
                 } finally {
                     setIsLoading(false); // Termina carregamento
@@ -71,7 +71,7 @@ export function TabelaProgressaoARProtocoladas({ dataInicial, dataFinal, access_
             const formatted = formatadorListaArProgressaoMensal(dadosBrutosApi);
             console.log("Dados formatados para UI:", formatted);
             return formatted; // Seu formatador já retorna IListaARProgressaoMensal[][]
-        } catch (err: any) {
+        } catch (err) {
             console.error('Erro ao formatar os dados para UI:', err);
             setError("Erro ao formatar os dados para exibição."); // Define um erro de formatação
             return [];
@@ -96,7 +96,7 @@ export function TabelaProgressaoARProtocoladas({ dataInicial, dataFinal, access_
 
         listaFormatadaParaUI.map((item: IListaARProgressaoMensal[], index: number) => (
             <div key={index} className='mt-8 sm:w-[175px] md:w-[350px] xl:w-[700px]'>
-                <DataTable<IListaARProgressaoMensal, any> // Tipar o DataTable corretamente
+                <DataTable<IListaARProgressaoMensal, unknown> // Tipar o DataTable corretamente
                     columns={ProgressaoMensalColumn} // Suas colunas tipadas para IListaARProgressaoMensal
                     data={item} // 'item' é do tipo IListaARProgressaoMensal[]
                 />

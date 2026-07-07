@@ -6,10 +6,11 @@ import { auth } from '@/lib/auth/auth';
 import { SubprefeituraColumns } from './_components/subprefeturaColuns';
 import { IPaginadoSubprefeituras, ISubprefeitura } from '@/types/subprefeituras';
 import * as subprefeitura from "../../../../services/subprefeituras";
-import { tipos_subprefeituras } from '@/lib/utils';
+import { tipos_subprefeituras, pageContainerComBotaoFlutuante } from '@/lib/utils';
 import Pagination from '@/components/pagination';
 import ModalSubprefeitura from './_components/modal-subprefeitura';
 import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
+import { PageHeader } from '@/components/page-header';
 
 import React from 'react';
 
@@ -20,7 +21,7 @@ export default async function SubprefeituraPage({
 }) {
 	let { pagina = 1, limite = 10, total = 0 } = await searchParams;
 	let ok = false;
-	const { busca = '', tipo_subprefeitura = 'all' } = await searchParams;
+	const { busca = '' } = await searchParams;
 	let dados: ISubprefeitura[] = [];
 
 	const session = await auth();
@@ -45,8 +46,8 @@ export default async function SubprefeituraPage({
 	}
 
 	return (
-		<div className='w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto'>
-			<h1 className='text-xl md:text-4xl font-bold'>Subprefeituras</h1>
+		<div className={pageContainerComBotaoFlutuante}>
+			<PageHeader title='Subprefeituras' />
 			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full'>
 				<Filtros
 					camposFiltraveis={[

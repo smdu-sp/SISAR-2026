@@ -3,8 +3,6 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { format } from 'date-fns';
-import { IRelatorioARProgressaoMensal } from '@/types/relatorios';
 import { IListaARProgressaoMensal } from '@/types/relatorios';
 
 

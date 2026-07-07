@@ -4,7 +4,9 @@ import DataTable, { TableSkeleton } from '@/components/data-table';
 import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
 import { Filtros } from '@/components/filtros';
 import Pagination from '@/components/pagination';
+import { PageHeader } from '@/components/page-header';
 import { auth } from '@/lib/auth/auth';
+import { pageContainerComBotaoFlutuante } from '@/lib/utils';
 import * as categorias from '@/services/categorias';
 import { ICategoria, IPaginadoCategorias } from '@/types/categorias';
 import { Suspense } from 'react';
@@ -50,8 +52,8 @@ async function CategoriasPage({
 	}
 
 	return (
-		<div className='w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto'>
-			<h1 className='text-xl md:text-4xl font-bold'>Categorias</h1>
+		<div className={pageContainerComBotaoFlutuante}>
+			<PageHeader title='Categorias' />
 			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full'>
 				<Filtros
 					camposFiltraveis={[

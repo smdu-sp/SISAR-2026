@@ -3,9 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { TriangleAlert, CalendarClock, Timer, CheckCircle2, Flag, ChevronRight, Inbox } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, pageContainer } from '@/lib/utils';
 import type { FasePrazoProcesso } from '@/lib/prazo-fase';
 import { DeadlineRing, SitPill, STATUS_COLOR, type SituacaoPrazo } from './deadline-ring';
+import { PageHeader } from '@/components/page-header';
 
 export type { SituacaoPrazo };
 type TabPainel = SituacaoPrazo | 'todos';
@@ -251,14 +252,11 @@ export default function PainelClient({
 	];
 
 	return (
-		<div className='w-full max-w-screen-xl mx-auto px-0 md:px-2 py-2 space-y-5'>
-			{/* Header */}
-			<div>
-				<h1 className='text-xl font-extrabold tracking-tight'>Painel de Prazos</h1>
-				<p className='text-sm text-muted-foreground mt-0.5'>
-					Visão geral dos processos e situação de prazos
-				</p>
-			</div>
+		<div className={pageContainer}>
+			<PageHeader
+				title='Painel de Prazos'
+				subtitle='Visão geral dos processos e situação de prazos'
+			/>
 
 			{/* KPI row */}
 			<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3'>

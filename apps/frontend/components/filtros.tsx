@@ -342,6 +342,7 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 		);
 	}
 
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars -- componente de filtro por intervalo de datas ainda não conectado
 	function RenderDataRange(campo: CampoFiltravel) {
 		const param = searchParams.get(campo.tag);
 		const datas = param ? param.split(',') : ['', ''];

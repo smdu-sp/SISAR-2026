@@ -4,7 +4,6 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { Colegiados, IPublicacao, Tipos_Documento } from '@/types/publicacao';
-import { format } from 'date-fns';
 import { capitalize, formataProcesso } from '@/lib/utils';
 
 

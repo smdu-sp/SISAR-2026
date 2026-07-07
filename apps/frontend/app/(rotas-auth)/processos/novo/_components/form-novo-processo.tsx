@@ -18,6 +18,7 @@ import { formatarSei } from '@/lib/utils';
 import * as processos from '@/services/processos';
 import { IAlvaras } from '@/types/alvaras';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
 
@@ -199,7 +200,7 @@ export default function FormNovoProcesso({
 				</div>
 				<div className='sm:col-span-2 flex gap-2 justify-end'>
 					<Button variant='outline' asChild>
-						<a href='/processos'>Cancelar</a>
+						<Link href='/processos'>Cancelar</Link>
 					</Button>
 					<Button onClick={salvar} disabled={isPending}>
 						Salvar processo

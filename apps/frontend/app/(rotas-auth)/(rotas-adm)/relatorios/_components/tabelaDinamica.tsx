@@ -5,12 +5,6 @@ import { TabelaArPrazoAnaliseAdmissibilidade } from "./tabelas/tabelaArPrazoAnal
 import { TabelaRRPrazoAnaliseAdmissibilidade } from "./tabelas/tabelaRRPrazoAnaliseAdmissibilidade";
 import { TabelaArGabinetePrefeito } from "./colunas/ArGabinetePrefeito";
 
-interface ITabelaDinamica {
-    tipo: string | null;
-    lista?: any[];
-    obj?: any;
-}
-
 interface IFiltrosDinamicos {
     tipoRelatorio: null | string;
     extensaoArquivo?: null | string;
@@ -24,7 +18,6 @@ interface IFiltrosDinamicos {
 
 export default function TabelaDinamica({
     tipoRelatorio,
-    extensaoArquivo,
     periodoString,
     dataInicial,
     dataFinal,

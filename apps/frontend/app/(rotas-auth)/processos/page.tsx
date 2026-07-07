@@ -17,7 +17,8 @@ import { FaseTabs } from './_components/fase-tabs';
 import { AbasProcessos } from './_components/abas-processos';
 import ModalNovoProcesso from './_components/modal-novo-processo';
 import ModalUpdateAndCreate from '../_components/modal-update-create';
-import { colegiados, tipos_documento } from '@/lib/utils';
+import { colegiados, tipos_documento, pageContainerComBotaoFlutuante } from '@/lib/utils';
+import { PageHeader } from '@/components/page-header';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -34,8 +35,8 @@ async function ProcessosPage({ searchParams }: { searchParams: SearchParams }) {
 	const aba = (params.aba as string) ?? 'processos';
 
 	return (
-		<div className='px-0 md:px-8 relative pb-20 md:pb-14 min-h-full container mx-auto'>
-			<h1 className='text-xl md:text-2xl font-extrabold mb-5'>Processos</h1>
+		<div className={pageContainerComBotaoFlutuante}>
+			<PageHeader title='Processos' />
 
 			<AbasProcessos aba={aba} />
 

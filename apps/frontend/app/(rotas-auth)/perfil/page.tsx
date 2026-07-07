@@ -14,6 +14,8 @@ import { buscarMeuUsuario } from '@/services/usuarios/query-functions/meu-usuari
 import { IUsuario } from '@/types/usuario';
 import { redirect } from 'next/navigation';
 import FormProfile from './components/form-profile';
+import { PageHeader } from '@/components/page-header';
+import { pageContainer } from '@/lib/utils';
 
 export default async function Perfil() {
 	const session = await auth();
@@ -32,8 +34,8 @@ export default async function Perfil() {
 	const userData = user as Partial<IUsuario>;
 
 	return (
-		<div className='mx-auto px-0 md:px-8 pb-10 w-full'>
-			<h1 className='text-xl md:text-4xl font-bold mt-5'>Perfil</h1>
+		<div className={pageContainer}>
+			<PageHeader title='Perfil' />
 
 			<div className='grid grid-cols-1 md:grid-cols-3 gap-8 my-5'>
 				{/* Avatar section */}

@@ -8,7 +8,7 @@ import Chart from 'react-apexcharts';
 interface AreaChartsApexProps {
     title: string;
     categories?: string[];
-    data?: any[];
+    data?: unknown[];
     series?: ApexAxisChartSeries | ApexNonAxisChartSeries | undefined;
     height: string | number | undefined;
 }

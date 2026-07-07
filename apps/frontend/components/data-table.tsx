@@ -18,7 +18,6 @@ import {
 } from './ui/table';
 import { cn } from '@/lib/utils';
 import { Skeleton } from './ui/skeleton';
-import { boolean } from 'zod';
 
 interface ISticker {
 	active: boolean;

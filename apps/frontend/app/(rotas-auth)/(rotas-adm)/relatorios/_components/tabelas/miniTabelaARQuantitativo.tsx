@@ -1,7 +1,7 @@
 "use client"
 
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table"
-import { IOrgaoDetalhe, IStatusDetalhe } from "@/types/relatorios"
+import { IStatusDetalhe } from "@/types/relatorios"
 
 const SETORES: { sigla: string; key: keyof Pick<IStatusDetalhe, 'resid' | 'parhis' | 'servin' | 'comin' | 'caepp'> }[] = [
     { sigla: 'RESID', key: 'resid' },
