@@ -6,6 +6,8 @@ import { Inicial, Inicial_Sqls, Reuniao_Processo } from '@prisma/client';
 import { calcularDatasReuniaoGraproem } from 'src/common/calcular-datas-reuniao-graproem';
 import { AppService } from 'src/app.service';
 import { IniciaisPaginado, InicialResponseDTO } from './dto/inicial-response.dto';
+import { DetalheLinhaImportacaoDTO, ImportarInicialResponseDTO } from './dto/importar-inicial.dto';
+import * as ExcelJS from 'exceljs';
 
 @Injectable()
 export class InicialService {
@@ -350,8 +352,170 @@ export class InicialService {
     return novo_inicial;
   }
 
+  // ---------- Importação em massa por planilha (.xlsx) ----------
+
+  private valorCelula(cell: ExcelJS.Cell | undefined): string {
+    if (!cell) return '';
+    const v = cell.value as unknown;
+    if (v == null) return '';
+    if (v instanceof Date) {
+      const y = v.getUTCFullYear();
+      const m = String(v.getUTCMonth() + 1).padStart(2, '0');
+      const d = String(v.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+    if (typeof v === 'object') {
+      const obj = v as { text?: string; result?: unknown; richText?: { text: string }[] };
+      if (Array.isArray(obj.richText)) return obj.richText.map((r) => r.text).join('').trim();
+      if (obj.text != null) return String(obj.text).trim();
+      if (obj.result != null) return String(obj.result).trim();
+      return '';
+    }
+    return String(v).trim();
+  }
+
+  private ehSim(valor: string): boolean {
+    return ['SIM', 'S', 'YES', 'TRUE', '1'].includes(valor.trim().toUpperCase());
+  }
+
+  private normalizaDataPlanilha(valor: string): string | undefined {
+    const texto = (valor || '').trim();
+    if (!texto) return undefined;
+    if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) return texto;
+    const br = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (br) {
+      const [, d, m, y] = br;
+      return `${y}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+    }
+    return texto;
+  }
+
+  async importarPlanilha(buffer: Buffer): Promise<ImportarInicialResponseDTO> {
+    if (!buffer || buffer.length === 0) {
+      throw new ForbiddenException('Arquivo vazio ou não enviado.');
+    }
+    const workbook = new ExcelJS.Workbook();
+    try {
+      await workbook.xlsx.load(buffer as unknown as ArrayBuffer);
+    } catch {
+      throw new ForbiddenException('Não foi possível ler o arquivo. Envie um .xlsx válido.');
+    }
+
+    const sheet =
+      workbook.getWorksheet('Processos') ||
+      workbook.worksheets.find((w) => w.name.toLowerCase() !== 'instruções') ||
+      workbook.worksheets[0];
+    if (!sheet) throw new ForbiddenException('Planilha sem abas de dados.');
+
+    // Mapa cabeçalho -> índice de coluna (remove " *" e normaliza).
+    const headerRow = sheet.getRow(1);
+    const colunas = new Map<string, number>();
+    headerRow.eachCell((cell, colNumber) => {
+      const nome = this.valorCelula(cell).replace(/\*/g, '').trim().toLowerCase();
+      if (nome) colunas.set(nome, colNumber);
+    });
+    const ler = (row: ExcelJS.Row, chave: string): string => {
+      const idx = colunas.get(chave);
+      return idx ? this.valorCelula(row.getCell(idx)) : '';
+    };
+
+    // Cache de tipos de alvará por nome (case-insensitive).
+    const alvaraTipos = await this.prisma.alvara_Tipo.findMany({
+      select: { id: true, nome: true },
+    });
+    const alvaraPorNome = new Map<string, string>();
+    for (const a of alvaraTipos) alvaraPorNome.set(a.nome.trim().toLowerCase(), a.id);
+
+    const detalhes: DetalheLinhaImportacaoDTO[] = [];
+    let criados = 0;
+    let duplicados = 0;
+    let erros = 0;
+    let total = 0;
+
+    for (let r = 2; r <= sheet.rowCount; r++) {
+      const row = sheet.getRow(r);
+      const sei = ler(row, 'sei');
+      const requerimento = ler(row, 'requerimento');
+      const tipoAlvaraNome = ler(row, 'tipo_alvara');
+      const dataProtocolo = ler(row, 'data_protocolo');
+
+      // Ignora linhas totalmente vazias.
+      if (!sei && !requerimento && !tipoAlvaraNome && !dataProtocolo) continue;
+      total++;
+
+      const seiDigitos = sei.replace(/\D/g, '');
+      try {
+        if (!sei || !requerimento || !tipoAlvaraNome || !dataProtocolo) {
+          throw new Error(
+            'Campos obrigatórios faltando (sei, requerimento, tipo_alvara, data_protocolo).',
+          );
+        }
+        const alvara_tipo_id = alvaraPorNome.get(tipoAlvaraNome.trim().toLowerCase());
+        if (!alvara_tipo_id) {
+          throw new Error(`Tipo de alvará "${tipoAlvaraNome}" não encontrado no sistema.`);
+        }
+
+        const jaExiste = await this.prisma.inicial.count({ where: { sei: seiDigitos } });
+        if (jaExiste > 0) {
+          duplicados++;
+          detalhes.push({ linha: r, sei: seiDigitos, status: 'duplicado', mensagem: 'SEI já cadastrado.' });
+          continue;
+        }
+
+        const tipo_processo = Number(ler(row, 'tipo_processo')) === 2 ? 2 : 1;
+        const numsSqlRaw = ler(row, 'nums_sql');
+        const nums_sql = numsSqlRaw
+          ? numsSqlRaw.split(';').map((s) => s.trim()).filter(Boolean)
+          : undefined;
+
+        const dto: CreateInicialDto = {
+          sei,
+          requerimento,
+          alvara_tipo_id,
+          data_protocolo: this.normalizaDataPlanilha(dataProtocolo) as unknown as Date,
+          envio_admissibilidade: this.normalizaDataPlanilha(ler(row, 'envio_admissibilidade')) as unknown as Date,
+          tipo_requerimento: Number(ler(row, 'tipo_requerimento')) || 1,
+          tipo_processo,
+          decreto: this.ehSim(ler(row, 'decreto')),
+          requalifica_rapido: this.ehSim(ler(row, 'requalifica_rapido')),
+          associado_reforma: this.ehSim(ler(row, 'associado_reforma')),
+          processo_fisico: ler(row, 'processo_fisico'),
+          aprova_digital: ler(row, 'aprova_digital'),
+          obs: ler(row, 'obs') || undefined,
+          nums_sql,
+        };
+
+        if (tipo_processo === 2) {
+          const interfaces: CreateInterfacesDto = {
+            interface_sehab: this.ehSim(ler(row, 'interface_sehab')),
+            interface_siurb: this.ehSim(ler(row, 'interface_siurb')),
+            interface_smc: this.ehSim(ler(row, 'interface_smc')),
+            interface_smt: this.ehSim(ler(row, 'interface_smt')),
+            interface_svma: this.ehSim(ler(row, 'interface_svma')),
+            num_sehab: ler(row, 'num_sehab') || undefined,
+            num_siurb: ler(row, 'num_siurb') || undefined,
+            num_smc: ler(row, 'num_smc') || undefined,
+            num_smt: ler(row, 'num_smt') || undefined,
+            num_svma: ler(row, 'num_svma') || undefined,
+          };
+          dto.interfaces = interfaces;
+        }
+
+        await this.criar(dto);
+        criados++;
+        detalhes.push({ linha: r, sei: seiDigitos, status: 'criado' });
+      } catch (e) {
+        erros++;
+        const mensagem = e instanceof Error ? e.message : 'Erro ao importar linha.';
+        detalhes.push({ linha: r, sei: seiDigitos || sei, status: 'erro', mensagem });
+      }
+    }
+
+    return { total, criados, duplicados, erros, detalhes };
+  }
+
   async buscarTudo(
-    pagina: number = 1, 
+    pagina: number = 1,
     limite: number = 10,
     busca?: string,
     status: number = 0

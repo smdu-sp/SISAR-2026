@@ -8,3 +8,4 @@ export {
 	buscaProcessosParaAvisos,
 } from './query-functions/buscar-por-data';
 export { criar } from './server-functions/criar';
+export { importarPlanilha } from './importar';

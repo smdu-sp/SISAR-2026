@@ -1,9 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, HttpStatus, ForbiddenException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, HttpStatus, ForbiddenException, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { InicialService } from './inicial.service';
 import { CreateInicialDto } from './dto/create-inicial.dto';
 import { UpdateInicialDto } from './dto/update-inicial.dto';
-import { IsPublic } from 'src/auth/decorators/is-public.decorator';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ImportarInicialResponseDTO } from './dto/importar-inicial.dto';
+import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IniciaisPaginado, InicialProcessosMesAnoResponseDTO, InicialProcessosResponseDTO, InicialResponseDTO, SqlResponseDTO } from './dto/inicial-response.dto';
 
 @ApiTags('Inicial')
@@ -20,6 +22,25 @@ export class InicialController {
   @ApiResponse({ status: 401, description: 'Retorna 401 se não autorizado.' })
   criar(@Body() createInicialDto: CreateInicialDto): Promise<InicialResponseDTO> {
     return this.inicialService.criar(createInicialDto);
+  }
+
+  @Permissoes('DEV', 'SUP', 'ADM')
+  @Post('importar')
+  @HttpCode(HttpStatus.OK)
+  @UseInterceptors(FileInterceptor('arquivo'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { arquivo: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOperation({ description: 'Importar processos em massa a partir de uma planilha .xlsx.', summary: 'Importe processos por planilha.' })
+  @ApiResponse({ status: 200, description: 'Retorna o resumo da importação.', type: ImportarInicialResponseDTO })
+  @ApiResponse({ status: 401, description: 'Retorna 401 se não autorizado.' })
+  importar(@UploadedFile() arquivo: { buffer: Buffer } | undefined): Promise<ImportarInicialResponseDTO> {
+    if (!arquivo) throw new ForbiddenException('Nenhum arquivo enviado.');
+    return this.inicialService.importarPlanilha(arquivo.buffer);
   }
 
   @Get('buscar-tudo')
