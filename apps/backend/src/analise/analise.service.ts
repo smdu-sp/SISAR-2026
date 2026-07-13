@@ -122,14 +122,13 @@ export class AnaliseService {
   private reuniaoCompleta(
     reuniao: {
       numero_reuniao: string | null;
-      parecer_grupo: string | null;
       data_reuniao: Date;
     } | null,
   ): boolean {
     if (!reuniao) return false;
-    return Boolean(
-      reuniao.numero_reuniao?.trim() && reuniao.parecer_grupo?.trim(),
-    );
+    // O parecer técnico passou a ser registrado na decisão; a reunião só
+    // precisa de número e data para liberar a decisão.
+    return Boolean(reuniao.numero_reuniao?.trim() && reuniao.data_reuniao);
   }
 
   async obterContexto(inicialId: number) {
@@ -423,7 +422,7 @@ export class AnaliseService {
         inicial.reunioes.find((r) => r.instancia === instancia) ?? null;
       if (!this.reuniaoCompleta(reuniao)) {
         throw new BadRequestException(
-          'Preencha data, número e parecer da pré-reunião GRAPROEM.',
+          'Preencha data e número da pré-reunião GRAPROEM.',
         );
       }
     }
@@ -434,6 +433,7 @@ export class AnaliseService {
       data: {
         parecer: dto.parecer,
         obs: dto.obs,
+        parecer_tecnico: dto.parecer_tecnico,
         publicacao_parecer: new Date(),
         graproem,
       },

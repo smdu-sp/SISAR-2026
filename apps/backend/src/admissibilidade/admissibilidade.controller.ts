@@ -2,6 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, Htt
 import { AdmissibilidadeService } from './admissibilidade.service';
 import { CreateAdmissibilidadeDto } from './dto/create-admissibilidade.dto';
 import { UpdateAdmissibilidadeDto } from './dto/update-admissibilidade.dto';
+import { AdmitirDto, InadmitirDto } from './dto/admitir.dto';
 import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AdmissibilidadePaginado, AdmissibilidadeResponseDTO, CreateResponseAdmissibilidadeDTO } from './dto/responses.dto';
@@ -84,6 +85,34 @@ export class AdmissibilidadeController {
     @Body() updateAdmissibilidadeDto: UpdateAdmissibilidadeDto
   ): Promise<AdmissibilidadeResponseDTO> {
     return this.admissibilidadeService.atualizarStatus(+id, updateAdmissibilidadeDto);
+  }
+
+  @Permissoes('DEV', 'SUP', 'ADM')
+  @Post('admitir/:inicialId')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'inicialId', type: 'string', required: true })
+  @ApiBody({ type: AdmitirDto })
+  @ApiOperation({ description: 'Admitir processo (admissibilidade + envio à análise numa transação).', summary: 'Admitir processo.' })
+  @ApiResponse({ status: 200, description: 'Retorna 200 se admitir com sucesso.', type: AdmissibilidadeResponseDTO })
+  admitir(
+    @Param('inicialId') inicialId: string,
+    @Body() dto: AdmitirDto,
+  ): Promise<AdmissibilidadeResponseDTO> {
+    return this.admissibilidadeService.admitir(+inicialId, dto);
+  }
+
+  @Permissoes('DEV', 'SUP', 'ADM')
+  @Post('inadmitir/:inicialId')
+  @HttpCode(HttpStatus.OK)
+  @ApiParam({ name: 'inicialId', type: 'string', required: true })
+  @ApiBody({ type: InadmitirDto })
+  @ApiOperation({ description: 'Inadmitir processo (abre janela de reconsideração).', summary: 'Inadmitir processo.' })
+  @ApiResponse({ status: 200, description: 'Retorna 200 se inadmitir com sucesso.', type: AdmissibilidadeResponseDTO })
+  inadmitir(
+    @Param('inicialId') inicialId: string,
+    @Body() dto: InadmitirDto,
+  ): Promise<AdmissibilidadeResponseDTO> {
+    return this.admissibilidadeService.inadmitir(+inicialId, dto);
   }
 
   @Delete(':id')

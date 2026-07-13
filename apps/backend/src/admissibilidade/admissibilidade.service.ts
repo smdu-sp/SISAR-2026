@@ -2,6 +2,7 @@
 import { ForbiddenException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreateAdmissibilidadeDto } from './dto/create-admissibilidade.dto';
 import { UpdateAdmissibilidadeDto } from './dto/update-admissibilidade.dto';
+import { AdmitirDto, InadmitirDto } from './dto/admitir.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { AppService } from 'src/app.service';
 import { Admissibilidade, Inicial, Prisma } from '@prisma/client';
@@ -241,6 +242,72 @@ export class AdmissibilidadeService {
       include: { inicial: true },
     });
     return this.enriquecerDataEnvio(admissibilidadeAtualizada ?? admissibilidade);
+  }
+
+  async admitir(inicialId: number, dto: AdmitirDto): Promise<Admissibilidade> {
+    const { interfaces, tipo_processo } = dto;
+    await this.prisma.$transaction(async (tx) => {
+      await tx.admissibilidade.update({
+        where: { inicial_id: inicialId },
+        data: {
+          status: 0,
+          unidade_id: dto.unidade_id,
+          subprefeitura_id: dto.subprefeitura_id,
+          data_decisao_interlocutoria: this.parseDataCampo(
+            dto.data_decisao_interlocutoria,
+          ),
+        },
+      });
+      if (tipo_processo === 2 && interfaces) {
+        await tx.interface.upsert({
+          where: { inicial_id: inicialId },
+          create: { inicial_id: inicialId, ...interfaces },
+          update: { ...interfaces },
+        });
+      }
+      await tx.inicial.update({
+        where: { id: inicialId },
+        data: {
+          tipo_processo,
+          status: 2,
+          etapa_analise: 1,
+          substatus_analise: tipo_processo === 2 ? 3 : 0,
+          alterado_em: new Date(),
+        },
+      });
+    });
+    const admissibilidade = await this.prisma.admissibilidade.findUnique({
+      where: { inicial_id: inicialId },
+      include: { inicial: true },
+    });
+    if (!admissibilidade)
+      throw new InternalServerErrorException('Nenhuma admissibilidade encontrada');
+    return this.enriquecerDataEnvio(admissibilidade);
+  }
+
+  async inadmitir(inicialId: number, dto: InadmitirDto): Promise<Admissibilidade> {
+    await this.prisma.$transaction(async (tx) => {
+      await tx.admissibilidade.update({
+        where: { inicial_id: inicialId },
+        data: {
+          status: 3,
+          data_decisao_interlocutoria: new Date(),
+          parecer_admissibilidade_id: dto.parecer_admissibilidade_id,
+          obs: dto.obs,
+        },
+      });
+      await tx.inicial.update({
+        where: { id: inicialId },
+        data: { alterado_em: new Date() },
+      });
+    });
+    const admissibilidade = await this.prisma.admissibilidade.findUnique({
+      where: { inicial_id: inicialId },
+      include: { inicial: true },
+    });
+    if (!admissibilidade)
+      throw new InternalServerErrorException('Nenhuma admissibilidade encontrada');
+    return this.enriquecerDataEnvio(admissibilidade);
   }
 
   remove(id: number): string {

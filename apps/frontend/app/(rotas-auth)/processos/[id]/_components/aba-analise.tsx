@@ -57,12 +57,12 @@ export default function AbaAnalise({ processo }: { processo: IProcesso }) {
 	const [dataReuniao, setDataReuniao] = useState(hoje());
 	const [dataProcesso, setDataProcesso] = useState(hoje());
 	const [numeroReuniao, setNumeroReuniao] = useState('');
-	const [parecerGrupo, setParecerGrupo] = useState('');
 	const [novaDataReuniao, setNovaDataReuniao] = useState('');
 	const [justificativaRemarcacao, setJustificativaRemarcacao] = useState('');
 	const [dataComunique, setDataComunique] = useState(hoje());
 	const [dataRespostaCs, setDataRespostaCs] = useState(hoje());
 	const [obsDecisao, setObsDecisao] = useState('');
+	const [parecerTecnico, setParecerTecnico] = useState('');
 
 	const recarregar = useCallback(async () => {
 		setCarregando(true);
@@ -76,7 +76,9 @@ export default function AbaAnalise({ processo }: { processo: IProcesso }) {
 					dataParaInput(c.reuniao_atual.data_processo) || hoje(),
 				);
 				setNumeroReuniao(c.reuniao_atual.numero_reuniao ?? '');
-				setParecerGrupo(c.reuniao_atual.parecer_grupo ?? '');
+				// Continuidade: pré-preenche o parecer técnico com o parecer do grupo
+				// registrado antes da migração, se existir.
+				setParecerTecnico((prev) => prev || (c.reuniao_atual?.parecer_grupo ?? ''));
 				setNovaDataReuniao(dataParaInput(c.reuniao_atual.nova_data_reuniao));
 				setJustificativaRemarcacao(
 					c.reuniao_atual.justificativa_remarcacao ?? '',
@@ -144,8 +146,8 @@ export default function AbaAnalise({ processo }: { processo: IProcesso }) {
 			toast.error('Informe as datas da reunião e do processo');
 			return;
 		}
-		if (!numeroReuniao.trim() || !parecerGrupo.trim()) {
-			toast.error('Informe número da reunião e parecer do grupo');
+		if (!numeroReuniao.trim()) {
+			toast.error('Informe o número da reunião');
 			return;
 		}
 		if (novaDataReuniao.trim() && !justificativaRemarcacao.trim()) {
@@ -157,7 +159,6 @@ export default function AbaAnalise({ processo }: { processo: IProcesso }) {
 				data_reuniao: dataReuniao,
 				data_processo: dataProcesso,
 				numero_reuniao: numeroReuniao.trim(),
-				parecer_grupo: parecerGrupo.trim(),
 				nova_data_reuniao: novaDataReuniao.trim() || undefined,
 				justificativa_remarcacao:
 					justificativaRemarcacao.trim() || undefined,
@@ -211,6 +212,7 @@ export default function AbaAnalise({ processo }: { processo: IProcesso }) {
 				processo.id,
 				parecer,
 				obsDecisao || undefined,
+				parecerTecnico.trim() || undefined,
 			);
 			if (!res.ok) {
 				toast.error(res.error ?? 'Erro ao registrar decisão');
@@ -300,7 +302,8 @@ export default function AbaAnalise({ processo }: { processo: IProcesso }) {
 					<CardContent className='space-y-4'>
 						<p className='text-sm text-muted-foreground'>
 							Cadastre os dados da reunião conforme a tabela do processo:
-							datas, número, parecer do grupo e remarcação, se houver.
+							datas, número e remarcação, se houver. O parecer técnico é
+							registrado na decisão.
 						</p>
 						{!ctx.pode_registrar_pre_reuniao && (
 							<p className='text-sm text-amber-700 dark:text-amber-400'>
@@ -344,15 +347,6 @@ export default function AbaAnalise({ processo }: { processo: IProcesso }) {
 									disabled={!ctx.pode_registrar_pre_reuniao || isPending}
 								/>
 							</div>
-						</div>
-						<div className='space-y-2'>
-							<Label>Parecer do grupo</Label>
-							<Textarea
-								value={parecerGrupo}
-								onChange={(e) => setParecerGrupo(e.target.value)}
-								rows={4}
-								disabled={!ctx.pode_registrar_pre_reuniao || isPending}
-							/>
 						</div>
 						<div className='space-y-2'>
 							<Label>Justificativa da remarcação</Label>
@@ -463,6 +457,15 @@ export default function AbaAnalise({ processo }: { processo: IProcesso }) {
 						<CardTitle className='text-base'>Decisão técnica</CardTitle>
 					</CardHeader>
 					<CardContent className='space-y-4'>
+						<div className='space-y-2'>
+							<Label>Parecer técnico</Label>
+							<Textarea
+								value={parecerTecnico}
+								onChange={(e) => setParecerTecnico(e.target.value)}
+								rows={4}
+								placeholder='Parecer técnico da análise (registrado na decisão)'
+							/>
+						</div>
 						<div className='space-y-2'>
 							<Label>Observações (opcional)</Label>
 							<Textarea

@@ -5,6 +5,14 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -14,34 +22,26 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { formatarSei, validaDigitoSei } from '@/lib/utils';
+import { statusAdmissibilidade } from '@/lib/status-admissibilidade';
 import * as admissibilidade from '@/services/admissibilidade';
-import * as processos from '@/services/processos';
+import * as parecerAdmissibilidade from '@/services/parecer-admissibilidade';
 import {
 	dataEnvioAdmissibilidade,
 	IAdmissibilidade,
 	IInterfacesAdmissibilidade,
 } from '@/types/admissibilidade';
+import { IParecerAdmissibilidade } from '@/types/parecer-admissibilidade';
 import { IProcesso } from '@/types/processos';
 import { ISubprefeitura } from '@/types/subprefeituras';
 import { IUnidades } from '@/types/unidades';
-import { Hand, Loader2 } from 'lucide-react';
+import { Hand, Loader2, RefreshCw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 import { toast } from 'sonner';
-import ModalInadmitir from '@/app/(rotas-auth)/admissibilidade/_components/modal-inadmitir';
 import ModalMotivos from '@/app/(rotas-auth)/admissibilidade/_components/modal-motivos';
 import CardPrazoFase from './card-prazo-fase';
-
-const STATUS_ADM: Record<
-	number,
-	{ label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline' }
-> = {
-	0: { label: 'Admissível', variant: 'default' },
-	1: { label: 'Em Análise', variant: 'secondary' },
-	2: { label: 'Inadmissível', variant: 'destructive' },
-	3: { label: 'Em Reconsideração', variant: 'outline' },
-};
 
 interface InterfaceField {
 	key: keyof IInterfacesAdmissibilidade;
@@ -70,7 +70,13 @@ export default function AbaAdmissibilidade({
 }) {
 	const router = useRouter();
 	const [isPending, startTransition] = useTransition();
-	const [modalInadmitirAberto, setModalInadmitirAberto] = useState(false);
+
+	// Inadmissão (inline)
+	const [inadmitirAberto, setInadmitirAberto] = useState(false);
+	const [pareceres, setPareceres] = useState<IParecerAdmissibilidade[]>([]);
+	const [parecerId, setParecerId] = useState('');
+	const [obsInadmissao, setObsInadmissao] = useState('');
+	const [carregandoPareceres, setCarregandoPareceres] = useState(false);
 
 	const hoje = new Date().toISOString().split('T')[0];
 	const [tipoProcesso, setTipoProcesso] = useState(
@@ -99,13 +105,7 @@ export default function AbaAdmissibilidade({
 	});
 	const [interfacesAlteradas, setInterfacesAlteradas] = useState<
 		Partial<Record<keyof IInterfacesAdmissibilidade, boolean>>
-	>({
-		num_sehab: false,
-		num_siurb: false,
-		num_smc: false,
-		num_smt: false,
-		num_svma: false,
-	});
+	>({});
 
 	if (!adm) {
 		return (
@@ -120,10 +120,9 @@ export default function AbaAdmissibilidade({
 		);
 	}
 
-	const config = STATUS_ADM[adm.status] ?? STATUS_ADM[1];
-	const mostrarFormulario = adm.status !== 0;
-	const podeInadmitir =
-		adm.status !== 0 && adm.status !== 2 && adm.status !== 3;
+	const config = statusAdmissibilidade(adm.status);
+	const jaAdmitido = adm.status === 0;
+	const podeInadmitir = adm.status === 1;
 	const dataEnvio = dataEnvioAdmissibilidade(adm, processo);
 	const mostrarSehab =
 		new Date(processo.data_protocolo) <= new Date('2019-09-20');
@@ -174,13 +173,11 @@ export default function AbaAdmissibilidade({
 		}
 
 		startTransition(async () => {
-			const payload: Parameters<typeof admissibilidade.atualizar>[1] = {
-				status: 0,
+			const payload: admissibilidade.IAdmitirPayload = {
 				unidade_id: unidadeId,
 				subprefeitura_id: subprefeituraId,
 				data_decisao_interlocutoria: dataDecisao,
 				tipo_processo: +tipoProcesso,
-				inicial_id: processo.id,
 			};
 
 			if (+tipoProcesso === 2) {
@@ -204,31 +201,132 @@ export default function AbaAdmissibilidade({
 				};
 			}
 
-			const admResp = await admissibilidade.atualizar(processo.id, payload);
-			if (!admResp.ok) {
-				toast.error(admResp.error ?? 'Erro ao admitir processo');
+			const resp = await admissibilidade.admitir(processo.id, payload);
+			if (!resp.ok) {
+				toast.error(resp.error ?? 'Erro ao admitir processo');
 				return;
 			}
-
-			const procResp = await processos.atualizar(processo.id, {
-				tipo_processo: +tipoProcesso,
-				status: 2,
-				etapa_analise: 1,
-				substatus_analise: +tipoProcesso === 2 ? 3 : 0,
-			});
-
-			if (procResp.ok) {
-				toast.success('Processo admitido com sucesso');
-				router.replace(`/processos/${processo.id}?tab=analise`);
-				router.refresh();
-				return;
-			}
-
-			toast.error(procResp.error ?? 'Erro ao atualizar status do processo');
+			toast.success('Processo admitido com sucesso');
+			router.replace(`/processos/${processo.id}?tab=analise`);
+			router.refresh();
 		});
 	}
 
-	if (!mostrarFormulario) {
+	async function abrirInadmitir() {
+		setParecerId('');
+		setObsInadmissao('');
+		setInadmitirAberto(true);
+		setCarregandoPareceres(true);
+		const lista = await parecerAdmissibilidade.buscarAtivos();
+		setPareceres(lista);
+		setCarregandoPareceres(false);
+	}
+
+	function inadmitirProcesso() {
+		if (!parecerId) {
+			toast.error('Selecione um motivo');
+			return;
+		}
+		startTransition(async () => {
+			const resp = await admissibilidade.inadmitir(processo.id, {
+				parecer_admissibilidade_id: parecerId,
+				obs: obsInadmissao.trim() || undefined,
+			});
+			if (!resp.ok) {
+				toast.error(resp.error ?? 'Erro ao inadmitir processo');
+				return;
+			}
+			toast.success('Processo inadmitido — janela de reconsideração aberta');
+			setInadmitirAberto(false);
+			router.refresh();
+		});
+	}
+
+	const dialogInadmitir = (
+		<Dialog open={inadmitirAberto} onOpenChange={setInadmitirAberto}>
+			<DialogContent>
+				<DialogHeader>
+					<DialogTitle>Inadmitir processo</DialogTitle>
+					<DialogDescription>
+						Selecione o motivo da inadmissão. O processo entra em janela de
+						reconsideração.
+					</DialogDescription>
+				</DialogHeader>
+				<div className='grid gap-4 py-2'>
+					<div className='grid gap-2'>
+						<div className='flex items-center justify-between gap-2'>
+							<Label>Motivo</Label>
+							<Button
+								type='button'
+								variant='ghost'
+								size='sm'
+								className='h-auto px-2 text-xs'
+								onClick={abrirInadmitir}
+								disabled={carregandoPareceres}>
+								<RefreshCw
+									className={`mr-1 h-3 w-3 ${carregandoPareceres ? 'animate-spin' : ''}`}
+								/>
+								Atualizar
+							</Button>
+						</div>
+						{carregandoPareceres ? (
+							<div className='flex items-center gap-2 text-sm text-muted-foreground'>
+								<Loader2 className='h-4 w-4 animate-spin' />
+								Carregando motivos...
+							</div>
+						) : pareceres.length === 0 ? (
+							<p className='text-sm text-muted-foreground'>
+								Nenhum motivo ativo cadastrado. Use <strong>Motivos</strong> no
+								topo da aba para cadastrar.
+							</p>
+						) : (
+							<Select value={parecerId} onValueChange={setParecerId}>
+								<SelectTrigger>
+									<SelectValue placeholder='Selecione o motivo' />
+								</SelectTrigger>
+								<SelectContent>
+									{pareceres.map((item) => (
+										<SelectItem key={item.id} value={item.id}>
+											{item.parecer}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						)}
+					</div>
+					<div className='grid gap-2'>
+						<Label>Observação (opcional)</Label>
+						<Textarea
+							value={obsInadmissao}
+							onChange={(e) => setObsInadmissao(e.target.value)}
+							rows={3}
+							placeholder='Detalhes da inadmissão'
+						/>
+					</div>
+				</div>
+				<DialogFooter>
+					<Button
+						type='button'
+						variant='outline'
+						onClick={() => setInadmitirAberto(false)}
+						disabled={isPending}>
+						Cancelar
+					</Button>
+					<Button
+						type='button'
+						variant='destructive'
+						onClick={inadmitirProcesso}
+						disabled={isPending || pareceres.length === 0}>
+						{isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+						Inadmitir
+					</Button>
+				</DialogFooter>
+			</DialogContent>
+		</Dialog>
+	);
+
+	// Processo já admitido → visão somente leitura.
+	if (jaAdmitido) {
 		return (
 			<div className='space-y-4'>
 				<CardPrazoFase
@@ -236,30 +334,59 @@ export default function AbaAdmissibilidade({
 					processo={processo}
 					admissibilidade={adm}
 				/>
-			<Card>
-				<CardHeader className='flex flex-row items-center justify-between gap-4'>
-					<CardTitle>Admissibilidade</CardTitle>
-					<Badge variant={config.variant}>{config.label}</Badge>
-				</CardHeader>
-				<CardContent className='grid gap-4 sm:grid-cols-2'>
-					<Campo
-						label='Data envio'
-						valor={formatarData(dataEnvio)}
-					/>
-					<Campo
-						label='Decisão interlocutória'
-						valor={formatarData(adm.data_decisao_interlocutoria)}
-					/>
-					<Campo
-						label='Reconsiderado'
-						valor={adm.reconsiderado ? 'Sim' : 'Não'}
-					/>
-				</CardContent>
-			</Card>
+				<Card>
+					<CardHeader className='flex flex-row items-center justify-between gap-4'>
+						<CardTitle>Admissibilidade</CardTitle>
+						<Badge variant={config.variant}>{config.label}</Badge>
+					</CardHeader>
+					<CardContent className='grid gap-4 sm:grid-cols-2'>
+						<Campo label='Data envio' valor={formatarData(dataEnvio)} />
+						<Campo
+							label='Decisão interlocutória'
+							valor={formatarData(adm.data_decisao_interlocutoria)}
+						/>
+						<Campo
+							label='Reconsiderado'
+							valor={adm.reconsiderado ? 'Sim' : 'Não'}
+						/>
+					</CardContent>
+				</Card>
 			</div>
 		);
 	}
 
+	// Processo inadmitido / em reconsideração (status 2 ou 3) → visão de estado.
+	if (adm.status === 2 || adm.status === 3) {
+		return (
+			<div className='space-y-4'>
+				<CardPrazoFase
+					fase='admissibilidade'
+					processo={processo}
+					admissibilidade={adm}
+				/>
+				<Card>
+					<CardHeader className='flex flex-row items-center justify-between gap-4'>
+						<CardTitle>Admissibilidade</CardTitle>
+						<Badge variant={config.variant}>{config.label}</Badge>
+					</CardHeader>
+					<CardContent className='grid gap-4 sm:grid-cols-2'>
+						<Campo label='Data envio' valor={formatarData(dataEnvio)} />
+						<Campo
+							label='Decisão interlocutória'
+							valor={formatarData(adm.data_decisao_interlocutoria)}
+						/>
+						{adm.obs && (
+							<div className='sm:col-span-2'>
+								<Campo label='Observação da inadmissão' valor={adm.obs} />
+							</div>
+						)}
+					</CardContent>
+				</Card>
+			</div>
+		);
+	}
+
+	// Estado inicial (status 1) → decidir: admitir ou inadmitir.
 	return (
 		<div className='space-y-4'>
 			<CardPrazoFase
@@ -267,156 +394,148 @@ export default function AbaAdmissibilidade({
 				processo={processo}
 				admissibilidade={adm}
 			/>
-		<Card>
-			<CardHeader className='flex flex-row flex-wrap items-center justify-between gap-4'>
-				<CardTitle>Admitir processo</CardTitle>
-				<div className='flex flex-wrap items-center gap-2'>
-					<Badge variant={config.variant}>{config.label}</Badge>
-					<ModalMotivos compact />
-					{podeInadmitir && (
-						<Button
-							type='button'
-							size='sm'
-							variant='outline'
-							className='text-amber-600 hover:text-amber-700'
-							onClick={() => setModalInadmitirAberto(true)}>
-							<Hand className='mr-2 h-4 w-4' />
-							Inadmitir
-						</Button>
-					)}
-				</div>
-			</CardHeader>
-			<CardContent className='space-y-6'>
-				<div className='grid gap-2'>
-					<Label>Processo (SEI)</Label>
-					<Input value={formatarSei(processo.sei)} readOnly />
-				</div>
+			<Card>
+				<CardHeader className='flex flex-row flex-wrap items-center justify-between gap-4'>
+					<div className='space-y-0.5'>
+						<CardTitle>Decisão de admissibilidade</CardTitle>
+						<p className='text-sm text-muted-foreground'>
+							Admita o processo (segue para análise) ou inadmita (abre
+							reconsideração).
+						</p>
+					</div>
+					<div className='flex flex-wrap items-center gap-2'>
+						<Badge variant={config.variant}>{config.label}</Badge>
+						<ModalMotivos compact />
+					</div>
+				</CardHeader>
+				<CardContent className='space-y-6'>
+					<div className='grid gap-4 sm:grid-cols-2'>
+						<div className='grid gap-2'>
+							<Label>Processo (SEI)</Label>
+							<Input value={formatarSei(processo.sei)} readOnly />
+						</div>
+						<div className='grid gap-2'>
+							<Label>Data envio</Label>
+							<Input value={formatarData(dataEnvio)} readOnly />
+						</div>
+					</div>
 
-				<div className='grid gap-4 sm:grid-cols-2'>
-					<div className='grid gap-2'>
-						<Label>Data envio</Label>
-						<Input value={formatarData(dataEnvio)} readOnly />
+					<div className='grid gap-4 sm:grid-cols-2'>
+						<div className='grid gap-2'>
+							<Label>Tipo de processo</Label>
+							<Select value={tipoProcesso} onValueChange={setTipoProcesso}>
+								<SelectTrigger>
+									<SelectValue />
+								</SelectTrigger>
+								<SelectContent>
+									<SelectItem value='1'>Próprio de SMUL</SelectItem>
+									<SelectItem value='2'>GRAPROEM (múltiplas interfaces)</SelectItem>
+								</SelectContent>
+							</Select>
+						</div>
+						<div className='grid gap-2'>
+							<Label>Data decisão</Label>
+							<Input
+								type='date'
+								value={dataDecisao}
+								onChange={(e) => setDataDecisao(e.target.value)}
+							/>
+						</div>
 					</div>
-				</div>
 
-				<div className='grid gap-4 sm:grid-cols-2'>
-					<div className='grid gap-2'>
-						<Label>Tipo de processo</Label>
-						<Select value={tipoProcesso} onValueChange={setTipoProcesso}>
-							<SelectTrigger>
-								<SelectValue />
-							</SelectTrigger>
-							<SelectContent>
-								<SelectItem value='1'>Próprio de SMUL</SelectItem>
-								<SelectItem value='2'>GRAPROEM (múltiplas interfaces)</SelectItem>
-							</SelectContent>
-						</Select>
+					<div className='grid gap-4 sm:grid-cols-2'>
+						<div className='grid gap-2'>
+							<Label>Subprefeitura</Label>
+							<Select
+								value={subprefeituraId}
+								onValueChange={setSubprefeituraId}>
+								<SelectTrigger>
+									<SelectValue placeholder='Selecione a subprefeitura' />
+								</SelectTrigger>
+								<SelectContent>
+									{subprefeituras.map((item) => (
+										<SelectItem key={item.id} value={item.id}>
+											{item.nome}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
+						<div className='grid gap-2'>
+							<Label>Unidade</Label>
+							<Select value={unidadeId} onValueChange={setUnidadeId}>
+								<SelectTrigger>
+									<SelectValue placeholder='Selecione a unidade' />
+								</SelectTrigger>
+								<SelectContent>
+									{unidades.map((item) => (
+										<SelectItem key={item.id} value={item.id}>
+											{item.sigla} — {item.nome}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
+						</div>
 					</div>
-					<div className='grid gap-2'>
-						<Label>Status</Label>
-						<Input value='Admissível' readOnly />
-					</div>
-				</div>
 
-				<div className='grid gap-4 sm:grid-cols-2'>
-					<div className='grid gap-2'>
-						<Label>Subprefeitura</Label>
-						<Select
-							value={subprefeituraId}
-							onValueChange={setSubprefeituraId}>
-							<SelectTrigger>
-								<SelectValue placeholder='Selecione a subprefeitura' />
-							</SelectTrigger>
-							<SelectContent>
-								{subprefeituras.map((item) => (
-									<SelectItem key={item.id} value={item.id}>
-										{item.nome}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-					<div className='grid gap-2'>
-						<Label>Unidade</Label>
-						<Select value={unidadeId} onValueChange={setUnidadeId}>
-							<SelectTrigger>
-								<SelectValue placeholder='Selecione a unidade' />
-							</SelectTrigger>
-							<SelectContent>
-								{unidades.map((item) => (
-									<SelectItem key={item.id} value={item.id}>
-										{item.sigla} — {item.nome}
-									</SelectItem>
-								))}
-							</SelectContent>
-						</Select>
-					</div>
-				</div>
-
-				<div className='grid gap-4 sm:grid-cols-2'>
-					<div className='grid gap-2'>
-						<Label>Data decisão</Label>
-						<Input
-							type='date'
-							value={dataDecisao}
-							onChange={(e) => setDataDecisao(e.target.value)}
-						/>
-					</div>
-				</div>
-
-				{+tipoProcesso === 2 && (
-					<div className='space-y-4 rounded-lg border p-4'>
-						<p className='text-sm font-medium'>Interfaces</p>
-						{interfacesVisiveis.map((item) => (
-							<div
-								key={item.label}
-								className='grid gap-3 sm:grid-cols-[120px_1fr] items-center'>
-								<Label htmlFor={item.label}>{item.label}</Label>
-								<div className='grid gap-1'>
-									<Input
-										id={item.label}
-										placeholder={`Processo ${item.label}`}
-										value={(interfaces[item.numKey] as string) ?? ''}
-										onChange={(e) =>
-											atualizarInterface(
-												item.numKey,
-												formatarSei(e.target.value),
-											)
-										}
-									/>
-									{interfacesAlteradas[item.numKey] &&
-										seiInvalido(interfaces[item.numKey] as string) && (
-											<p className='text-sm text-destructive'>SEI inválido</p>
-										)}
+					{+tipoProcesso === 2 && (
+						<div className='space-y-4 rounded-lg border p-4'>
+							<p className='text-sm font-medium'>Interfaces</p>
+							{interfacesVisiveis.map((item) => (
+								<div
+									key={item.label}
+									className='grid gap-3 sm:grid-cols-[120px_1fr] items-center'>
+									<Label htmlFor={item.label}>{item.label}</Label>
+									<div className='grid gap-1'>
+										<Input
+											id={item.label}
+											placeholder={`Processo ${item.label}`}
+											value={(interfaces[item.numKey] as string) ?? ''}
+											onChange={(e) =>
+												atualizarInterface(
+													item.numKey,
+													formatarSei(e.target.value),
+												)
+											}
+										/>
+										{interfacesAlteradas[item.numKey] &&
+											seiInvalido(interfaces[item.numKey] as string) && (
+												<p className='text-sm text-destructive'>SEI inválido</p>
+											)}
+									</div>
 								</div>
-							</div>
-						))}
-					</div>
-				)}
+							))}
+						</div>
+					)}
 
-				<div className='flex justify-end gap-2'>
-					<Button
-						variant='outline'
-						type='button'
-						disabled={isPending}
-						onClick={() =>
-							router.replace(`/processos/${processo.id}?tab=dados`)
-						}>
-						Cancelar
-					</Button>
-					<Button onClick={salvar} disabled={isPending || !podeSalvar()}>
-						{isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
-						Admitir processo
-					</Button>
-				</div>
-			</CardContent>
-		</Card>
-			<ModalInadmitir
-				open={modalInadmitirAberto}
-				onOpenChange={setModalInadmitirAberto}
-				inicialId={processo.id}
-				sei={processo.sei ?? ''}
-			/>
+					<div className='flex justify-end gap-2'>
+						<Button
+							variant='outline'
+							type='button'
+							disabled={isPending}
+							onClick={() =>
+								router.replace(`/processos/${processo.id}?tab=dados`)
+							}>
+							Cancelar
+						</Button>
+						{podeInadmitir && (
+							<Button
+								type='button'
+								variant='destructive'
+								disabled={isPending}
+								onClick={abrirInadmitir}>
+								<Hand className='mr-2 h-4 w-4' />
+								Inadmitir
+							</Button>
+						)}
+						<Button onClick={salvar} disabled={isPending || !podeSalvar()}>
+							{isPending && <Loader2 className='mr-2 h-4 w-4 animate-spin' />}
+							Admitir processo
+						</Button>
+					</div>
+				</CardContent>
+			</Card>
+			{dialogInadmitir}
 		</div>
 	);
 }

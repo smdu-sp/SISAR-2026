@@ -6,4 +6,7 @@ export class RegistrarDecisaoDto {
 
   @ApiProperty({ required: false })
   obs?: string;
+
+  @ApiProperty({ required: false, description: 'Parecer técnico da decisão.' })
+  parecer_tecnico?: string;
 }

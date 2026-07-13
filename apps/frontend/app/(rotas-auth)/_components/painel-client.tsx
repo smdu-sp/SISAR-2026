@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { TriangleAlert, CalendarClock, Timer, CheckCircle2, Flag, ChevronRight, Inbox } from 'lucide-react';
+import { TriangleAlert, CalendarClock, Timer, CheckCircle2, Flag, ChevronLeft, ChevronRight, Inbox } from 'lucide-react';
 import { cn, pageContainer } from '@/lib/utils';
 import type { FasePrazoProcesso } from '@/lib/prazo-fase';
 import { DeadlineRing, SitPill, STATUS_COLOR, type SituacaoPrazo } from './deadline-ring';
@@ -231,9 +231,22 @@ export default function PainelClient({
 	maxFase,
 }: Props) {
 	const [aba, setAba] = useState<TabPainel>('vencido');
+	const [porPagina, setPorPagina] = useState<10 | 50 | 100>(10);
+	const [pagina, setPagina] = useState(1);
 
 	const ativosList = processos.filter((p) => p.situacao !== 'finalizado');
 	const rows = aba === 'todos' ? ativosList : processos.filter((p) => p.situacao === aba);
+
+	const totalPaginas = Math.max(1, Math.ceil(rows.length / porPagina));
+	const paginaAtual = Math.min(pagina, totalPaginas);
+	const inicio = (paginaAtual - 1) * porPagina;
+	const fim = Math.min(inicio + porPagina, rows.length);
+	const rowsPagina = rows.slice(inicio, fim);
+
+	// Volta para a primeira página ao trocar de aba ou de tamanho de página.
+	useEffect(() => {
+		setPagina(1);
+	}, [aba, porPagina]);
 
 	const kpis = [
 		{ key: 'vencido' as TabPainel, label: 'Vencidos', color: STATUS_COLOR.vencido, icon: <TriangleAlert size={16} />, n: counts.vencido },
@@ -345,7 +358,51 @@ export default function PainelClient({
 						</div>
 					</div>
 				</div>
-				<ProcTable rows={rows} />
+				<ProcTable rows={rowsPagina} />
+				{rows.length > 0 && (
+					<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-t border-border/50'>
+						<div className='flex items-center gap-2 text-xs text-muted-foreground'>
+							<span className='font-medium'>Por página:</span>
+							{([10, 50, 100] as const).map((n) => (
+								<button
+									key={n}
+									onClick={() => setPorPagina(n)}
+									className={cn(
+										'px-2.5 py-1 rounded-md font-semibold transition-all',
+										porPagina === n
+											? 'bg-primary text-primary-foreground'
+											: 'bg-accent text-accent-foreground hover:bg-muted',
+									)}
+								>
+									{n}
+								</button>
+							))}
+						</div>
+						<div className='flex items-center gap-3 text-xs'>
+							<span className='text-muted-foreground font-medium'>
+								{inicio + 1}–{fim} de {rows.length}
+							</span>
+							<div className='flex gap-1'>
+								<button
+									onClick={() => setPagina((p) => Math.max(1, p - 1))}
+									disabled={paginaAtual <= 1}
+									aria-label='Página anterior'
+									className='inline-flex items-center justify-center h-7 w-7 rounded-md bg-accent text-accent-foreground hover:bg-muted disabled:opacity-40 disabled:pointer-events-none'
+								>
+									<ChevronLeft size={16} />
+								</button>
+								<button
+									onClick={() => setPagina((p) => Math.min(totalPaginas, p + 1))}
+									disabled={paginaAtual >= totalPaginas}
+									aria-label='Próxima página'
+									className='inline-flex items-center justify-center h-7 w-7 rounded-md bg-accent text-accent-foreground hover:bg-muted disabled:opacity-40 disabled:pointer-events-none'
+								>
+									<ChevronRight size={16} />
+								</button>
+							</div>
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	);

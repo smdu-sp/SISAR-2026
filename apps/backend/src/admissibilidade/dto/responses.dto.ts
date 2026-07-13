@@ -22,6 +22,8 @@ export class CreateResponseAdmissibilidadeDTO {
     reconsiderado: boolean;
     @ApiProperty()
     motivo: number;
+    @ApiProperty({ required: false })
+    obs?: string;
     @ApiProperty()
     criado_em: Date;
     @ApiProperty()
@@ -49,6 +51,8 @@ export class AdmissibilidadeResponseDTO {
     reconsiderado: boolean;
     @ApiProperty()
     motivo: number;
+    @ApiProperty()
+    obs: string;
     @ApiProperty()
     criado_em: Date;
     @ApiProperty()

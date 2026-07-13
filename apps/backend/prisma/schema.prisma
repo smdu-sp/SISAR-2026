@@ -38,6 +38,7 @@ model Admissibilidade {
   status                      Int            @default(1)
   reconsiderado               Boolean        @default(false)
   motivo                      Int?
+  obs                         String?        @db.Text
 
   criado_em                   DateTime       @default(now())
   alterado_em                 DateTime       @default(now()) @updatedAt
@@ -204,6 +205,7 @@ model Decisao {
   analise_siurb      DateTime?
   analise_svma       DateTime?
   obs                String?
+  parecer_tecnico    String?   @db.Text
   etapa              Int?
   instancia          Int?      @default(1)
   graproem           Int?

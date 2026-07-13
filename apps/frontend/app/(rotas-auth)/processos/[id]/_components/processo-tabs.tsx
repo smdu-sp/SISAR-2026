@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { calcSituacaoPrazo } from '@/lib/listagem-processo';
+import { calcSituacaoPrazo, rotuloProcessoListagem } from '@/lib/listagem-processo';
 import { prazoEtapaAtualListagem, inferirFasePrazoAtual } from '@/lib/prazo-fase';
 import { cn } from '@/lib/utils';
 import { dataEnvioAdmissibilidade } from '@/types/admissibilidade';
@@ -27,6 +27,7 @@ import AbaDistribuicao from './aba-distribuicao';
 import AbaFinalizacao from './aba-finalizacao';
 import AbaReconsideracaoAdm from './aba-reconsideracao-adm';
 import LinhaDoTempo from './linha-do-tempo';
+import ResumoPrazos from './resumo-prazos';
 
 const STATUS_LABELS: Record<number, string> = {
 	0: 'Admissibilidade',
@@ -232,7 +233,7 @@ export default function ProcessoTabs({
 						<div className='flex-1 min-w-0'>
 							<div className='flex flex-wrap items-center gap-2 mb-1.5'>
 								<span className='text-sm font-mono font-semibold text-muted-foreground'>
-									{processo.sei}
+									{rotuloProcessoListagem(processo)}
 								</span>
 								<Badge>{STATUS_LABELS[status] ?? '—'}</Badge>
 								{isMulti && (
@@ -301,6 +302,13 @@ export default function ProcessoTabs({
 					</div>
 				</CardContent>
 			</Card>
+
+			{/* Resumo de prazos de todas as fases */}
+			<ResumoPrazos
+				processo={processo}
+				admissibilidade={processo.admissibilidade}
+				conclusao={conclusao ?? processo.conclusao}
+			/>
 
 			{/* Layout: conteúdo (tabs) + sidebar */}
 			<div className='grid grid-cols-1 lg:grid-cols-[1fr_288px] gap-6 items-start'>
@@ -377,7 +385,7 @@ export default function ProcessoTabs({
 					<Card>
 						<CardContent className='p-4 space-y-2.5'>
 							<SidebarSectionTitle>Identificação</SidebarSectionTitle>
-							<SidebarRow label='Processo' value={`#${processo.id}`} />
+							<SidebarRow label='SEI' value={rotuloProcessoListagem(processo)} />
 							{processo.aprova_digital && (
 								<SidebarRow label='Aprova Digital' value={processo.aprova_digital} />
 							)}

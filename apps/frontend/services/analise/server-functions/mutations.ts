@@ -57,7 +57,7 @@ export type IRegistrarPreReuniaoPayload = {
 	data_reuniao: string;
 	data_processo: string;
 	numero_reuniao: string;
-	parecer_grupo: string;
+	parecer_grupo?: string;
 	nova_data_reuniao?: string;
 	justificativa_remarcacao?: string;
 };
@@ -106,10 +106,12 @@ export async function registrarDecisao(
 	inicialId: number,
 	parecer: number,
 	obs?: string,
+	parecer_tecnico?: string,
 ) {
 	const res = await request(`analise/decisao/${inicialId}`, 'POST', {
 		parecer,
 		obs,
+		parecer_tecnico,
 	});
 	if (res.ok) revalidarProcesso(inicialId);
 	return res;

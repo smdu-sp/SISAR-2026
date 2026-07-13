@@ -11,10 +11,8 @@ import {
 import { SitPill } from '@/app/(rotas-auth)/_components/deadline-ring';
 import { Badge } from '@/components/ui/badge';
 import { calcSituacaoPrazo, textoFaseAtual } from '@/lib/listagem-processo';
-import { urlProcesso } from '@/lib/processo-navegacao';
 import { IProcesso } from '@/types/processos';
 import { ColumnDef } from '@tanstack/react-table';
-import Link from 'next/link';
 
 const STATUS_PROCESSO: Record<
 	number,
@@ -28,17 +26,6 @@ const STATUS_PROCESSO: Record<
 };
 
 export const columns: ColumnDef<IProcesso>[] = [
-	{
-		accessorKey: 'id',
-		header: '#',
-		cell: ({ row }) => (
-			<Link
-				href={urlProcesso(row.original.id, row.original.status ?? undefined)}
-				className='font-medium text-primary hover:underline'>
-				{row.original.id}
-			</Link>
-		),
-	},
 	colunaIdentificadorProcesso(),
 	{
 		accessorKey: 'status',

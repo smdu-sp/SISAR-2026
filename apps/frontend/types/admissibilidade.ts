@@ -13,6 +13,7 @@ export interface IAdmissibilidade {
 	status: number;
 	reconsiderado: boolean;
 	motivo?: number | null;
+	obs?: string | null;
 	criado_em?: string | Date | null;
 	alterado_em?: string | Date | null;
 	inicial?: IProcesso & { data_limiteSmul?: string | Date | null };
