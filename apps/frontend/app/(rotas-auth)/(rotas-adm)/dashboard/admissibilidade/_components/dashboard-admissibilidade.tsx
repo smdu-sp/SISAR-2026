@@ -43,7 +43,7 @@ import {
 	Tooltip,
 } from 'recharts';
 
-const CORES_PIZZA = ['hsl(var(--primary))', 'hsl(var(--destructive))'];
+const CORES_PIZZA = ['var(--status-noprazo)', 'var(--status-vencido)'];
 
 function CardMetrica({
 	titulo,
@@ -64,7 +64,7 @@ function CardMetrica({
 				</CardTitle>
 				<div
 					className='rounded-full p-2'
-					style={{ backgroundColor: `${cor}22` }}>
+					style={{ backgroundColor: `color-mix(in srgb, ${cor} 12%, transparent)` }}>
 					<Icone
 						className='size-5'
 						style={{ color: cor }}
@@ -138,25 +138,25 @@ export default function DashboardAdmissibilidade() {
 					titulo='Admissibilidade Finalizada'
 					valor={finalizadas ?? '—'}
 					icone={CheckCircle2}
-					cor='#22c55e'
+					cor='var(--status-finalizado)'
 				/>
 				<CardMetrica
 					titulo='Dentro do prazo'
 					valor={dentroPrazo ?? '—'}
 					icone={Hourglass}
-					cor='#0a3299'
+					cor='var(--status-noprazo)'
 				/>
 				<CardMetrica
 					titulo='Fora do prazo'
 					valor={foraPrazo ?? '—'}
 					icone={Clock}
-					cor='#f94668'
+					cor='var(--status-vencido)'
 				/>
 				<CardMetrica
 					titulo='Mediana tempo de análise'
 					valor={mediana ?? '—'}
 					icone={TrendingUp}
-					cor='#8800e0'
+					cor='var(--primary)'
 				/>
 			</div>
 
