@@ -8,6 +8,7 @@ import {
 	ChevronsUp,
 	House,
 	LucideProps,
+	Newspaper,
 	Users,
 	X,
 } from 'lucide-react';
@@ -58,6 +59,11 @@ export function DrawerMenu() {
 			icone: CalendarSearch,
 			titulo: 'Agendamentos',
 			url: '/agendamentos',
+		},
+		{
+			icone: Newspaper,
+			titulo: 'Publicações',
+			url: '/processos?aba=publicacoes',
 		},
 	];
 

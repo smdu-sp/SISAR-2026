@@ -5,6 +5,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
 	Dialog,
 	DialogContent,
@@ -135,13 +136,13 @@ export default function AbaAdmissibilidade({
 		setInterfacesAlteradas((prev) => ({ ...prev, [campo]: true }));
 	}
 
+	function atualizarTemInterface(campo: keyof IInterfacesAdmissibilidade, valor: boolean) {
+		setInterfaces((prev) => ({ ...prev, [campo]: valor }));
+	}
+
 	function normalizarNumeroInterface(valor?: string | null) {
 		const limpo = valor?.replace(/\D/g, '') ?? '';
 		return limpo.length > 0 ? limpo : null;
-	}
-
-	function campoInterfacePreenchido(campo: keyof IInterfacesAdmissibilidade) {
-		return normalizarNumeroInterface(interfaces[campo] as string | null | undefined) !== null;
 	}
 
 	function seiInvalido(valor?: string | null) {
@@ -153,7 +154,7 @@ export default function AbaAdmissibilidade({
 		if (!subprefeituraId || !unidadeId || !dataDecisao) return false;
 		if (+tipoProcesso === 2) {
 			const algumMarcado = interfacesVisiveis.some(
-				(item) => campoInterfacePreenchido(item.numKey),
+				(item) => interfaces[item.key] === true,
 			);
 			if (!algumMarcado) return false;
 			const algumSeiInvalido = interfacesVisiveis.some((item) => {
@@ -188,11 +189,11 @@ export default function AbaAdmissibilidade({
 				const numSvma = normalizarNumeroInterface(interfaces.num_svma);
 
 				payload.interfaces = {
-					interface_sehab: !!numSehab,
-					interface_siurb: !!numSiurb,
-					interface_smc: !!numSmc,
-					interface_smt: !!numSmt,
-					interface_svma: !!numSvma,
+					interface_sehab: interfaces.interface_sehab ?? false,
+					interface_siurb: interfaces.interface_siurb ?? false,
+					interface_smc: interfaces.interface_smc ?? false,
+					interface_smt: interfaces.interface_smt ?? false,
+					interface_svma: interfaces.interface_svma ?? false,
 					num_sehab: numSehab,
 					num_siurb: numSiurb,
 					num_smc: numSmc,
@@ -340,7 +341,7 @@ export default function AbaAdmissibilidade({
 						<Badge variant={config.variant}>{config.label}</Badge>
 					</CardHeader>
 					<CardContent className='grid gap-4 sm:grid-cols-2'>
-						<Campo label='Data envio' valor={formatarData(dataEnvio)} />
+						<Campo label='Data de Recebimento em SMUL/ATEC' valor={formatarData(dataEnvio)} />
 						<Campo
 							label='Decisão interlocutória'
 							valor={formatarData(adm.data_decisao_interlocutoria)}
@@ -370,7 +371,7 @@ export default function AbaAdmissibilidade({
 						<Badge variant={config.variant}>{config.label}</Badge>
 					</CardHeader>
 					<CardContent className='grid gap-4 sm:grid-cols-2'>
-						<Campo label='Data envio' valor={formatarData(dataEnvio)} />
+						<Campo label='Data de Recebimento em SMUL/ATEC' valor={formatarData(dataEnvio)} />
 						<Campo
 							label='Decisão interlocutória'
 							valor={formatarData(adm.data_decisao_interlocutoria)}
@@ -415,7 +416,7 @@ export default function AbaAdmissibilidade({
 							<Input value={formatarSei(processo.sei)} readOnly />
 						</div>
 						<div className='grid gap-2'>
-							<Label>Data envio</Label>
+							<Label>Data de Recebimento em SMUL/ATEC</Label>
 							<Input value={formatarData(dataEnvio)} readOnly />
 						</div>
 					</div>
@@ -480,11 +481,15 @@ export default function AbaAdmissibilidade({
 
 					{+tipoProcesso === 2 && (
 						<div className='space-y-4 rounded-lg border p-4'>
-							<p className='text-sm font-medium'>Interfaces</p>
+							<div className='grid gap-3 sm:grid-cols-[120px_1fr_220px] items-center'>
+								<p className='text-sm font-medium'>Interfaces</p>
+								<div className='hidden sm:block' />
+								<p className='text-sm font-bold'>Tem Interface?</p>
+							</div>
 							{interfacesVisiveis.map((item) => (
 								<div
 									key={item.label}
-									className='grid gap-3 sm:grid-cols-[120px_1fr] items-center'>
+									className='grid gap-3 sm:grid-cols-[120px_1fr_220px] items-center'>
 									<Label htmlFor={item.label}>{item.label}</Label>
 									<div className='grid gap-1'>
 										<Input
@@ -502,6 +507,28 @@ export default function AbaAdmissibilidade({
 											seiInvalido(interfaces[item.numKey] as string) && (
 												<p className='text-sm text-destructive'>SEI inválido</p>
 											)}
+									</div>
+									<div className='flex items-center gap-5'>
+										<label className='flex items-center gap-2 text-sm font-medium'>
+											<Checkbox
+												checked={interfaces[item.key] === true}
+												onCheckedChange={(checked) =>
+													atualizarTemInterface(item.key, checked === true)
+												}
+											/>
+											<span>SIM</span>
+										</label>
+										<label className='flex items-center gap-2 text-sm font-medium'>
+											<Checkbox
+												checked={interfaces[item.key] === false}
+												onCheckedChange={(checked) => {
+													if (checked === true) {
+														atualizarTemInterface(item.key, false);
+													}
+												}}
+											/>
+											<span>NÃO</span>
+										</label>
 									</div>
 								</div>
 							))}

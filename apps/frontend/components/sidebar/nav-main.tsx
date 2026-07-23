@@ -18,6 +18,7 @@ import {
 	Gavel,
 	CalendarDays,
 	LayoutDashboard,
+	Newspaper,
 } from 'lucide-react';
 
 import {
@@ -76,6 +77,11 @@ export async function NavMain() {
 			icone: FolderOpen,
 			titulo: 'Processos',
 			url: '/processos',
+		},
+		{
+			icone: Newspaper,
+			titulo: 'Publicações',
+			url: '/processos?aba=publicacoes',
 		},
 	];
 

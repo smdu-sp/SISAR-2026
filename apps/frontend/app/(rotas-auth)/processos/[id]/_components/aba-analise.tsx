@@ -159,6 +159,7 @@ export default function AbaAnalise({ processo }: { processo: IProcesso }) {
 				data_reuniao: dataReuniao,
 				data_processo: dataProcesso,
 				numero_reuniao: numeroReuniao.trim(),
+				parecer_grupo: parecerTecnico.trim() || undefined,
 				nova_data_reuniao: novaDataReuniao.trim() || undefined,
 				justificativa_remarcacao:
 					justificativaRemarcacao.trim() || undefined,

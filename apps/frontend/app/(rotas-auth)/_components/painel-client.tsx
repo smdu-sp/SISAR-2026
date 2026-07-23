@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/page-header';
 
 export type { SituacaoPrazo };
 type TabPainel = SituacaoPrazo | 'todos';
+type PorPaginaPainel = 10 | 50 | 100 | 'todos';
 
 export interface ProcessoPainel {
 	id: number;
@@ -231,16 +232,17 @@ export default function PainelClient({
 	maxFase,
 }: Props) {
 	const [aba, setAba] = useState<TabPainel>('vencido');
-	const [porPagina, setPorPagina] = useState<10 | 50 | 100>(10);
+	const [porPagina, setPorPagina] = useState<PorPaginaPainel>(10);
 	const [pagina, setPagina] = useState(1);
 
 	const ativosList = processos.filter((p) => p.situacao !== 'finalizado');
 	const rows = aba === 'todos' ? ativosList : processos.filter((p) => p.situacao === aba);
 
-	const totalPaginas = Math.max(1, Math.ceil(rows.length / porPagina));
+	const quantidadePorPagina = porPagina === 'todos' ? Math.max(rows.length, 1) : porPagina;
+	const totalPaginas = Math.max(1, Math.ceil(rows.length / quantidadePorPagina));
 	const paginaAtual = Math.min(pagina, totalPaginas);
-	const inicio = (paginaAtual - 1) * porPagina;
-	const fim = Math.min(inicio + porPagina, rows.length);
+	const inicio = (paginaAtual - 1) * quantidadePorPagina;
+	const fim = Math.min(inicio + quantidadePorPagina, rows.length);
 	const rowsPagina = rows.slice(inicio, fim);
 
 	// Volta para a primeira página ao trocar de aba ou de tamanho de página.
@@ -363,7 +365,7 @@ export default function PainelClient({
 					<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-t border-border/50'>
 						<div className='flex items-center gap-2 text-xs text-muted-foreground'>
 							<span className='font-medium'>Por página:</span>
-							{([10, 50, 100] as const).map((n) => (
+							{([10, 50, 100, 'todos'] as const).map((n) => (
 								<button
 									key={n}
 									onClick={() => setPorPagina(n)}
@@ -374,7 +376,7 @@ export default function PainelClient({
 											: 'bg-accent text-accent-foreground hover:bg-muted',
 									)}
 								>
-									{n}
+									{n === 'todos' ? 'Todos' : n}
 								</button>
 							))}
 						</div>

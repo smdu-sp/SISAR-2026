@@ -11,6 +11,10 @@ export async function buscarTudo(
 ): Promise<IRespostaProcessos> {
   const baseURL = process.env.NEXT_PUBLIC_API_URL;
   const buscaLimpa = busca.replace(/[-./]/g, "");
+  const fetchCacheOptions =
+    limite > 1000
+      ? { cache: "no-store" as const }
+      : { next: { tags: ["processos"], revalidate: 120 } };
 
   try {
     const response = await fetch(
@@ -21,7 +25,7 @@ export async function buscarTudo(
           "Content-Type": "application/json",
           Authorization: `Bearer ${access_token}`,
         },
-        next: { tags: ["processos"], revalidate: 120 },
+        ...fetchCacheOptions,
       },
     );
     console.log("[processos.buscarTudo] status:", response.status);
