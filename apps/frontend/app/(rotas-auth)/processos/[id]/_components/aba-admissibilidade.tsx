@@ -13,6 +13,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -135,13 +136,15 @@ export default function AbaAdmissibilidade({
 		setInterfacesAlteradas((prev) => ({ ...prev, [campo]: true }));
 	}
 
+	// Marca/desmarca a existência de uma interface (checkbox). Independente do
+	// número vinculado, que pode existir mesmo com a interface desmarcada.
+	function alternarInterface(item: InterfaceField, marcada: boolean) {
+		setInterfaces((prev) => ({ ...prev, [item.key]: marcada }));
+	}
+
 	function normalizarNumeroInterface(valor?: string | null) {
 		const limpo = valor?.replace(/\D/g, '') ?? '';
 		return limpo.length > 0 ? limpo : null;
-	}
-
-	function campoInterfacePreenchido(campo: keyof IInterfacesAdmissibilidade) {
-		return normalizarNumeroInterface(interfaces[campo] as string | null | undefined) !== null;
 	}
 
 	function seiInvalido(valor?: string | null) {
@@ -152,10 +155,14 @@ export default function AbaAdmissibilidade({
 	function podeSalvar() {
 		if (!subprefeituraId || !unidadeId || !dataDecisao) return false;
 		if (+tipoProcesso === 2) {
-			const algumMarcado = interfacesVisiveis.some(
-				(item) => campoInterfacePreenchido(item.numKey),
+			// Basta ter alguma interface marcada OU algum número informado.
+			const algumaInterface = interfacesVisiveis.some(
+				(item) =>
+					!!interfaces[item.key] ||
+					!!normalizarNumeroInterface(interfaces[item.numKey] as string),
 			);
-			if (!algumMarcado) return false;
+			if (!algumaInterface) return false;
+			// Valida o dígito do SEI em qualquer número informado.
 			const algumSeiInvalido = interfacesVisiveis.some((item) => {
 				const num = interfaces[item.numKey] as string;
 				if (!normalizarNumeroInterface(num)) return false;
@@ -181,23 +188,19 @@ export default function AbaAdmissibilidade({
 			};
 
 			if (+tipoProcesso === 2) {
-				const numSehab = normalizarNumeroInterface(interfaces.num_sehab);
-				const numSiurb = normalizarNumeroInterface(interfaces.num_siurb);
-				const numSmc = normalizarNumeroInterface(interfaces.num_smc);
-				const numSmt = normalizarNumeroInterface(interfaces.num_smt);
-				const numSvma = normalizarNumeroInterface(interfaces.num_svma);
-
+				// Existência (checkbox) e número (opcional) são independentes: o
+				// número é gravado mesmo quando a interface não está marcada.
 				payload.interfaces = {
-					interface_sehab: !!numSehab,
-					interface_siurb: !!numSiurb,
-					interface_smc: !!numSmc,
-					interface_smt: !!numSmt,
-					interface_svma: !!numSvma,
-					num_sehab: numSehab,
-					num_siurb: numSiurb,
-					num_smc: numSmc,
-					num_smt: numSmt,
-					num_svma: numSvma,
+					interface_sehab: !!interfaces.interface_sehab,
+					interface_siurb: !!interfaces.interface_siurb,
+					interface_smc: !!interfaces.interface_smc,
+					interface_smt: !!interfaces.interface_smt,
+					interface_svma: !!interfaces.interface_svma,
+					num_sehab: normalizarNumeroInterface(interfaces.num_sehab),
+					num_siurb: normalizarNumeroInterface(interfaces.num_siurb),
+					num_smc: normalizarNumeroInterface(interfaces.num_smc),
+					num_smt: normalizarNumeroInterface(interfaces.num_smt),
+					num_svma: normalizarNumeroInterface(interfaces.num_svma),
 				};
 			}
 
@@ -480,16 +483,34 @@ export default function AbaAdmissibilidade({
 
 					{+tipoProcesso === 2 && (
 						<div className='space-y-4 rounded-lg border p-4'>
-							<p className='text-sm font-medium'>Interfaces</p>
+							<div className='space-y-0.5'>
+								<p className='text-sm font-medium'>Interfaces</p>
+								<p className='text-xs text-muted-foreground'>
+									Marque quais interfaces existem. O número do processo vinculado
+									é opcional e pode ser informado mesmo em interfaces não
+									marcadas.
+								</p>
+							</div>
 							{interfacesVisiveis.map((item) => (
 								<div
 									key={item.label}
-									className='grid gap-3 sm:grid-cols-[120px_1fr] items-center'>
-									<Label htmlFor={item.label}>{item.label}</Label>
+									className='grid gap-3 sm:grid-cols-[160px_1fr] items-start'>
+									<label
+										htmlFor={`chk-${item.label}`}
+										className='flex items-center gap-2 pt-2 cursor-pointer select-none'>
+										<Checkbox
+											id={`chk-${item.label}`}
+											checked={!!interfaces[item.key]}
+											onCheckedChange={(v) =>
+												alternarInterface(item, v === true)
+											}
+										/>
+										<span className='text-sm font-medium'>{item.label}</span>
+									</label>
 									<div className='grid gap-1'>
 										<Input
 											id={item.label}
-											placeholder={`Processo ${item.label}`}
+											placeholder={`Processo ${item.label} (opcional)`}
 											value={(interfaces[item.numKey] as string) ?? ''}
 											onChange={(e) =>
 												atualizarInterface(

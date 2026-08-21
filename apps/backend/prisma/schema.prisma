@@ -276,6 +276,10 @@ model Inicial {
   pagamento                      Int?                            @default(1)
   requalifica_rapido             Boolean?                        @default(false)
   associado_reforma              Boolean?                        @default(false)
+  numero_requerimento            String?
+  ar_ou_rr                       String?
+  numero_guia_tev                String?
+  guia_vinculada_outro           Boolean?                        @default(false)
   data_limiteSmul                DateTime?                       @db.Date
   data_limiteMulti               DateTime?                       @db.Date
   comunique_ses                  Comunique_se[]
@@ -388,6 +392,7 @@ model Reuniao_Processo {
   justificativa_remarcacao String?
   numero_reuniao           String?
   parecer_grupo            String?    @db.Text
+  data_publicacao          DateTime?  @db.Date
 
   criado_em                DateTime   @default(now())
   alterado_em              DateTime   @default(now()) @updatedAt
