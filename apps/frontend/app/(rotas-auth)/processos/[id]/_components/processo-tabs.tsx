@@ -7,16 +7,16 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { calcSituacaoPrazo, rotuloProcessoListagem } from '@/lib/listagem-processo';
+import { calcSituacaoPrazo, rotuloProcessoListagem, seiPreenchido } from '@/lib/listagem-processo';
 import { prazoEtapaAtualListagem, inferirFasePrazoAtual } from '@/lib/prazo-fase';
-import { cn } from '@/lib/utils';
+import { cn, formatarSei } from '@/lib/utils';
 import { dataEnvioAdmissibilidade } from '@/types/admissibilidade';
 import { IConclusao } from '@/types/finalizacao';
 import { IProcesso } from '@/types/processos';
 import { ISubprefeitura } from '@/types/subprefeituras';
 import { IUnidades } from '@/types/unidades';
 import { IUsuario } from '@/types/usuario';
-import { Bell, ChevronLeft, ExternalLink } from 'lucide-react';
+import { ChevronLeft, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useMemo } from 'react';
@@ -28,6 +28,7 @@ import AbaFinalizacao from './aba-finalizacao';
 import AbaReconsideracaoAdm from './aba-reconsideracao-adm';
 import LinhaDoTempo from './linha-do-tempo';
 import ResumoPrazos from './resumo-prazos';
+import ModalLembrete from './modal-lembrete';
 
 const STATUS_LABELS: Record<number, string> = {
 	0: 'Admissibilidade',
@@ -203,6 +204,12 @@ export default function ProcessoTabs({
 	const isMulti = processo.tipo_processo === 2;
 	const alvara = processo.alvara_tipo;
 
+	// Deep-link para a Pesquisa Pública do SEI já filtrada pelo número do processo.
+	const seiBase = 'https://sei.prefeitura.sp.gov.br';
+	const seiUrl = seiPreenchido(processo.sei)
+		? `${seiBase}/sei/modulos/pesquisa/md_pesq_processo_pesquisar.php?acao_externa=protocolo_pesquisar&acao_origem_externa=protocolo_pesquisar&id_orgao_acesso_externo=0&num_protocolo=${encodeURIComponent(formatarSei(processo.sei))}`
+		: `${seiBase}/`;
+
 	return (
 		<div className='px-0 md:px-8 container mx-auto pb-10'>
 			{/* Link voltar */}
@@ -287,12 +294,10 @@ export default function ProcessoTabs({
 
 						{/* Botões de ação */}
 						<div className='flex flex-row md:flex-col gap-2 w-full md:w-auto shrink-0'>
-							<Button size='sm' className='gap-1.5 flex-1 md:flex-none' disabled>
-								<Bell size={14} /> Criar lembrete
-							</Button>
+							<ModalLembrete inicialId={processo.id} />
 							<Button variant='outline' size='sm' className='gap-1.5 flex-1 md:flex-none' asChild>
 								<a
-									href={`https://sei.prefeitura.sp.gov.br/`}
+									href={seiUrl}
 									target='_blank'
 									rel='noopener noreferrer'>
 									<ExternalLink size={14} /> Abrir no SEI
