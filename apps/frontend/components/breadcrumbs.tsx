@@ -16,8 +16,6 @@ function getPathMeta(pathname: string): PathMeta {
 		'/relatorios': { context: 'Administração', title: 'Relatórios' },
 		'/alvara': { context: 'Administração', title: 'Tipos de Alvará' },
 		'/categorias': { context: 'Administração', title: 'Categorias' },
-		'/coordenadorias': { context: 'Administração', title: 'Coordenadorias' },
-		'/diretorias': { context: 'Administração', title: 'Diretorias' },
 		'/importar': { context: 'Administração', title: 'Importar dados' },
 		'/motivos-inadmissao': { context: 'Administração', title: 'Motivos de Inadmissão' },
 		'/parecer-admissibilidade': { context: 'Administração', title: 'Pareceres de Admissibilidade' },
@@ -26,6 +24,9 @@ function getPathMeta(pathname: string): PathMeta {
 		'/unidades': { context: 'Administração', title: 'Unidades' },
 		'/usuarios': { context: 'Administração', title: 'Usuários' },
 		'/dashboard/admissibilidade': { context: 'Dashboard', title: 'Admissibilidade' },
+		'/envio-relatorios': { context: 'Administração', title: 'Envio automático de relatórios' },
+		'/permissoes': { context: 'Administração', title: 'Permissões' },
+		'/publicacoes': { context: 'Processos', title: 'Publicações' },
 	};
 
 	if (exact[pathname]) return exact[pathname];
@@ -49,11 +50,11 @@ export default function Breadcrumbs() {
 	return (
 		<div className='flex flex-col justify-center leading-tight gap-0.5'>
 			{context && (
-				<span className='text-[11px] text-muted-foreground font-medium leading-none'>
+				<span className='text-[12px] text-muted-foreground font-medium leading-none'>
 					{context}
 				</span>
 			)}
-			<span className='text-[15px] font-semibold leading-tight text-foreground'>
+			<span className='text-lg font-bold leading-tight text-foreground'>
 				{title}
 			</span>
 		</div>

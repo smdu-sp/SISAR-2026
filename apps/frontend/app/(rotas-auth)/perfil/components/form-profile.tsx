@@ -27,7 +27,7 @@ const formSchema = z.object({
 	nome: z.string().min(2).max(50),
 	login: z.string(),
 	email: z.string().email(),
-	permissao: z.enum(['DEV', 'TEC', 'ADM', 'USR']),
+	permissao: z.enum(['DEV', 'SUP', 'ADM', 'USR', 'GAB_ASC']),
 });
 
 interface FormProfileProps {
@@ -48,7 +48,7 @@ export default function FormProfile({ user, id }: FormProfileProps) {
 			nome: user.nome || '',
 			login: user.login || '',
 			permissao:
-				(user.permissao as unknown as 'DEV' | 'TEC' | 'ADM' | 'USR') ?? 'USR',
+				(user.permissao as unknown as 'DEV' | 'SUP' | 'ADM' | 'USR' | 'GAB_ASC') ?? 'USR',
 		},
 	});
 
@@ -64,14 +64,13 @@ export default function FormProfile({ user, id }: FormProfileProps) {
 					if (session?.usuario && resp.data) {
 						const dataResp = resp.data as IUsuario;
 						// Você precisará ajustar isso de acordo com a estrutura da sua sessão e da resposta da API
-						const updateSession = await update({
+						await update({
 							...session,
 							usuario: {
 								...session?.usuario,
 								nomeSocial: dataResp.nomeSocial,
 							},
 						});
-						console.log('Sessão atualizada:', updateSession); // Para depuração
 					}
 
 					toast.success('Usuário atualizado com sucesso');

@@ -1,8 +1,9 @@
 /** @format */
 
 import { auth } from '@/lib/auth/auth';
+import { buscarMeusRecursos } from '@/lib/recursos';
 import { buscarTudo } from '@/services/processos/query-functions/buscar-tudo';
-import { IProcesso } from '@/types/processos';
+import { IPaginadoProcessos, IProcesso } from '@/types/processos';
 import { inferirFasePrazoAtual, prazoEtapaAtualListagem, FasePrazoProcesso } from '@/lib/prazo-fase';
 import { rotuloProcessoListagem } from '@/lib/listagem-processo';
 import { pageContainer } from '@/lib/utils';
@@ -36,13 +37,22 @@ export default async function PainelSuspense() {
 
 async function PainelPage() {
 	const session = await auth();
+	const recursos = (await buscarMeusRecursos(session?.access_token)) ?? [];
 	let processos: IProcesso[] = [];
 
 	if (session?.access_token) {
 		try {
 			const resp = await buscarTudo(session.access_token, 1, 500, '', '-1');
 			if (resp.ok && resp.data && 'data' in resp.data) {
-				processos = resp.data.data;
+				const paginado = resp.data as IPaginadoProcessos;
+				processos = paginado.data;
+
+				if (paginado.total > processos.length) {
+					const respTodos = await buscarTudo(session.access_token, 1, paginado.total, '', '-1');
+					if (respTodos.ok && respTodos.data && 'data' in respTodos.data) {
+						processos = (respTodos.data as IPaginadoProcessos).data;
+					}
+				}
 			}
 		} catch {
 			// noop — show empty painel if fetch fails
@@ -92,6 +102,7 @@ async function PainelPage() {
 			criticos={criticos}
 			porFase={porFase}
 			maxFase={maxFase}
+			podeVerDetalhes={recursos.includes('processos')}
 		/>
 	);
 }

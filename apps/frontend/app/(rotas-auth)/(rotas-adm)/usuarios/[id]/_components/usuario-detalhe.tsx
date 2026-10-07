@@ -49,6 +49,7 @@ const permissoesLabel: Record<string, string> = {
 	ADM: 'Administrador',
 	USR: 'Usuário',
 	SUP: 'Superadmin',
+	GAB_ASC: 'Gabinete / ASCOM',
 };
 
 export default function UsuarioDetalhe({
@@ -177,9 +178,10 @@ export default function UsuarioDetalhe({
 								</SelectTrigger>
 								<SelectContent>
 									<SelectItem value='DEV'>Desenvolvedor</SelectItem>
-									<SelectItem value='TEC'>Técnico</SelectItem>
+									<SelectItem value='SUP'>Supervisor</SelectItem>
 									<SelectItem value='ADM'>Administrador</SelectItem>
 									<SelectItem value='USR'>Usuário</SelectItem>
+									<SelectItem value='GAB_ASC'>Gabinete / ASCOM</SelectItem>
 								</SelectContent>
 							</Select>
 						</div>
