@@ -1,3 +1,4 @@
+import { IUnidades } from './unidades'
 import { IUsuario } from "./usuario"
 
 export enum Tipo_Documento {
@@ -44,14 +45,14 @@ export interface IPublicacao {
   colegiado: Colegiado
   tipo_documento: Tipo_Documento
   tecnico_id: string
-  coordenadoria_id: string
+  unidade_id: string
   data_emissao: Date
   data_publicacao: Date
   prazo: number
   criadoEm: Date
   atualizadoEm: Date
   tecnico?: IUsuario
-  coordenadoria?: any
+  unidade?: IUnidades
 }
 
 export interface ICreatePublicacao {
@@ -59,7 +60,7 @@ export interface ICreatePublicacao {
   tipo_documento: string
   colegiado: string
   tecnico_rf: string
-  coordenadoria_id: string
+  unidade_id: string
   data_emissao: Date
   data_publicacao: Date
   prazo: number
@@ -70,7 +71,7 @@ export interface IUpdatePublicacao {
   tipo_documento: string
   colegiado: string
   tecnico_rf: string
-  coordenadoria_id: string
+  unidade_id: string
   data_emissao: Date
   data_publicacao: Date
   prazo: number

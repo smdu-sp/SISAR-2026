@@ -1,13 +1,15 @@
 /** @format */
 
-import { IRespostaUnidades, IUnidades } from '@/types/unidades';
+import { IRespostaUnidades, IUnidades, NivelUnidade } from '@/types/unidades';
 
 export async function listaCompleta(
 	access_token: string,
+	nivel?: NivelUnidade,
 ): Promise<IRespostaUnidades> {
 	const baseURL = process.env.NEXT_PUBLIC_API_URL;
+	const nivelParam = nivel ? `?nivel=${nivel}` : '';
 	try {
-		const response = await fetch(`${baseURL}unidades/lista-completa`, {
+		const response = await fetch(`${baseURL}unidades/lista-completa${nivelParam}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',

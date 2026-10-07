@@ -97,13 +97,13 @@ export const columns: ColumnDef<IPublicacao>[] = [
 		},
 	},
 	{
-		accessorKey: 'coordenadoria',
-		header: () => <p className='text-center'>Coordenadoria</p>,
+		accessorKey: 'unidade',
+		header: () => <p className='text-center'>Unidade</p>,
 		cell: ({ row }) => {
-			const coordenadoria = row.original.coordenadoria;
+			const unidade = row.original.unidade;
 			return (
-				<div className='flex items-center justify-center' title={coordenadoria?.nome}>
-					{coordenadoria ? coordenadoria?.sigla : ""}
+				<div className='flex items-center justify-center' title={unidade?.nome}>
+					{unidade ? unidade?.sigla : ""}
 				</div>
 			);
 		},

@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/page-header';
 
 export type { SituacaoPrazo };
 type TabPainel = SituacaoPrazo | 'todos';
+type PorPaginaPainel = 10 | 50 | 100 | 'todos';
 
 export interface ProcessoPainel {
 	id: number;
@@ -31,6 +32,8 @@ interface Props {
 	criticos: number;
 	porFase: { nome: string; n: number }[];
 	maxFase: number;
+	/** Sem o recurso "processos" a lista não leva ao detalhe do processo. */
+	podeVerDetalhes?: boolean;
 }
 
 const STATUS_LABELS: Record<number, string> = {
@@ -90,7 +93,15 @@ function KpiCard({
 }
 
 /* ── Process table ───────────────────────────────────────── */
-function ProcTable({ rows }: { rows: ProcessoPainel[] }) {
+function ProcTable({
+	rows,
+	podeVerDetalhes,
+}: {
+	rows: ProcessoPainel[];
+	podeVerDetalhes: boolean;
+}) {
+	const semDetalhes = !podeVerDetalhes;
+
 	if (rows.length === 0) {
 		return (
 			<div className='flex flex-col items-center justify-center py-16 text-muted-foreground gap-3'>
@@ -106,24 +117,24 @@ function ProcTable({ rows }: { rows: ProcessoPainel[] }) {
 				<thead>
 					<tr className='border-b border-border/60'>
 						<th
-							className='text-left py-3 px-4 font-semibold text-[11px] text-muted-foreground uppercase tracking-wide'
+							className='text-left py-3 px-4 font-semibold text-[12px] text-muted-foreground uppercase tracking-wide'
 							style={{ width: 72 }}
 						>
 							Prazo
 						</th>
-						<th className='text-left py-3 px-4 font-semibold text-[11px] text-muted-foreground uppercase tracking-wide'>
+						<th className='text-left py-3 px-4 font-semibold text-[12px] text-muted-foreground uppercase tracking-wide'>
 							SEI / Requerente
 						</th>
-						<th className='text-left py-3 px-4 font-semibold text-[11px] text-muted-foreground uppercase tracking-wide hidden md:table-cell'>
+						<th className='text-left py-3 px-4 font-semibold text-[12px] text-muted-foreground uppercase tracking-wide hidden md:table-cell'>
 							Status
 						</th>
-						<th className='text-left py-3 px-4 font-semibold text-[11px] text-muted-foreground uppercase tracking-wide hidden lg:table-cell'>
+						<th className='text-left py-3 px-4 font-semibold text-[12px] text-muted-foreground uppercase tracking-wide hidden lg:table-cell'>
 							Tipo
 						</th>
-						<th className='text-left py-3 px-4 font-semibold text-[11px] text-muted-foreground uppercase tracking-wide hidden lg:table-cell'>
+						<th className='text-left py-3 px-4 font-semibold text-[12px] text-muted-foreground uppercase tracking-wide hidden lg:table-cell'>
 							Fase
 						</th>
-						<th className='text-left py-3 px-4 font-semibold text-[11px] text-muted-foreground uppercase tracking-wide'>
+						<th className='text-left py-3 px-4 font-semibold text-[12px] text-muted-foreground uppercase tracking-wide'>
 							Situação
 						</th>
 						<th className='py-3 px-2' />
@@ -140,7 +151,7 @@ function ProcTable({ rows }: { rows: ProcessoPainel[] }) {
 							</td>
 							<td className='py-3 px-4'>
 								<div className='space-y-0.5'>
-									<div className='font-semibold mono text-[13px]'>{p.rotulo}</div>
+									<div className='font-semibold mono text-[14px]'>{p.rotulo}</div>
 									{p.requerimento && (
 										<div className='text-xs text-muted-foreground font-medium truncate max-w-[220px]'>
 											{p.requerimento}
@@ -165,12 +176,14 @@ function ProcTable({ rows }: { rows: ProcessoPainel[] }) {
 								<SitPill situacao={p.situacao} small />
 							</td>
 							<td className='py-3 px-2 text-right'>
-								<Link
-									href={`/processos/${p.id}`}
-									className='inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors'
-								>
-									<ChevronRight size={16} />
-								</Link>
+								{!semDetalhes && (
+									<Link
+										href={`/processos/${p.id}`}
+										className='inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors'
+									>
+										<ChevronRight size={16} />
+									</Link>
+								)}
 							</td>
 						</tr>
 					))}
@@ -229,18 +242,20 @@ export default function PainelClient({
 	criticos,
 	porFase,
 	maxFase,
+	podeVerDetalhes = true,
 }: Props) {
 	const [aba, setAba] = useState<TabPainel>('vencido');
-	const [porPagina, setPorPagina] = useState<10 | 50 | 100>(10);
+	const [porPagina, setPorPagina] = useState<PorPaginaPainel>(10);
 	const [pagina, setPagina] = useState(1);
 
 	const ativosList = processos.filter((p) => p.situacao !== 'finalizado');
 	const rows = aba === 'todos' ? ativosList : processos.filter((p) => p.situacao === aba);
 
-	const totalPaginas = Math.max(1, Math.ceil(rows.length / porPagina));
+	const quantidadePorPagina = porPagina === 'todos' ? Math.max(rows.length, 1) : porPagina;
+	const totalPaginas = Math.max(1, Math.ceil(rows.length / quantidadePorPagina));
 	const paginaAtual = Math.min(pagina, totalPaginas);
-	const inicio = (paginaAtual - 1) * porPagina;
-	const fim = Math.min(inicio + porPagina, rows.length);
+	const inicio = (paginaAtual - 1) * quantidadePorPagina;
+	const fim = Math.min(inicio + quantidadePorPagina, rows.length);
 	const rowsPagina = rows.slice(inicio, fim);
 
 	// Volta para a primeira página ao trocar de aba ou de tamanho de página.
@@ -266,10 +281,7 @@ export default function PainelClient({
 
 	return (
 		<div className={pageContainer}>
-			<PageHeader
-				title='Painel de Prazos'
-				subtitle='Visão geral dos processos e situação de prazos'
-			/>
+			<PageHeader subtitle='Visão geral dos processos e situação de prazos' />
 
 			{/* KPI row */}
 			<div className='grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3'>
@@ -316,7 +328,7 @@ export default function PainelClient({
 
 				<div className='bg-card rounded-xl p-5 shadow-sm border border-border/40 flex flex-col items-center justify-center text-center'>
 					<AttentionRing criticos={criticos} />
-					<div className='font-extrabold text-[15px] mt-4 whitespace-nowrap'>Atenção imediata</div>
+					<div className='font-extrabold text-[16px] mt-4 whitespace-nowrap'>Atenção imediata</div>
 					<p className='text-xs text-muted-foreground mt-1.5 leading-relaxed max-w-[180px]'>
 						{criticos === 0
 							? 'Nenhum processo vencido ou vencendo hoje.'
@@ -329,7 +341,7 @@ export default function PainelClient({
 			<div className='bg-card rounded-xl shadow-sm border border-border/40 overflow-hidden'>
 				<div className='px-5 pt-5 pb-4 border-b border-border/50'>
 					<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3'>
-						<h2 className='text-[15px] font-extrabold'>Processos por situação de prazo</h2>
+						<h2 className='text-[16px] font-extrabold'>Processos por situação de prazo</h2>
 						<div className='flex flex-wrap gap-1.5'>
 							{abas.map((a) => (
 								<button
@@ -345,7 +357,7 @@ export default function PainelClient({
 									{a.label}
 									<span
 										className={cn(
-											'inline-flex items-center justify-center rounded-full px-1.5 min-w-[18px] h-[18px] text-[10px] font-bold leading-none',
+											'inline-flex items-center justify-center rounded-full px-1.5 min-w-[18px] h-[18px] text-[11px] font-bold leading-none',
 											aba === a.key
 												? 'bg-white/20 text-primary-foreground'
 												: 'bg-muted text-muted-foreground',
@@ -358,12 +370,12 @@ export default function PainelClient({
 						</div>
 					</div>
 				</div>
-				<ProcTable rows={rowsPagina} />
+				<ProcTable rows={rowsPagina} podeVerDetalhes={podeVerDetalhes} />
 				{rows.length > 0 && (
 					<div className='flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 px-5 py-4 border-t border-border/50'>
 						<div className='flex items-center gap-2 text-xs text-muted-foreground'>
 							<span className='font-medium'>Por página:</span>
-							{([10, 50, 100] as const).map((n) => (
+							{([10, 50, 100, 'todos'] as const).map((n) => (
 								<button
 									key={n}
 									onClick={() => setPorPagina(n)}
@@ -374,7 +386,7 @@ export default function PainelClient({
 											: 'bg-accent text-accent-foreground hover:bg-muted',
 									)}
 								>
-									{n}
+									{n === 'todos' ? 'Todos' : n}
 								</button>
 							))}
 						</div>

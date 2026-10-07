@@ -3,7 +3,7 @@
 'use server';
 
 import { auth } from '@/lib/auth/auth';
-import { IRespostaUnidades, IUnidades } from '@/types/unidades';
+import { IRespostaUnidades, IUnidades, NivelUnidade } from '@/types/unidades';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
@@ -15,9 +15,11 @@ async function getToken() {
 
 export async function criar(data: {
 	nome: string;
-	sigla: string;
-	codigo: string;
+	sigla?: string;
+	codigo?: string;
 	status: number;
+	nivel: NivelUnidade;
+	unidade_pai_id?: string | null;
 }): Promise<IRespostaUnidades> {
 	const token = await getToken();
 	const baseURL = process.env.NEXT_PUBLIC_API_URL;
@@ -48,7 +50,14 @@ export async function criar(data: {
 
 export async function atualizar(
 	id: string,
-	data: Partial<{ nome: string; sigla: string; codigo: string; status: number }>,
+	data: Partial<{
+		nome: string;
+		sigla: string;
+		codigo: string;
+		status: number;
+		nivel: NivelUnidade;
+		unidade_pai_id: string | null;
+	}>,
 ): Promise<IRespostaUnidades> {
 	const token = await getToken();
 	const baseURL = process.env.NEXT_PUBLIC_API_URL;
