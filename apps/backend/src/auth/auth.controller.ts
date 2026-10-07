@@ -1,3 +1,4 @@
+import { AcessoLogado } from './decorators/recurso.decorator';
 import {
   Controller,
   HttpCode,
@@ -47,6 +48,7 @@ export class AuthController {
     return this.authService.refresh(usuario);
   }
 
+  @AcessoLogado()
   @Get('eu')
   @ApiResponse({ status: 200, description: 'Retorna 200 se o sistema encontrar o usuário logado.', type: EuResponseDTO })
   @ApiResponse({ status: 401, description: 'Retorna 401 se não autorizado.' })

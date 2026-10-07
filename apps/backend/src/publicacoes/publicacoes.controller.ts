@@ -1,3 +1,4 @@
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import {
   Body,
   Controller,
@@ -15,7 +16,6 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { PublicacoesService } from './publicacoes.service';
 import { CreatePublicacaoDto } from './dto/create-publicacao.dto';
 import { UpdatePublicacaoDto } from './dto/update-publicacao.dto';
@@ -26,7 +26,7 @@ import { UpdatePublicacaoDto } from './dto/update-publicacao.dto';
 export class PublicacoesController {
   constructor(private readonly service: PublicacoesService) {}
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('publicacoes')
   @Post('criar')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Criar publicação' })
@@ -63,7 +63,7 @@ export class PublicacoesController {
     return this.service.buscarPorId(id);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('publicacoes')
   @Patch('atualizar/:id')
   @HttpCode(HttpStatus.OK)
   atualizar(@Param('id') id: string, @Body() dto: UpdatePublicacaoDto) {
