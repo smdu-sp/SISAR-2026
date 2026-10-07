@@ -4,7 +4,7 @@ import { AppService } from 'src/app.service';
 import { InicialService } from '../inicial.service';
 import { Inicial, Inicial_Sqls } from '@prisma/client';
 import { ForbiddenException } from '@nestjs/common';
-import { IniciaisPaginado } from '../dto/inicial-response.dto';
+import { IniciaisPaginado, InicialResponseDTO } from '../dto/inicial-response.dto';
 import { UpdateInicialDto } from '../dto/update-inicial.dto';
 
 describe('InicialService tests', () => {
@@ -326,6 +326,15 @@ describe('InicialService tests', () => {
         },
         include: {
           alvara_tipo: true,
+          admissibilidade: {
+            select: {
+              data_envio: true,
+              data_decisao_interlocutoria: true,
+              status: true,
+            },
+          },
+          distribuicao: { select: { tecnico_responsavel_id: true } },
+          conclusao: { select: { data_conclusao: true } },
         },
         skip: expect.any(Number),
         take: expect.any(Number)
@@ -364,6 +373,19 @@ describe('InicialService tests', () => {
         },
         include: {
           alvara_tipo: true,
+          admissibilidade: {
+            select: {
+              data_envio: true,
+              data_decisao_interlocutoria: true,
+              status: true,
+            },
+          },
+          distribuicao: {
+            include: {
+              tecnico_responsavel: { select: { id: true, nome: true } },
+            },
+          },
+          conclusao: { select: { data_conclusao: true } },
         },
         skip: expect.any(Number),
         take: expect.any(Number)
@@ -423,7 +445,7 @@ describe('InicialService tests', () => {
     (prisma.inicial.findUnique as jest.Mock).mockResolvedValue({});
 
     // Chama o método do serviço, fornecendo id.
-    const result_one: Inicial = await service.buscarPorId(1);
+    const result_one: InicialResponseDTO = await service.buscarPorId(1);
     
     // Testa se o resultado não é nulo.
     expect(result_one).not.toBeNull();
@@ -433,19 +455,21 @@ describe('InicialService tests', () => {
         id: 1 
       },
       include: {
-        iniciais_sqls: {
-          orderBy: { 
-            sql: 'asc' 
-          }
-        },
+        alvara_tipo: true,
+        iniciais_sqls: { orderBy: { sql: 'asc' } },
         interfaces: true,
         admissibilidade: true,
+        conclusao: true,
         distribuicao: {
           include: {
             administrativo_responsavel: true,
             tecnico_responsavel: true
           }
-        }
+        },
+        comunique_ses: { orderBy: { criado_em: 'desc' } },
+        decisoes: { orderBy: { instancia: 'asc' } },
+        reunioes: { orderBy: { instancia: 'asc' } },
+        reconsideracao_admissibilidade: true,
       }
     });
     // Verifica se o retorno está correto.
@@ -463,7 +487,7 @@ describe('InicialService tests', () => {
     (prisma.inicial.findUnique as jest.Mock).mockResolvedValue({});
 
     // Chama o método do serviço, fornecendo id.
-    const result_one: Inicial = await service.buscarPorId(1);
+    const result_one: InicialResponseDTO = await service.buscarPorId(1);
     
     // Testa se o resultado não é nulo.
     expect(result_one).not.toBeNull();
@@ -473,19 +497,21 @@ describe('InicialService tests', () => {
         id: 1 
       },
       include: {
-        iniciais_sqls: {
-          orderBy: { 
-            sql: 'asc' 
-          }
-        },
+        alvara_tipo: true,
+        iniciais_sqls: { orderBy: { sql: 'asc' } },
         interfaces: true,
         admissibilidade: true,
+        conclusao: true,
         distribuicao: {
           include: {
             administrativo_responsavel: true,
             tecnico_responsavel: true
           }
-        }
+        },
+        comunique_ses: { orderBy: { criado_em: 'desc' } },
+        decisoes: { orderBy: { instancia: 'asc' } },
+        reunioes: { orderBy: { instancia: 'asc' } },
+        reconsideracao_admissibilidade: true,
       }
     });
     // Verifica se o retorno está correto.

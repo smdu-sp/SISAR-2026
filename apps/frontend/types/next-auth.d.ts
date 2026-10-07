@@ -1,6 +1,6 @@
 /** @format */
 
-import NextAuth from 'next-auth';
+import 'next-auth';
 
 declare module 'next-auth' {
 	interface Session {
@@ -21,4 +21,3 @@ declare module 'next-auth' {
 		refresh_token: string;
 	}
 }
-import NextAuth, { type DefaultSession } from 'next-auth';

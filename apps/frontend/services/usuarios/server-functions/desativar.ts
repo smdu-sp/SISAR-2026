@@ -17,7 +17,6 @@ export async function desativar(id: string) {
 			Authorization: `Bearer ${session?.access_token}`,
 		},
 	});
-	console.log(desativado);
 	const dataResponse = await desativado.json();
 	if (desativado.status === 200) {
 		revalidateTag('users');

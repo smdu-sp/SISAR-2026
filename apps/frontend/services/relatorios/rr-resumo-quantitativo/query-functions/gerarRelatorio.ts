@@ -2,7 +2,6 @@
  * @format
  */
 
-import { format } from "date-fns";
 
 interface IGerarRelatorio {
     period: string;
@@ -16,7 +15,7 @@ interface ICustomErrorInterface extends Error {
 
 interface IResponseRelatorio {
     ok: boolean,
-    data: any[],
+    data: unknown[],
     error?: string | ICustomErrorInterface,
 }
 

@@ -6,7 +6,6 @@ export async function buscarTecnicos(
 	access_token: string,
 ): Promise<IRespostaUsuario> {
 	const baseURL = process.env.NEXT_PUBLIC_API_URL;
-	console.log(baseURL);
 	try {
 		const usuarioNovo = await fetch(`${baseURL}usuarios/buscar-tecnicos`, {
 			method: 'GET',

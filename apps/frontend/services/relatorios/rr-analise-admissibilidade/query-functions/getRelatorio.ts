@@ -11,7 +11,7 @@ interface IGerarRelatorio {
 export async function gerarRelatorio({ dataInicial, dataFinal, access_token }: IGerarRelatorio) {
 
     const baseURL = process.env.NEXT_PUBLIC_API_URL;
-    let URLFetch = `${baseURL}relatorio/rr/prazo-analise-admissibilidade/${dataInicial}/${dataFinal}`;
+    const URLFetch = `${baseURL}relatorio/rr/prazo-analise-admissibilidade/${dataInicial}/${dataFinal}`;
     try {
         const response = await fetch(URLFetch, {
             method: 'GET',
