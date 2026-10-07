@@ -38,14 +38,13 @@ export function AvatarUploader({ avatarUrl, id }: AvatarUploaderProps) {
 				if (session?.usuario && resp.data) {
 					const dataResp = resp.data as IUsuario;
 					// Você precisará ajustar isso de acordo com a estrutura da sua sessão e da resposta da API
-					const updateSession = await update({
+					await update({
 						...session,
 						usuario: {
 							...session?.usuario,
 							avatar: dataResp.avatar,
 						},
 					});
-					console.log('Sessão atualizada:', updateSession); // Para depuração
 				}
 				window.location.reload();
 			}

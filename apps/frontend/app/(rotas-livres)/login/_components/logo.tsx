@@ -18,7 +18,7 @@ export default function Logo() {
 			<Image
 				width={1200}
 				height={1200}
-				src={'/public/logo.png'}
+				src={sisar.src}
 				alt='SISAR LOGO'
 				className='w-40'
 			/>

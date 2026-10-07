@@ -53,7 +53,6 @@ export function TabelaProgressaoARProtocoladas({ dataInicial, dataFinal, access_
                 setDadosBrutosApi(null);
                 setIsLoading(false);
                 setError(null);
-                console.log('Datas inicial, final ou token são necessárias para gerar o relatório.');
             }
         };
 
@@ -63,13 +62,11 @@ export function TabelaProgressaoARProtocoladas({ dataInicial, dataFinal, access_
     // useMemo para FORMATAR OS DADOS (reage a 'dadosBrutosApi' mudando)
     const listaFormatadaParaUI = useMemo(() => {
         if (!dadosBrutosApi || dadosBrutosApi.length === 0) {
-            console.log("Dados brutos API vazios, não formatando.");
             return []; // Retorna array vazio se não houver dados brutos
         }
         try {
             // Chame seu formatador passando os dados brutos
             const formatted = formatadorListaArProgressaoMensal(dadosBrutosApi);
-            console.log("Dados formatados para UI:", formatted);
             return formatted; // Seu formatador já retorna IListaARProgressaoMensal[][]
         } catch (err) {
             console.error('Erro ao formatar os dados para UI:', err);

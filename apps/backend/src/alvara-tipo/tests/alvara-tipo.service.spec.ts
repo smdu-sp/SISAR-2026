@@ -98,6 +98,7 @@ describe('AlvaraTipoService tests', () => {
         reconsideracao_multi: 2,
         reconsideracao_multi_tipo: 1,
         analise_reconsideracao_multi: 1,
+        prazo_emissao_alvara_multi: 1,
         prazo_analise_multi1: 1,
         prazo_analise_multi2: 1,
         prazo_comunique_se: 1,

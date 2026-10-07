@@ -1,1 +1,1 @@
-import { gerarRelatorio } from "./gerarRelatorio";
+export { gerarRelatorio } from "./gerarRelatorio";

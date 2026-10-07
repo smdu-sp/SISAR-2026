@@ -57,16 +57,14 @@ export function LoginForm() {
 				senha,
 				redirect: false,
 			});
-			console.log(resp);
-			if (resp?.ok) {
+			if (resp?.ok && !resp.error) {
 				toast.success('Login realizado com sucesso.');
 				router.push('/')
 			} else {
-				console.log(resp?.error);
-				toast.error('Não foi possível realizar o login.');
+				toast.error('Login ou senha incorretos.');
 			}
 		} catch (e) {
-			console.log(e);
+			console.error(e);
 			toast.error('Não foi possível realizar o login.');
 		}
 	}
