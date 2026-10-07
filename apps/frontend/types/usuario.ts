@@ -39,9 +39,10 @@ export interface IUsuario {
 
 export enum IPermissao {
 	DEV,
-	TEC,
+	SUP,
 	ADM,
 	USR,
+	GAB_ASC,
 }
 
 export interface ICreateUsuario {

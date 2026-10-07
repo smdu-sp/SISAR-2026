@@ -1,15 +1,15 @@
 /** @format */
 
-import { IRespostaUnidades, IUnidades, NivelUnidade } from '@/types/unidades';
+import { IRespostaUnidades, IUnidadeArvore } from '@/types/unidades';
 
-export async function listaCompleta(
+export async function arvore(
 	access_token: string,
-	nivel?: NivelUnidade,
+	busca: string = '',
 ): Promise<IRespostaUnidades> {
 	const baseURL = process.env.NEXT_PUBLIC_API_URL;
-	const nivelParam = nivel ? `?nivel=${nivel}` : '';
+	const buscaParam = busca ? `?busca=${encodeURIComponent(busca)}` : '';
 	try {
-		const response = await fetch(`${baseURL}unidades/lista-completa${nivelParam}`, {
+		const response = await fetch(`${baseURL}unidades/arvore${buscaParam}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -18,14 +18,13 @@ export async function listaCompleta(
 			next: { tags: ['unidades'], revalidate: 120 },
 		});
 		const data = await response.json();
-		if (response.status === 200) {
+		if (response.status === 200)
 			return {
 				ok: true,
 				error: null,
-				data: data as IUnidades[],
+				data: data as IUnidadeArvore[],
 				status: 200,
 			};
-		}
 		return {
 			ok: false,
 			error: data.message,
@@ -35,7 +34,7 @@ export async function listaCompleta(
 	} catch (error) {
 		return {
 			ok: false,
-			error: 'Não foi possível buscar a lista de unidades: ' + error,
+			error: 'Não foi possível buscar a árvore de unidades: ' + error,
 			data: null,
 			status: 500,
 		};

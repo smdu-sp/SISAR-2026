@@ -32,8 +32,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { format } from "date-fns"
-import { ICoordenadoriaSelect } from '@/types/coordenadorias';
-import { FormCombobox } from '@/components/form-combobox';
+import { FormCombobox, OptionType } from '@/components/form-combobox';
 import * as publicacoes from '@/services/publicacoes';
 
 const formSchema = z.object({
@@ -41,7 +40,7 @@ const formSchema = z.object({
     tipo_documento: z.enum(['COMUNIQUESE', 'INDEFERIMENTO', 'DEFERIMENTO']),
 	colegiado: z.enum(['AR', 'RR', 'CEUSO', 'CAIEPS', 'CAEHIS', 'CPPU', 'CTLU']),
     tecnico_rf: z.string(),
-    coordenadoria_id: z.string(),
+    unidade_id: z.string(),
     data_emissao: z.date(),
     data_publicacao: z.date(),
     prazo: z.number(),
@@ -50,11 +49,11 @@ const formSchema = z.object({
 interface FormPublicacaoProps {
 	isUpdating: boolean;
 	publicacao?: Partial<IUsuario>;
-	coordenadorias: ICoordenadoriaSelect[];
+	unidades: OptionType[];
 	tecnicos: ITecnicoFuncionario[];
 }
 
-export default function FormPublicacao({ isUpdating, coordenadorias, tecnicos }: FormPublicacaoProps) {
+export default function FormPublicacao({ isUpdating, unidades, tecnicos }: FormPublicacaoProps) {
 	const [isPending, startTransition] = useTransition();
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -63,7 +62,7 @@ export default function FormPublicacao({ isUpdating, coordenadorias, tecnicos }:
 			colegiado: 'AR',
 			tipo_documento: 'COMUNIQUESE',
 			tecnico_rf: '',
-			coordenadoria_id: '',
+			unidade_id: '',
 			data_emissao: new Date(),
 			data_publicacao: new Date(),
 			prazo: 30,
@@ -260,9 +259,9 @@ export default function FormPublicacao({ isUpdating, coordenadorias, tecnicos }:
 						/>
 						<FormCombobox
 							className='col-span-4'
-							name="coordenadoria_id"
-							label='Coordenadoria'
-							options={coordenadorias}
+							name="unidade_id"
+							label='Unidade'
+							options={unidades}
 						/>
 					</div>
 					<div className='flex gap-2 items-center justify-end'>

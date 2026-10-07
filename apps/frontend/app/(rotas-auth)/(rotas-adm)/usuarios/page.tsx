@@ -1,5 +1,6 @@
 /** @format */
 
+import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
 import DataTable, { TableSkeleton } from '@/components/data-table';
 import { Filtros } from '@/components/filtros';
 import Pagination from '@/components/pagination';
@@ -9,7 +10,6 @@ import { IPaginadoUsuario, IUsuario } from '@/types/usuario';
 import { Suspense } from 'react';
 import { columns } from './_components/columns';
 import ModalUpdateAndCreate from './_components/modal-update-create';
-import { PageHeader } from '@/components/page-header';
 import { pageContainerComBotaoFlutuante } from '@/lib/utils';
 
 export default async function UsuariosSuspense({
@@ -80,19 +80,22 @@ async function Usuarios({
 			value: 'ADM',
 		},
 		{
-			label: 'Técnico',
-			value: 'TEC',
+			label: 'Supervisor',
+			value: 'SUP',
 		},
 		{
 			label: 'Usuário',
 			value: 'USR',
 		},
+		{
+			label: 'Gabinete / ASCOM',
+			value: 'GAB_ASC',
+		},
 	];
 
 	return (
 		<div className={pageContainerComBotaoFlutuante}>
-			<PageHeader title='Usuários' />
-			<div className='grid grid-cols-1  gap-y-3 my-5 '>
+			<div className='grid grid-cols-1  gap-y-3 '>
 				<Filtros
 					camposFiltraveis={[
 						{
@@ -132,9 +135,9 @@ async function Usuarios({
 					/>
 				)}
 			</div>
-			<div className='absolute bottom-10 md:bottom-5 right-2 md:right-8 hover:scale-110'>
+			<BotaoCadastroFlutuante>
 				<ModalUpdateAndCreate isUpdating={false} />
-			</div>
+			</BotaoCadastroFlutuante>
 		</div>
 	);
 }

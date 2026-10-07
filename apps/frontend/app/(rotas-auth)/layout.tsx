@@ -11,6 +11,7 @@ import {
 	SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { auth } from '@/lib/auth/auth';
+import { buscarMeusRecursos } from '@/lib/recursos';
 import { redirect } from 'next/navigation';
 
 export default async function RotasAuth({
@@ -20,13 +21,13 @@ export default async function RotasAuth({
 }) {
 	const session = await auth();
 	if (!session) redirect('/login');
+	const recursos = (await buscarMeusRecursos(session.access_token)) ?? [];
 	return (
 		<div className='relative w-full bg-background'>
-			<ModeToggle className='absolute top-4 right-4 z-50 sm:hidden' />
 			<SidebarProvider>
 				<AppSidebar />
-				<SidebarInset>
-					<header className='h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 hidden sm:flex sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-md backdrop-saturate-[1.4]'>
+				<SidebarInset className='min-w-0'>
+					<header className='h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12 flex sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur-md backdrop-saturate-[1.4]'>
 						<div className='flex items-center gap-2 px-4 flex-1'>
 							<SidebarTrigger className='-ml-1 md:hidden' />
 							<Separator
@@ -39,11 +40,11 @@ export default async function RotasAuth({
 							<ModeToggle />
 						</div>
 					</header>
-					<div className='h-full gap-4 p-4 sm:pt-0 items-center w-full pt-10'>
+					<div className='h-full w-full pb-16 sm:pb-4'>
 						{children}
 					</div>
 				</SidebarInset>
-				<DrawerMenu />
+				<DrawerMenu recursos={recursos} />
 			</SidebarProvider>
 		</div>
 	);

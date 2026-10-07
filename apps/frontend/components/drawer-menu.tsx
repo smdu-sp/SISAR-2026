@@ -4,10 +4,15 @@
 
 import {
 	CalendarSearch,
+	ChartSpline,
 	ChevronRight,
 	ChevronsUp,
 	House,
+	LayoutDashboard,
+	Mail,
 	LucideProps,
+	Newspaper,
+	ShieldCheck,
 	Users,
 	X,
 } from 'lucide-react';
@@ -31,7 +36,7 @@ import {
 import { ScrollArea } from './ui/scroll-area';
 import { ForwardRefExoticComponent, RefAttributes } from 'react';
 
-export function DrawerMenu() {
+export function DrawerMenu({ recursos }: { recursos: string[] }) {
 	interface IMenu {
 		icone: ForwardRefExoticComponent<
 			Omit<LucideProps, 'ref'> & RefAttributes<SVGSVGElement>
@@ -39,6 +44,7 @@ export function DrawerMenu() {
 		titulo: string;
 		url?: string;
 		permissao?: string;
+		recurso: string;
 		subItens?: ISubMenu[];
 	}
 
@@ -51,13 +57,21 @@ export function DrawerMenu() {
 		{
 			icone: House,
 			titulo: 'Página Inicial',
+			recurso: 'painel_inicial',
 			url: '/',
 		},
 
 		{
 			icone: CalendarSearch,
 			titulo: 'Agendamentos',
+			recurso: 'processos',
 			url: '/agendamentos',
+		},
+		{
+			icone: Newspaper,
+			titulo: 'Publicações',
+			recurso: 'processos',
+			url: '/publicacoes',
 		},
 	];
 
@@ -65,17 +79,31 @@ export function DrawerMenu() {
 		{
 			icone: Users,
 			titulo: 'Usuários',
+			recurso: 'usuarios',
 			url: '/usuarios',
 			permissao: 'usuario_buscar_tudo',
 		},
+		{ icone: ChartSpline, titulo: 'Relatórios', recurso: 'relatorios', url: '/relatorios' },
+		{
+			icone: LayoutDashboard,
+			titulo: 'Dashboard Admissibilidade',
+			recurso: 'dashboard_admissibilidade',
+			url: '/dashboard/admissibilidade',
+		},
+		{ icone: Mail, titulo: 'Envio de relatórios', recurso: 'envio_relatorios', url: '/envio-relatorios' },
+		{ icone: ShieldCheck, titulo: 'Permissões', recurso: 'permissoes', url: '/permissoes' },
 	];
+
+	// Só mostra o que o perfil do usuário pode acessar (tela de permissões).
+	const itensUsuario = menuUsuario.filter((i) => recursos.includes(i.recurso));
+	const itensAdmin = menuAdmin.filter((i) => recursos.includes(i.recurso));
 
 	return (
 		<Drawer>
 			<DrawerTrigger asChild>
 				<Button
 					variant='ghost'
-					className='flex sm:hidden fixed bottom-0 w-full bg-background'>
+					className='flex sm:hidden fixed bottom-0 w-full bg-sidebar border-t'>
 					<ChevronsUp className='scale-150' />
 				</Button>
 			</DrawerTrigger>
@@ -98,7 +126,7 @@ export function DrawerMenu() {
 					<div className='mx-auto w-full px-4'>
 						<div className='p-4 pb-0'>
 							<ul className='flex w-full min-w-0 flex-col gap-1'>
-								{menuUsuario.map((item) =>
+								{itensUsuario.map((item) =>
 									item.subItens && item.subItens.length > 0 ? (
 										<Collapsible
 											asChild
@@ -148,7 +176,7 @@ export function DrawerMenu() {
 										</li>
 									),
 								)}
-								{menuAdmin.map((item) =>
+								{itensAdmin.map((item) =>
 									item.subItens && item.subItens.length > 0 ? (
 										<Collapsible
 											asChild
