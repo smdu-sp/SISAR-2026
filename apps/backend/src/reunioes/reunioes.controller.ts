@@ -1,6 +1,6 @@
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Patch } from '@nestjs/common';
 import { ReunioesService } from './reunioes.service';
-import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { UpdateReunioesDto } from './dto/update-reunioes.dto';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ReunioesResponseDTO } from './dto/response.dto';
@@ -11,7 +11,7 @@ import { ReunioesResponseDTO } from './dto/response.dto';
 export class ReunioesController {
   constructor(private readonly unidadesService: ReunioesService) {}
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('reunioes')
   @Get('lista-completa')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'Retorna 200 se buscar toda a lista com sucesso.', type: [ReunioesResponseDTO] })
@@ -27,7 +27,7 @@ export class ReunioesController {
   //   return this.unidadesService.buscarPorMesAno(mes, ano);
   // }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('reunioes')
   @Get('buscar/:mes/:ano')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'Retorna 200 se filtrando por mês e ano com sucesso.', type: [ReunioesResponseDTO] })
@@ -37,7 +37,7 @@ export class ReunioesController {
     return this.unidadesService.buscarPorMesAno(parseInt(mes), parseInt(ano));
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('reunioes')
   @Get('buscar-data/:date')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'Retorna 200 se filtrando por data com sucesso.',  type: [ReunioesResponseDTO] })
@@ -47,7 +47,7 @@ export class ReunioesController {
     return this.unidadesService.buscarPorData(data)
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('reunioes')
   @Get('buscar-inicial/:id')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'Retorna 200 se buscar por inicial com sucesso.',  type: ReunioesResponseDTO })
@@ -57,7 +57,7 @@ export class ReunioesController {
     return this.unidadesService.buscarPorId(id)
   }
 
-  @Permissoes('SUP', 'ADM', 'USR')
+  @Recurso('reunioes', 'processos')
   @Get('por-processo/:inicialId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reuniões GRAPROEM do processo' })
@@ -65,7 +65,7 @@ export class ReunioesController {
     return this.unidadesService.buscarPorInicial(+inicialId);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('reunioes')
   @Patch('atualizar-data/:id')
   @HttpCode(HttpStatus.OK)
   @ApiBody({ description: 'Corpo da requisição para atualização de reunião.', type: ReunioesResponseDTO })

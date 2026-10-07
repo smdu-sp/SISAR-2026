@@ -10,8 +10,8 @@ export class RegistrarPreReuniaoDto {
   @ApiProperty()
   numero_reuniao: string;
 
-  @ApiProperty()
-  parecer_grupo: string;
+  @ApiProperty({ required: false })
+  parecer_grupo?: string;
 
   @ApiProperty({ required: false })
   nova_data_reuniao?: Date | string;

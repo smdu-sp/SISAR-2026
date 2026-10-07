@@ -16,27 +16,27 @@ export class PublicacoesService {
     private app: AppService,
   ) {}
 
-  private include = { tecnico: true, coordenadoria: true };
+  private include = { tecnico: true, unidade: true };
 
-  private async validarRelacionamentos(tecnico_id?: string, coordenadoria_id?: string) {
+  private async validarRelacionamentos(tecnico_id?: string, unidade_id?: string) {
     if (tecnico_id) {
       const tecnico = await this.prisma.usuario.findUnique({
         where: { id: tecnico_id },
       });
       if (!tecnico) throw new BadRequestException('Técnico não encontrado.');
     }
-    if (coordenadoria_id) {
-      const coordenadoria = await this.prisma.coordenadoria.findUnique({
-        where: { id: coordenadoria_id },
+    if (unidade_id) {
+      const unidade = await this.prisma.unidade.findUnique({
+        where: { id: unidade_id },
       });
-      if (!coordenadoria) {
-        throw new BadRequestException('Coordenadoria não encontrada.');
+      if (!unidade) {
+        throw new BadRequestException('Unidade não encontrada.');
       }
     }
   }
 
   async criar(dto: CreatePublicacaoDto): Promise<Publicacao> {
-    await this.validarRelacionamentos(dto.tecnico_rf, dto.coordenadoria_id);
+    await this.validarRelacionamentos(dto.tecnico_rf, dto.unidade_id);
     const criada = await this.prisma.publicacao.create({
       data: {
         numero_processo: dto.numero_processo,
@@ -46,7 +46,7 @@ export class PublicacoesService {
         data_publicacao: dto.data_publicacao,
         prazo: dto.prazo,
         tecnico: { connect: { id: dto.tecnico_rf } },
-        coordenadoria: { connect: { id: dto.coordenadoria_id } },
+        unidade: { connect: { id: dto.unidade_id } },
       },
       include: this.include,
     });
@@ -105,7 +105,7 @@ export class PublicacoesService {
 
   async atualizar(id: string, dto: UpdatePublicacaoDto): Promise<Publicacao> {
     await this.buscarPorId(id);
-    await this.validarRelacionamentos(dto.tecnico_rf, dto.coordenadoria_id);
+    await this.validarRelacionamentos(dto.tecnico_rf, dto.unidade_id);
     return this.prisma.publicacao.update({
       where: { id },
       data: {
@@ -116,8 +116,8 @@ export class PublicacoesService {
         data_publicacao: dto.data_publicacao,
         prazo: dto.prazo,
         ...(dto.tecnico_rf && { tecnico: { connect: { id: dto.tecnico_rf } } }),
-        ...(dto.coordenadoria_id && {
-          coordenadoria: { connect: { id: dto.coordenadoria_id } },
+        ...(dto.unidade_id && {
+          unidade: { connect: { id: dto.unidade_id } },
         }),
       },
       include: this.include,

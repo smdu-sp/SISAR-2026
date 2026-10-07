@@ -218,6 +218,18 @@ export class RelatorioExportacaoService {
     return Buffer.from(buffer);
   }
 
+  // Paleta da identidade visual do SISAR (primary teal #15859e).
+  private readonly PDF_CORES = {
+    marca: '#15859e',
+    marcaEscura: '#0e6273',
+    faixaTextoSecundario: '#cdeef4',
+    zebra: '#eef6f8',
+    borda: '#d6e6ea',
+    texto: '#1f2a2d',
+    suave: '#66787d',
+    branco: '#ffffff',
+  };
+
   private async gerarPdf(relatorio: RelatorioExportacao): Promise<Buffer> {
     const pdfmake = require('pdfmake');
     const fonteBase = path.join(
@@ -237,36 +249,126 @@ export class RelatorioExportacaoService {
     pdfmake.setLocalAccessPolicy((filePath: string) => filePath.startsWith(fonteBase));
     pdfmake.setUrlAccessPolicy(() => false);
 
+    const cor = this.PDF_CORES;
+    const geradoEm = new Date().toLocaleString('pt-BR', {
+      dateStyle: 'short',
+      timeStyle: 'short',
+    });
+
+    // Faixa de título com a cor de marca.
+    const subinfo: string[] = [];
+    if (relatorio.periodo) subinfo.push(`Período: ${relatorio.periodo}`);
+    subinfo.push(`Gerado em ${geradoEm}`);
+
     const content: any[] = [
-      { text: relatorio.titulo, style: 'titulo', margin: [0, 0, 0, 12] },
+      {
+        table: {
+          widths: ['*'],
+          body: [
+            [
+              {
+                border: [false, false, false, false],
+                fillColor: cor.marca,
+                stack: [
+                  { text: relatorio.titulo, color: cor.branco, bold: true, fontSize: 16 },
+                  {
+                    text: subinfo.join('   ·   '),
+                    color: cor.faixaTextoSecundario,
+                    fontSize: 9,
+                    margin: [0, 4, 0, 0],
+                  },
+                ],
+              },
+            ],
+          ],
+        },
+        layout: {
+          defaultBorder: false,
+          paddingLeft: () => 16,
+          paddingRight: () => 16,
+          paddingTop: () => 14,
+          paddingBottom: () => 14,
+        },
+        margin: [0, 0, 0, 16],
+      },
     ];
-    if (relatorio.periodo) {
-      content.push({ text: `Periodo: ${relatorio.periodo}`, style: 'periodo', margin: [0, 0, 0, 10] });
-    }
 
     for (const aba of relatorio.abas) {
       const colunas = this.colunas(aba.linhas);
-      content.push({ text: aba.nome, style: 'subtitulo', margin: [0, 8, 0, 6] });
+
+      // Título de seção com barra de acento à esquerda.
+      content.push({
+        table: {
+          widths: [3, 'auto'],
+          body: [
+            [
+              { text: '', fillColor: cor.marca, border: [false, false, false, false] },
+              {
+                text: aba.nome,
+                bold: true,
+                fontSize: 11,
+                color: cor.marcaEscura,
+                margin: [8, 0, 0, 0],
+                border: [false, false, false, false],
+              },
+            ],
+          ],
+        },
+        layout: { defaultBorder: false, paddingLeft: () => 0, paddingTop: () => 0, paddingBottom: () => 0 },
+        margin: [0, 6, 0, 6],
+      });
 
       if (colunas.length === 0) {
-        content.push({ text: 'Sem dados', margin: [0, 0, 0, 8] });
+        content.push({
+          text: 'Sem dados para o período selecionado.',
+          italics: true,
+          color: cor.suave,
+          margin: [0, 0, 0, 10],
+        });
         continue;
       }
 
       for (const bloco of this.dividirColunasPdf(colunas)) {
+        const alinhamentos = bloco.map((coluna) =>
+          this.alinhamentoColunaPdf(coluna, aba.linhas),
+        );
+
         content.push({
           table: {
             headerRows: 1,
             widths: bloco.map(() => '*'),
             body: [
-              bloco.map((coluna) => ({ text: coluna, style: 'cabecalhoTabela' })),
+              bloco.map((coluna, i) => ({
+                text: coluna,
+                bold: true,
+                color: cor.branco,
+                alignment: alinhamentos[i],
+              })),
               ...aba.linhas.map((linha) =>
-                bloco.map((coluna) => String(linha[coluna] ?? '')),
+                bloco.map((coluna, i) => ({
+                  text: String(linha[coluna] ?? ''),
+                  alignment: alinhamentos[i],
+                })),
               ),
             ],
           },
-          layout: 'lightHorizontalLines',
-          margin: [0, 0, 0, 10],
+          layout: {
+            fillColor: (rowIndex: number) =>
+              rowIndex === 0
+                ? cor.marca
+                : rowIndex % 2 === 0
+                  ? cor.zebra
+                  : null,
+            hLineWidth: (i: number, node: any) =>
+              i === 0 || i === node.table.body.length ? 0 : 0.5,
+            vLineWidth: () => 0,
+            hLineColor: () => cor.borda,
+            paddingLeft: () => 7,
+            paddingRight: () => 7,
+            paddingTop: () => 5,
+            paddingBottom: () => 5,
+          },
+          margin: [0, 0, 0, 12],
         });
       }
     }
@@ -274,21 +376,59 @@ export class RelatorioExportacaoService {
     const pdf = pdfmake.createPdf({
       pageOrientation: 'landscape',
       pageSize: 'A4',
-      pageMargins: [20, 20, 20, 20],
+      pageMargins: [24, 40, 24, 34],
       defaultStyle: {
         font: 'Roboto',
-        fontSize: 7,
+        fontSize: 8,
+        color: cor.texto,
       },
-      styles: {
-        titulo: { fontSize: 14, bold: true },
-        periodo: { fontSize: 9, italics: true },
-        subtitulo: { fontSize: 10, bold: true },
-        cabecalhoTabela: { bold: true, fillColor: '#D9E2F3' },
-      },
+      // Cabeçalho discreto repetido a partir da 2ª página.
+      header: (currentPage: number) =>
+        currentPage === 1
+          ? null
+          : {
+              margin: [24, 16, 24, 0],
+              columns: [
+                { text: relatorio.titulo, fontSize: 8, bold: true, color: cor.suave },
+                { text: `Gerado em ${geradoEm}`, alignment: 'right', fontSize: 8, color: cor.suave },
+              ],
+            },
+      footer: (currentPage: number, pageCount: number) => ({
+        margin: [24, 8, 24, 0],
+        columns: [
+          {
+            text: 'SISAR · Sistema de Acompanhamento de Processos',
+            fontSize: 7,
+            color: cor.suave,
+          },
+          {
+            text: `Página ${currentPage} de ${pageCount}`,
+            alignment: 'right',
+            fontSize: 7,
+            color: cor.suave,
+          },
+        ],
+      }),
       content,
     });
 
     return await pdf.getBuffer();
+  }
+
+  /** Alinha a coluna à direita quando todos os valores preenchidos são numéricos. */
+  private alinhamentoColunaPdf(
+    coluna: string,
+    linhas: LinhaExportacao[],
+  ): 'left' | 'right' {
+    let algumValor = false;
+    for (const linha of linhas) {
+      const valor = linha[coluna];
+      if (valor === null || valor === undefined || valor === '') continue;
+      algumValor = true;
+      const texto = String(valor).trim().replace(/\./g, '').replace(',', '.');
+      if (!/^-?\d+(\.\d+)?%?$/.test(texto)) return 'left';
+    }
+    return algumValor ? 'right' : 'left';
   }
 
   private normalizarRelatorio(titulo: string, dados: unknown): RelatorioExportacao {

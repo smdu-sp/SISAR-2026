@@ -73,7 +73,7 @@ export class RelatorioService {
 
   //buscar ID específico de uma unidade
   async getIdByUnidade(sigla: string): Promise<string | null> {
-    const unidade = await this.prisma.unidade.findUnique({
+    const unidade = await this.prisma.unidade.findFirst({
       where: {
         sigla
       }

@@ -1,10 +1,10 @@
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, HttpStatus, ForbiddenException, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { InicialService } from './inicial.service';
 import { CreateInicialDto } from './dto/create-inicial.dto';
 import { UpdateInicialDto } from './dto/update-inicial.dto';
 import { ImportarInicialResponseDTO } from './dto/importar-inicial.dto';
-import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IniciaisPaginado, InicialProcessosMesAnoResponseDTO, InicialProcessosResponseDTO, InicialResponseDTO, SqlResponseDTO } from './dto/inicial-response.dto';
 
@@ -24,7 +24,7 @@ export class InicialController {
     return this.inicialService.criar(createInicialDto);
   }
 
-  @Permissoes('DEV', 'SUP', 'ADM')
+  @Recurso('importar')
   @Post('importar')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(FileInterceptor('arquivo'))
@@ -43,6 +43,7 @@ export class InicialController {
     return this.inicialService.importarPlanilha(arquivo.buffer);
   }
 
+  @Recurso('painel_inicial', 'processos')
   @Get('buscar-tudo')
   @HttpCode(HttpStatus.OK)
   @ApiQuery({ name: 'pagina', type: 'string', required: true })

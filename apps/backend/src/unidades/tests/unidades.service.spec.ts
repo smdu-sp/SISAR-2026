@@ -72,6 +72,10 @@ describe('UnidadesService Test', () => {
     jest.spyOn(service, 'buscaPorCodigo').mockResolvedValue(null);
     jest.spyOn(service, 'buscaPorSigla').mockResolvedValue(null);
     jest.spyOn(service, 'buscaPorNome').mockResolvedValue(null);
+    (prisma.unidade.findUnique as jest.Mock).mockResolvedValue({
+      id: 'dir-1',
+      nivel: 'DIRETORIA',
+    });
     (prisma.unidade.create as jest.Mock).mockResolvedValue(mockUnidadeResult);
 
     const result: CreateUnidadeDto = await service.criar({
@@ -79,11 +83,16 @@ describe('UnidadesService Test', () => {
       sigla: 'UDS',
       codigo: '4Brv',
       status: 0,
+      nivel: 'UNIDADE',
+      unidade_pai_id: 'dir-1',
     });
 
     expect(result).not.toBeNull();
 
-    expect(service.buscaPorNome).toHaveBeenCalledWith(mockUnidadeResult.nome);
+    expect(service.buscaPorNome).toHaveBeenCalledWith(
+      mockUnidadeResult.nome,
+      'UNIDADE',
+    );
 
     expect(service.buscaPorSigla).toHaveBeenCalledWith(mockUnidadeResult.sigla);
 
@@ -97,6 +106,8 @@ describe('UnidadesService Test', () => {
         sigla: 'UDS',
         codigo: '4Brv',
         status: 0,
+        nivel: 'UNIDADE',
+        unidade_pai_id: 'dir-1',
       },
     });
 
@@ -176,6 +187,10 @@ describe('UnidadesService Test', () => {
           { status: undefined },
         ],
       },
+      include: {
+        unidade_pai: { select: { id: true, nome: true, sigla: true, nivel: true } },
+      },
+      orderBy: [{ nivel: 'asc' }, { nome: 'asc' }],
       skip: (mockParams.pagina - 1) * mockParams.limite,
       take: mockParams.limite,
     });
@@ -210,12 +225,15 @@ describe('UnidadesService Test', () => {
       sigla: 'UDS',
       codigo: 'MHY2X',
       status: 0,
+      nivel: 'UNIDADE' as const,
+      unidade_pai_id: null,
     };
 
     jest.spyOn(service, 'buscarPorId').mockResolvedValue(mockUpdateUnidade);
     jest.spyOn(service, 'buscaPorNome').mockResolvedValue(null);
     jest.spyOn(service, 'buscaPorCodigo').mockResolvedValue(null);
     jest.spyOn(service, 'buscaPorSigla').mockResolvedValue(null);
+    (prisma.unidade.findUnique as jest.Mock).mockResolvedValue(mockUpdateUnidade);
     (prisma.unidade.update as jest.Mock).mockResolvedValue(mockUpdateUnidade);
 
     const mockUpdateParams = {
@@ -231,7 +249,10 @@ describe('UnidadesService Test', () => {
 
     expect(result).not.toBeNull();
 
-    expect(service.buscaPorNome).toHaveBeenCalledWith(mockUpdateParams.nome);
+    expect(service.buscaPorNome).toHaveBeenCalledWith(
+      mockUpdateParams.nome,
+      'UNIDADE',
+    );
     expect(service.buscaPorSigla).toHaveBeenCalledWith(mockUpdateParams.sigla);
     expect(service.buscaPorCodigo).toHaveBeenCalledWith(
       mockUpdateParams.codigo,

@@ -1,3 +1,4 @@
+import { AcessoLogado, Recurso } from 'src/auth/decorators/recurso.decorator';
 import {
   Controller,
   Get,
@@ -13,7 +14,6 @@ import {
 import { UsuariosService } from './usuarios.service';
 import { AddFeriasDto, CreateUsuarioDto } from './dto/create-usuario.dto';
 import { UpdateUsuarioDto } from './dto/update-usuario.dto';
-import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { UsuarioAtual } from 'src/auth/decorators/usuario-atual.decorator';
 import { Ferias, Usuario } from '@prisma/client';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -25,7 +25,7 @@ import { AddSubstitutoDTO, BuscarFuncionariosResponseDTO, BuscarNovoResponseDTO,
 export class UsuariosController {
   constructor(private readonly usuariosService: UsuariosService) {}
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('usuarios')
   @Post('criar') //localhost:3000/usuarios/criar
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: CreateUsuarioDto })
@@ -39,7 +39,7 @@ export class UsuariosController {
     return this.usuariosService.criar(createUsuarioDto, usuario);
   }
 
-  @Permissoes('ADM', 'SUP')
+  @Recurso('usuarios')
   @Get('buscar-tudo') //localhost:3000/usuarios/buscar-tudo
   @HttpCode(HttpStatus.OK)
   @ApiQuery({ name: 'pagina', type: 'string', required: true })
@@ -61,7 +61,7 @@ export class UsuariosController {
     return this.usuariosService.buscarTudo(usuario, +pagina, +limite, status, busca, permissao);
   }
 
-  @Permissoes('ADM', 'SUP')
+  @Recurso('usuarios')
   @Get('buscar-por-id/:id') //localhost:3000/usuarios/buscar-por-id/id
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', type: 'string', required: true })
@@ -72,7 +72,7 @@ export class UsuariosController {
     return this.usuariosService.buscarPorId(id);
   }
 
-  @Permissoes('ADM', 'SUP')
+  @Recurso('usuarios')
   @Patch('atualizar/:id') //localhost:3000/usuarios/atualizar/id
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', type: 'string', required: true })
@@ -88,7 +88,7 @@ export class UsuariosController {
     return this.usuariosService.atualizar(usuario, id, updateUsuarioDto);
   }
 
-  @Permissoes('ADM', 'SUP')
+  @Recurso('usuarios')
   @Get('lista-completa')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: "Listar todos os usuários.", summary: 'Liste os usuários.' })
@@ -98,7 +98,7 @@ export class UsuariosController {
     return this.usuariosService.listaCompleta();
   }
 
-  @Permissoes('ADM', 'SUP')
+  @Recurso('usuarios')
   @Delete('desativar/:id') //localhost:3000/usuarios/excluir/id
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: "Deletar todos os usuários.", summary: 'Delete os usuários.' })
@@ -108,7 +108,7 @@ export class UsuariosController {
     return this.usuariosService.excluir(id);
   }
 
-  @Permissoes('ADM', 'SUP')
+  @Recurso('usuarios')
   @Patch('autorizar/:id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', type: 'string', required: true })
@@ -119,7 +119,7 @@ export class UsuariosController {
     return this.usuariosService.autorizaUsuario(id);
   }
 
-  @Permissoes('ADM', 'SUP')
+  @Recurso('usuarios')
   @Patch('adiciona-ferias/:id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', type: 'string', required: true })
@@ -134,6 +134,7 @@ export class UsuariosController {
     return this.usuariosService.adicionaFerias(id, addFeriasDto);
   }
 
+  @AcessoLogado()
   @Get('valida-usuario')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: "Validar usuário.", summary: 'Valide ao usuário.' })
@@ -143,7 +144,7 @@ export class UsuariosController {
     return this.usuariosService.validaUsuario(usuario.id);
   }
 
-  @Permissoes('ADM', 'SUP')
+  @Recurso('usuarios')
   @Get('buscar-novo')
   @HttpCode(HttpStatus.OK)
   @ApiQuery({ name: 'login', type: 'string', required: true })
@@ -154,7 +155,7 @@ export class UsuariosController {
     return this.usuariosService.buscarNovo(login);
   }
 
-  @Permissoes('ADM', 'SUP', 'TEC')
+  @Recurso('usuarios')
   @Get('buscar-administrativos')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: "Buscar administrativos.", summary: 'Busque administrativios.' })
@@ -164,7 +165,7 @@ export class UsuariosController {
     return this.usuariosService.buscarAdministrativos();
   }
 
-  @Permissoes('ADM', 'SUP', 'USR', 'TEC')
+  @Recurso('usuarios', 'processos')
   @Get('buscar-funcionarios')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: "Buscar funcionários.", summary: 'Busque funcionários.' })
@@ -174,7 +175,7 @@ export class UsuariosController {
     return this.usuariosService.buscarFuncionarios();
   }
 
-  @Permissoes('ADM', 'SUP')
+  @Recurso('usuarios')
   @Post('adicionar-substituto')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ description: "Adicionar substituto.", summary: 'Adicionar substituto ao usuário.' })
@@ -186,7 +187,7 @@ export class UsuariosController {
     return this.usuariosService.adicionarSubstituto(usuario_id, substituto_id);
   }
 
-  @Permissoes('ADM', 'SUP')
+  @Recurso('usuarios')
   @Delete('remover-substituto/:id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', type: 'string', required: true })

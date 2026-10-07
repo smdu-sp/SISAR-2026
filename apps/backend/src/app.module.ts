@@ -21,15 +21,14 @@ import { RelatorioModule } from './relatorio/relatorio.module';
 import { CategoriaModule } from './categoria/categoria.module';
 import { MotivoInadmissaoModule } from './motivo-inadmissao/motivo-inadmissao.module';
 import { PedidoModule } from './pedido/pedido.module';
-import { CoordenadoriaModule } from './coordenadoria/coordenadoria.module';
-import { DiretoriaModule } from './diretoria/diretoria.module';
 import { AnaliseModule } from './analise/analise.module';
 import { ReconsideracaoModule } from './reconsideracao/reconsideracao.module';
 import { PublicacoesModule } from './publicacoes/publicacoes.module';
+import { PermissoesModule } from './permissoes/permissoes.module';
 
 @Global()
 @Module({
-  imports: [UsuariosModule, AuthModule, PrismaModule, SGUModule, AlvaraTipoModule, InicialModule, UnidadesModule, SubprefeituraModule, ReunioesModule, AdmissibilidadeModule, DistribuicaoModule, AvisosModule, ParecerAdmissibilidadeModule, RelatorioModule, FinalizacaoModule, CategoriaModule, MotivoInadmissaoModule, PedidoModule, CoordenadoriaModule, DiretoriaModule, AnaliseModule, ReconsideracaoModule, PublicacoesModule],
+  imports: [UsuariosModule, AuthModule, PrismaModule, SGUModule, AlvaraTipoModule, InicialModule, UnidadesModule, SubprefeituraModule, ReunioesModule, AdmissibilidadeModule, DistribuicaoModule, AvisosModule, ParecerAdmissibilidadeModule, RelatorioModule, FinalizacaoModule, CategoriaModule, MotivoInadmissaoModule, PedidoModule, AnaliseModule, ReconsideracaoModule, PublicacoesModule, PermissoesModule],
   controllers: [],
   providers: [
     AppService,
