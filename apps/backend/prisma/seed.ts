@@ -32,12 +32,27 @@ const unidadesSetoriais = [
   { sigla: 'GRAPROEM', nome: 'GRAPROEM', codigo: 'GRAPROEM' },
 ];
 
-async function main() {
-  const unidade = await prisma.unidade.upsert({
-    where: { sigla: unidadeAtic.sigla },
-    create: unidadeAtic,
-    update: unidadeAtic,
+// Sigla deixou de ser única (unidades unificadas com níveis), então
+// upsert por sigla vira findFirst + create/update manual.
+async function upsertUnidadePorSigla(data: {
+  sigla: string;
+  nome: string;
+  codigo: string;
+  status?: number;
+}) {
+  const existente = await prisma.unidade.findFirst({
+    where: { sigla: data.sigla },
   });
+  if (existente)
+    return prisma.unidade.update({
+      where: { id: existente.id },
+      data: { nome: data.nome, codigo: data.codigo, status: data.status ?? 1 },
+    });
+  return prisma.unidade.create({ data: { ...data, status: data.status ?? 1 } });
+}
+
+async function main() {
+  const unidade = await upsertUnidadePorSigla(unidadeAtic);
 
   const subprefeitura = await prisma.subprefeitura.upsert({
     where: { sigla: subprefeituraSe.sigla },
@@ -47,13 +62,7 @@ async function main() {
 
   const setores = [];
   for (const u of unidadesSetoriais) {
-    setores.push(
-      await prisma.unidade.upsert({
-        where: { sigla: u.sigla },
-        create: { ...u, status: 1 },
-        update: { nome: u.nome, codigo: u.codigo, status: 1 },
-      }),
-    );
+    setores.push(await upsertUnidadePorSigla({ ...u, status: 1 }));
   }
 
   const existingByEmail = await prisma.usuario.findUnique({
