@@ -7,10 +7,13 @@ import { RelatorioComplementarService } from './relatorio-complementar/relatorio
 import { RelatorioExportacaoService } from './exportacao/relatorio-exportacao.service';
 import { EmailModule } from 'src/email/email.module';
 import { RelatorioEmailService } from './email/relatorio-email.service';
+import { RelatorioAgendamentoController } from './agendamento/relatorio-agendamento.controller';
+import { RelatorioAgendamentoService } from './agendamento/relatorio-agendamento.service';
+import { RelatorioAgendamentoScheduler } from './agendamento/relatorio-agendamento.scheduler';
 
 @Module({
   imports: [EmailModule],
-  controllers: [RelatorioController],
+  controllers: [RelatorioController, RelatorioAgendamentoController],
   providers: [
     RelatorioService,
     RelatorioRRService,
@@ -18,6 +21,8 @@ import { RelatorioEmailService } from './email/relatorio-email.service';
     RelatorioComplementarService,
     RelatorioExportacaoService,
     RelatorioEmailService,
+    RelatorioAgendamentoService,
+    RelatorioAgendamentoScheduler,
   ],
 })
 export class RelatorioModule {}

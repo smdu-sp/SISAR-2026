@@ -1,28 +1,30 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { UsuariosService } from 'src/usuarios/usuarios.service';
+import { PermissoesService } from 'src/permissoes/permissoes.service';
+import { RECURSO_PADRAO } from 'src/permissoes/recursos';
+import {
+  QUALQUER_LOGADO,
+  RECURSOS_KEY,
+} from '../decorators/recurso.decorator';
 
 @Injectable()
 export class RoleGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private readonly usuariosService: UsuariosService,
+    private readonly permissoesService: PermissoesService,
   ) {}
 
-  verificaPermissoes(permissoes: string[], permissaoUsuario: string) {
-    if (permissaoUsuario === 'DEV') return true;
-    return permissoes.some((role) => role === permissaoUsuario);
-  }
-
   async canActivate(context: ExecutionContext) {
-    const permissoes = this.reflector.get<string[]>(
-      'permissoes',
+    const usuario = context.switchToHttp().getRequest().user;
+    // Rota pública (sem usuário autenticado): nada a verificar.
+    if (!usuario) return true;
+
+    const recursos = this.reflector.getAllAndOverride<string[]>(RECURSOS_KEY, [
       context.getHandler(),
-    );
-    if (!permissoes) return true;
-    const request = context.switchToHttp().getRequest();
-    const usuario = request.user;
-    const permissao = await this.usuariosService.retornaPermissao(usuario.id);
-    return this.verificaPermissoes(permissoes, permissao);
+      context.getClass(),
+    ]) ?? [RECURSO_PADRAO];
+    if (recursos.includes(QUALQUER_LOGADO)) return true;
+
+    return this.permissoesService.temAlgum(usuario.permissao, recursos);
   }
 }

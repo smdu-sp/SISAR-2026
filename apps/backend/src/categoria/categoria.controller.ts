@@ -1,3 +1,4 @@
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import {
   Body,
   Controller,
@@ -16,7 +17,6 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { CategoriaService } from './categoria.service';
 import { CreateCategoriaDto } from './dto/create-categoria.dto';
 import { UpdateCategoriaDto } from './dto/update-categoria.dto';
@@ -27,7 +27,7 @@ import { UpdateCategoriaDto } from './dto/update-categoria.dto';
 export class CategoriaController {
   constructor(private readonly service: CategoriaService) {}
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('categorias')
   @Post('criar')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Criar categoria' })
@@ -63,7 +63,7 @@ export class CategoriaController {
     return this.service.buscarPorId(id);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('categorias')
   @Patch('atualizar/:id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Atualizar categoria' })
@@ -71,7 +71,7 @@ export class CategoriaController {
     return this.service.atualizar(id, dto);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('categorias')
   @Delete('remover/:id')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Remover categoria' })

@@ -227,6 +227,12 @@ export class AnaliseService {
         ? this.parseData(dto.nova_data_reuniao)
         : null;
     const justificativa = dto.justificativa_remarcacao?.trim() || null;
+    const numeroReuniao = dto.numero_reuniao?.trim();
+    const parecerGrupo = dto.parecer_grupo?.trim() || null;
+
+    if (!numeroReuniao) {
+      throw new BadRequestException('Informe o número da reunião.');
+    }
     if (novaDataReuniao && !justificativa) {
       throw new BadRequestException(
         'Informe a justificativa ao remarcar a data da reunião.',
@@ -242,16 +248,16 @@ export class AnaliseService {
         instancia,
         data_reuniao: dataReuniao,
         data_processo: dataProcesso,
-        numero_reuniao: dto.numero_reuniao.trim(),
-        parecer_grupo: dto.parecer_grupo.trim(),
+        numero_reuniao: numeroReuniao,
+        parecer_grupo: parecerGrupo,
         nova_data_reuniao: novaDataReuniao,
         justificativa_remarcacao: justificativa,
       },
       update: {
         data_reuniao: dataReuniao,
         data_processo: dataProcesso,
-        numero_reuniao: dto.numero_reuniao.trim(),
-        parecer_grupo: dto.parecer_grupo.trim(),
+        numero_reuniao: numeroReuniao,
+        parecer_grupo: parecerGrupo,
         nova_data_reuniao: novaDataReuniao,
         justificativa_remarcacao: justificativa,
       },

@@ -20,6 +20,11 @@ interface EnviarEmailComAnexoParams {
 
 @Injectable()
 export class EmailService {
+  /** Indica se o provedor de e-mail está configurado (permite falhar com mensagem clara). */
+  configurado(): boolean {
+    return Boolean(process.env.RESEND_API_KEY && process.env.RESEND_FROM);
+  }
+
   async enviarComAnexo(params: EnviarEmailComAnexoParams) {
     const from = process.env.RESEND_FROM;
     if (!from) {

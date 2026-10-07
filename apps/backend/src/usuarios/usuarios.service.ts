@@ -266,8 +266,8 @@ export class UsuariosService {
     });
     if (usuario_sgu){
       const codigo: string = usuario_sgu.cpUnid;
-      const unidade: Unidade = await this.prisma.unidade.findUnique({ 
-        where: { codigo } 
+      const unidade: Unidade = await this.prisma.unidade.findFirst({
+        where: { codigo }
       });
       unidade_id = unidade ? unidade.id : '';
     }

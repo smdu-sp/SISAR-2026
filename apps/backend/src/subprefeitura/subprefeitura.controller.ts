@@ -1,9 +1,8 @@
-import { IsPublic } from '../auth/decorators/is-public.decorator';
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { SubprefeituraService } from './subprefeitura.service';
 import { CreateSubprefeituraDto } from './dto/create-subprefeitura.dto';
 import { UpdateSubprefeituraDto } from './dto/update-subprefeitura.dto';
-import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateResponseSubprefeituraDTO, SubprefeituraPaginatedResponseDTO, SubprefeituraResponseDTO } from './dto/subprefeitura-response.dto';
 
@@ -13,7 +12,7 @@ import { CreateResponseSubprefeituraDTO, SubprefeituraPaginatedResponseDTO, Subp
 export class SubprefeituraController {
   constructor(private readonly subprefeiturasServiceimport: SubprefeituraService) {}
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('subprefeituras')
   @Post('criar')
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: CreateSubprefeituraDto })
@@ -24,7 +23,7 @@ export class SubprefeituraController {
     return this.subprefeiturasServiceimport.criar(CreateSubprefeituraDto);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('subprefeituras')
   @Get('buscar-tudo')
   @HttpCode(HttpStatus.OK)
   @ApiQuery({ name: 'pagina', type: 'string', required: false })
@@ -41,7 +40,7 @@ export class SubprefeituraController {
     return this.subprefeiturasServiceimport.buscarTudo(+pagina, +limite, busca);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('subprefeituras')
   @Get('lista-completa')
   @ApiResponse({ status: 200, description: 'Retorna 200 se buscar a lista completa com sucesso.', type: [SubprefeituraResponseDTO] })
   @ApiResponse({ status: 401, description: 'Retorna 401 se não autorizado.' })
@@ -50,7 +49,7 @@ export class SubprefeituraController {
     return this.subprefeiturasServiceimport.listaCompleta();
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('subprefeituras')
   @Get('buscar-por-id/:id')
   @ApiParam({ name: 'id', type: 'string', required: true })
   @ApiResponse({ status: 200, description: 'Retorna 200 se buscar a subprefeitura por ID com sucesso.', type: SubprefeituraResponseDTO })
@@ -60,7 +59,7 @@ export class SubprefeituraController {
     return this.subprefeiturasServiceimport.buscarPorId(id);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('subprefeituras')
   @Patch('atualizar/:id')
   @ApiParam({ name: 'id', type: 'string', required: true })
   @ApiBody({ type: UpdateSubprefeituraDto })

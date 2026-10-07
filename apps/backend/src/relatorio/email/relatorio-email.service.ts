@@ -3,6 +3,14 @@ import { EmailService } from 'src/email/email.service';
 import { RelatorioExportacaoService } from '../exportacao/relatorio-exportacao.service';
 import { EnviarRelatorioEmailDto } from '../dto/enviar-relatorio-email.dto';
 
+interface ExportarFiltros {
+  dataInicial?: string;
+  dataFinal?: string;
+  anoInicial?: string;
+  anoFinal?: string;
+  periodo?: string;
+}
+
 @Injectable()
 export class RelatorioEmailService {
   constructor(
@@ -52,6 +60,47 @@ export class RelatorioEmailService {
       filename: arquivo.filename,
       destinatarios: dto.destinatarios,
     };
+  }
+
+  /** Gera o relatório em vários formatos e envia tudo em um único e-mail. */
+  async enviarMultiplos(params: {
+    tipoRelatorio: string;
+    formatos: string[];
+    filtros: ExportarFiltros;
+    destinatarios: string[];
+    assunto?: string;
+    mensagem?: string;
+  }) {
+    const arquivos = [];
+    for (const formato of params.formatos) {
+      arquivos.push(
+        await this.relatorioExportacaoService.exportar(
+          params.tipoRelatorio,
+          formato,
+          params.filtros,
+        ),
+      );
+    }
+
+    const assunto =
+      params.assunto ?? `Relatorio SISAR - ${params.tipoRelatorio}`;
+    const mensagem =
+      params.mensagem ?? 'Segue em anexo o relatorio solicitado no SISAR.';
+    const nomes = arquivos.map((a) => a.filename);
+
+    const email = await this.emailService.enviarComAnexo({
+      to: params.destinatarios,
+      subject: assunto,
+      html: this.montarHtml(mensagem, nomes.join(', ')),
+      text: `${mensagem}\n\nArquivos: ${nomes.join(', ')}`,
+      attachments: arquivos.map((a) => ({
+        filename: a.filename,
+        content: a.buffer,
+        contentType: a.contentType,
+      })),
+    });
+
+    return { id: email?.id, arquivos: nomes };
   }
 
   private montarHtml(mensagem: string, filename: string) {

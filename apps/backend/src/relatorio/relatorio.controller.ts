@@ -1,6 +1,6 @@
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Query, Res } from '@nestjs/common';
 import { Response } from 'express';
-import { IsPublic } from 'src/auth/decorators/is-public.decorator';
 import { ApiBody, ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RelatorioResopnseDto } from './relatorio-ar-quantitativo/dto/response-relatorio.dto';
 import { RelatorioService } from './relatorio-ar-quantitativo/relatorio-ar.service';
@@ -23,7 +23,7 @@ export class RelatorioController {
     private readonly relatorioEmailService: RelatorioEmailService,
   ) { }
 
-  @IsPublic()
+  @Recurso('relatorios')
   @Get("ar/quantitativo/:mes?/:ano?")
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'Retorna 200 se buscar o relatório Aprova Rápido com sucesso.', type: RelatorioResopnseDto })
@@ -33,7 +33,7 @@ export class RelatorioController {
     return await this.relatorioService.getRelatorio(mes, ano);
   }
 
-  @IsPublic()
+  @Recurso('relatorios')
   @Get("rr/quantitativo/:mes/:ano")
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'Retorna 200 se buscar o relatório Requalifica Rápido com sucesso.', type: RelatorioResopnseDto })
@@ -43,7 +43,7 @@ export class RelatorioController {
     return await this.relatorioRRService.getRelatorio(mes, ano);
   }
 
-  @IsPublic()
+  @Recurso('relatorios')
   @Get('ar/progressao-mensal/:anoInicial/:anoFinal')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'anoInicial', type: 'string', example: '2024', required: true })
@@ -77,7 +77,7 @@ export class RelatorioController {
     );
   }
 
-  @IsPublic()
+  @Recurso('relatorios')
   @Get('ar/progressao-mensal/:ano')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'ano', type: 'string', example: '2026', required: true })
@@ -104,7 +104,7 @@ export class RelatorioController {
     return await this.arGraficoProgressaoMensal.getAllByYear(Number(ano));
   }
 
-  @IsPublic()
+  @Recurso('relatorios')
   @Get('ar/prazo-analise-admissibilidade/:dataInicial/:dataFinal')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'dataInicial', type: 'string', example: '01-01-2026', required: true })
@@ -156,7 +156,7 @@ export class RelatorioController {
     );
   }
 
-  @IsPublic()
+  @Recurso('relatorios')
   @Get('rr/prazo-analise-admissibilidade/:dataInicial/:dataFinal')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'dataInicial', type: 'string', example: '01-01-2026', required: true })
@@ -204,7 +204,7 @@ export class RelatorioController {
     );
   }
 
-  @IsPublic()
+  @Recurso('relatorios')
   @Get('ar/gabinete-do-prefeito')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -251,7 +251,7 @@ export class RelatorioController {
     return await this.relatorioComplementarService.getGabinetePrefeito();
   }
 
-  @IsPublic()
+  @Recurso('relatorios')
   @Get('exportar/:tipoRelatorio/:formato')
   @HttpCode(HttpStatus.OK)
   @ApiParam({
@@ -318,7 +318,7 @@ export class RelatorioController {
     return res.send(arquivo.buffer);
   }
 
-  @IsPublic()
+  @Recurso('envio_relatorios')
   @Post('enviar-email/:tipoRelatorio/:formato')
   @HttpCode(HttpStatus.OK)
   @ApiParam({

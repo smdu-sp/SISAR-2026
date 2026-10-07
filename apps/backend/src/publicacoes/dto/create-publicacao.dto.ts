@@ -21,9 +21,9 @@ export class CreatePublicacaoDto {
   @ApiProperty()
   tecnico_rf: string;
 
-  @IsString({ message: 'Coordenadoria inválida.' })
+  @IsString({ message: 'Unidade inválida.' })
   @ApiProperty()
-  coordenadoria_id: string;
+  unidade_id: string;
 
   @IsDate({ message: 'Data de emissão inválida.' })
   @ApiProperty()

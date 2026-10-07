@@ -1,8 +1,8 @@
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import { Controller, Get, Post, Body, Patch, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { AlvaraTipoService } from './alvara-tipo.service';
 import { CreateAlvaraTipoDto } from './dto/create-alvara-tipo.dto';
 import { UpdateAlvaraTipoDto } from './dto/update-alvara-tipo.dto';
-import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AlvaraTipoPaginadoDTO, AlvaraTipoResponseDTO } from './dto/alvara-tipo-responses.dto';
 
@@ -12,7 +12,7 @@ import { AlvaraTipoPaginadoDTO, AlvaraTipoResponseDTO } from './dto/alvara-tipo-
 export class AlvaraTipoController {
   constructor(private readonly alvaraTipoService: AlvaraTipoService) {}
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('alvaras')
   @Post('criar')
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: CreateAlvaraTipoDto })
@@ -32,7 +32,7 @@ export class AlvaraTipoController {
     return this.alvaraTipoService.listaCompleta();
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('alvaras')
   @Get('buscar-tudo')
   @HttpCode(HttpStatus.OK)
   @ApiQuery({ name: 'pagina', type: 'string', required: false })
@@ -49,7 +49,7 @@ export class AlvaraTipoController {
     return this.alvaraTipoService.buscarTudo(+pagina, +limite, busca);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('alvaras')
   @Get('buscar-por-id/:id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', type: 'string', required: true })
@@ -60,7 +60,7 @@ export class AlvaraTipoController {
     return this.alvaraTipoService.buscarPorId(id);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('alvaras')
   @Patch('atualizar/:id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', type: 'string', required: true })
@@ -75,7 +75,7 @@ export class AlvaraTipoController {
     return this.alvaraTipoService.atualizar(id, updateAlvaraTipoDto);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('alvaras')
   @Patch('auterar-status/:id')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'id', type: 'string', required: true })

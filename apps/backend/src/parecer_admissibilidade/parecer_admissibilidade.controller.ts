@@ -1,3 +1,4 @@
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { ParecerAdmissibilidadeService } from './parecer_admissibilidade.service';
 import { CreateParecerAdmissibilidadeDto } from './dto/create-parecer_admissibilidade.dto';
@@ -11,6 +12,7 @@ import { ParecerAdmissibilidadePaginadoDTO, ParecerAdmissibilidadeResponseDTO } 
 export class ParecerAdmissibilidadeController {
   constructor(private readonly parecerAdmissibilidadeService: ParecerAdmissibilidadeService) {}
 
+  @Recurso('pareceres')
   @Post('criar')
   @HttpCode(HttpStatus.CREATED)
   @ApiBody({ type: CreateParecerAdmissibilidadeDto })
@@ -49,6 +51,7 @@ export class ParecerAdmissibilidadeController {
     return this.parecerAdmissibilidadeService.buscarPorId(id);
   }
 
+  @Recurso('pareceres')
   @Patch('atualizar/:id')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'Retorna 200 se atualizar parecer-admissibilidade com sucesso.', type: ParecerAdmissibilidadePaginadoDTO })
@@ -61,6 +64,7 @@ export class ParecerAdmissibilidadeController {
     return this.parecerAdmissibilidadeService.atualizar(id, updateParecerAdmissibilidadeDto);
   }
 
+  @Recurso('pareceres')
   @Delete('desativar/:id')
   @HttpCode(HttpStatus.OK)
   @ApiResponse({ status: 200, description: 'Retorna 200 se deletar parecer-admissibilidade com sucesso.', type: ParecerAdmissibilidadePaginadoDTO })

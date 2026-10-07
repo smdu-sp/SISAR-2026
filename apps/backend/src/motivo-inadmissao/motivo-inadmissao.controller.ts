@@ -1,3 +1,4 @@
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import {
   Body,
   Controller,
@@ -16,7 +17,6 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { CreateMotivoInadmissaoDto } from './dto/create-motivo-inadmissao.dto';
 import { UpdateMotivoInadmissaoDto } from './dto/update-motivo-inadmissao.dto';
 import { MotivoInadmissaoService } from './motivo-inadmissao.service';
@@ -27,7 +27,7 @@ import { MotivoInadmissaoService } from './motivo-inadmissao.service';
 export class MotivoInadmissaoController {
   constructor(private readonly service: MotivoInadmissaoService) {}
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('motivos_inadmissao')
   @Post('criar')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Criar motivo de inadmissão' })
@@ -60,14 +60,14 @@ export class MotivoInadmissaoController {
     return this.service.buscarPorId(id);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('motivos_inadmissao')
   @Patch('atualizar/:id')
   @HttpCode(HttpStatus.OK)
   atualizar(@Param('id') id: string, @Body() dto: UpdateMotivoInadmissaoDto) {
     return this.service.atualizar(id, dto);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('motivos_inadmissao')
   @Delete('remover/:id')
   @HttpCode(HttpStatus.OK)
   remover(@Param('id') id: string) {

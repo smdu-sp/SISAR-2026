@@ -1,12 +1,11 @@
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { AdmissibilidadeService } from './admissibilidade.service';
 import { CreateAdmissibilidadeDto } from './dto/create-admissibilidade.dto';
 import { UpdateAdmissibilidadeDto } from './dto/update-admissibilidade.dto';
 import { AdmitirDto, InadmitirDto } from './dto/admitir.dto';
-import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AdmissibilidadePaginado, AdmissibilidadeResponseDTO, CreateResponseAdmissibilidadeDTO } from './dto/responses.dto';
-import { IsPublic } from 'src/auth/decorators/is-public.decorator';
 
 @ApiTags('Admissibilidade')
 @ApiBearerAuth()
@@ -63,7 +62,7 @@ export class AdmissibilidadeController {
     return this.admissibilidadeService.buscarPorId(+id);
   }
 
-  @Permissoes('ADM')
+  @Recurso('admissibilidade_decidir')
   @Get('lista')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ description: "Listar todas as admissibilidades.", summary: 'Liste tudo admissibilidade.' })
@@ -87,7 +86,7 @@ export class AdmissibilidadeController {
     return this.admissibilidadeService.atualizarStatus(+id, updateAdmissibilidadeDto);
   }
 
-  @Permissoes('DEV', 'SUP', 'ADM')
+  @Recurso('admissibilidade_decidir')
   @Post('admitir/:inicialId')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'inicialId', type: 'string', required: true })
@@ -101,7 +100,7 @@ export class AdmissibilidadeController {
     return this.admissibilidadeService.admitir(+inicialId, dto);
   }
 
-  @Permissoes('DEV', 'SUP', 'ADM')
+  @Recurso('admissibilidade_decidir')
   @Post('inadmitir/:inicialId')
   @HttpCode(HttpStatus.OK)
   @ApiParam({ name: 'inicialId', type: 'string', required: true })
@@ -125,36 +124,36 @@ export class AdmissibilidadeController {
     return this.admissibilidadeService.remove(+id);
   }
 
-  @IsPublic()
+  @Recurso('admissibilidade_decidir')
   @Get('verifica-reconsideracao')
   verificaReconsideracao() {
     return this.admissibilidadeService.verificaReconsideracao();
   }
   
-  @IsPublic()
+  @Recurso('dashboard_admissibilidade')
   @Get('contar-fora-prazo')
   async contarRegistros() {
     return this.admissibilidadeService.contarForaDoPrazo();
   }  
 
-  @IsPublic()
+  @Recurso('dashboard_admissibilidade')
   @Get('contar-dentro-prazo')
   async contarDentroPrazo() {
     return this.admissibilidadeService.contarDentroDoPrazo();
   }
   
-  @IsPublic()
+  @Recurso('dashboard_admissibilidade')
   @Get('admissibilidade-finalizada')
   async admissibilidadeFinalizada() {
     return this.admissibilidadeService.admissibilidadeFinalizada();
   }
   
-  @IsPublic()
+  @Recurso('dashboard_admissibilidade')
   @Get('mediana-admissibilidade')
   async medianaAdmissibilidade(){
     return this.admissibilidadeService.medianaTempoAdmissibilidade();
   }
-  @IsPublic()
+  @Recurso('dashboard_admissibilidade')
   @Get('registros-admissibilidade')
   async registrosAdmibilidade(){
     return this.admissibilidadeService.registrosAdmissibilidadeFinalizada();

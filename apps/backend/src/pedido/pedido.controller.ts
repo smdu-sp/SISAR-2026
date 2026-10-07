@@ -1,3 +1,4 @@
+import { Recurso } from 'src/auth/decorators/recurso.decorator';
 import {
   Body,
   Controller,
@@ -16,7 +17,6 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
-import { Permissoes } from 'src/auth/decorators/permissoes.decorator';
 import { CreatePedidoDto } from './dto/create-pedido.dto';
 import { UpdatePedidoDto } from './dto/update-pedido.dto';
 import { PedidoService } from './pedido.service';
@@ -27,7 +27,7 @@ import { PedidoService } from './pedido.service';
 export class PedidoController {
   constructor(private readonly service: PedidoService) {}
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('pedidos')
   @Post('criar')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Criar pedido' })
@@ -60,14 +60,14 @@ export class PedidoController {
     return this.service.buscarPorId(id);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('pedidos')
   @Patch('atualizar/:id')
   @HttpCode(HttpStatus.OK)
   atualizar(@Param('id') id: string, @Body() dto: UpdatePedidoDto) {
     return this.service.atualizar(id, dto);
   }
 
-  @Permissoes('SUP', 'ADM')
+  @Recurso('pedidos')
   @Delete('remover/:id')
   @HttpCode(HttpStatus.OK)
   remover(@Param('id') id: string) {
