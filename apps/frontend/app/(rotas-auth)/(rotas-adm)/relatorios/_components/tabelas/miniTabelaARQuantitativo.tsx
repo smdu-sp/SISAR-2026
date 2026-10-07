@@ -46,7 +46,7 @@ export default function MiniTabelaArQuantitativo({ secao, roundednone = false }:
 
     return (
         <div>
-            <Table className="bg-background dark:bg-muted/50" roundednone={roundednone.toString()}>
+            <Table className="bg-card" roundednone={roundednone.toString()}>
                 <TableBody>
                     <TableRow className="hover:bg-muted/30 border-b border-gray-300">
                         <TableCell

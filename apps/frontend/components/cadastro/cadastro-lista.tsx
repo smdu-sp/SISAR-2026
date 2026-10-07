@@ -92,7 +92,7 @@ export function ModalCadastroLista<T extends ICadastroItem>({
 			<DialogTrigger asChild>
 				<Button
 					size='icon'
-					className='bg-primary hover:bg-primary hover:opacity-70 h-12 w-12 rounded-full shadow-lg'>
+					className='bg-primary hover:bg-primary hover:opacity-70 h-10 w-10 rounded-full shadow-sm'>
 					{editandoId ? (
 						<SquarePen className='text-white' />
 					) : (
@@ -162,9 +162,10 @@ export function ModalCadastroLista<T extends ICadastroItem>({
 	);
 }
 
+/** Botão de adicionar: aparece no topo à direita do conteúdo (order-first no contêiner da página). */
 export function BotaoCadastroFlutuante({ children }: { children: ReactNode }) {
 	return (
-		<div className='absolute bottom-10 md:bottom-5 right-2 md:right-8 hover:scale-110 z-10'>
+		<div className='order-first self-end'>
 			{children}
 		</div>
 	);

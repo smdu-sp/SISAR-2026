@@ -4,7 +4,6 @@ import DataTable, { TableSkeleton } from '@/components/data-table';
 import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
 import { Filtros } from '@/components/filtros';
 import Pagination from '@/components/pagination';
-import { PageHeader } from '@/components/page-header';
 import { auth } from '@/lib/auth/auth';
 import { pageContainerComBotaoFlutuante } from '@/lib/utils';
 import * as categorias from '@/services/categorias';
@@ -53,8 +52,7 @@ async function CategoriasPage({
 
 	return (
 		<div className={pageContainerComBotaoFlutuante}>
-			<PageHeader title='Categorias' />
-			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full'>
+			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 w-full'>
 				<Filtros
 					camposFiltraveis={[
 						{ nome: 'Busca', tag: 'busca', tipo: 0, placeholder: 'Buscar categoria...' },

@@ -157,7 +157,7 @@ export default function FormNovoProcesso({
 					/>
 				</div>
 				<div className='space-y-2'>
-					<Label>Envio admissibilidade</Label>
+					<Label>Data de Recebimento em SMUL/ATEC</Label>
 					<Input
 						type='date'
 						value={envioAdmissibilidade}

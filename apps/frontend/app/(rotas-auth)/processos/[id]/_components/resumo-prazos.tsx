@@ -96,7 +96,7 @@ export default function ResumoPrazos({
 										<p className='text-sm font-semibold tracking-tight leading-snug'>
 											{info.mensagem}
 										</p>
-										<p className='text-[11px] text-muted-foreground mt-0.5'>
+										<p className='text-[12px] text-muted-foreground mt-0.5'>
 											{ESTADO_LABEL[info.estado] ?? info.estado}
 											{atual && ' · Atual'}
 										</p>

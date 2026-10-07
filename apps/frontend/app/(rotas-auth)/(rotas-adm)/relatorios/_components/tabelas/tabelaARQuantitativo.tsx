@@ -59,7 +59,7 @@ export function TabelaARQuantitativo({ sectionTitle, period, access_token }: ITa
 
                 <div className="mb-0">
                     <Table
-                        className="w-full min-w-0 bg-background dark:bg-muted/50 border border-gray-300 shadow-sm"
+                        className="w-full min-w-0 bg-card border border-gray-300 shadow-sm"
                         roundednone="true"
                     >
                         <TableBody>
@@ -127,7 +127,7 @@ export function TabelaARQuantitativo({ sectionTitle, period, access_token }: ITa
                 )}
 
                 <div className="border border-gray-300 border-t-0 shadow-sm">
-                    <Table className="w-full min-w-0 bg-background dark:bg-muted/50" roundednone="true">
+                    <Table className="w-full min-w-0 bg-card" roundednone="true">
                         <TableBody>
                             <TableRow className="hover:bg-muted/30">
                                 <TableCell

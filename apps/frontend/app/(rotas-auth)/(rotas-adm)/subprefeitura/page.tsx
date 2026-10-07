@@ -10,7 +10,6 @@ import { tipos_subprefeituras, pageContainerComBotaoFlutuante } from '@/lib/util
 import Pagination from '@/components/pagination';
 import ModalSubprefeitura from './_components/modal-subprefeitura';
 import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
-import { PageHeader } from '@/components/page-header';
 
 import React from 'react';
 
@@ -47,8 +46,7 @@ export default async function SubprefeituraPage({
 
 	return (
 		<div className={pageContainerComBotaoFlutuante}>
-			<PageHeader title='Subprefeituras' />
-			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full'>
+			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 w-full'>
 				<Filtros
 					camposFiltraveis={[
 						{

@@ -119,9 +119,10 @@ export default function Pagination(props: {
 				</PaginationContent>
 				{total >= 5 ? (
 					<Select
-						value={limite.toString()}
+						value={limite >= total ? 'todos' : limite.toString()}
 						onValueChange={(value) => {
-							setLimite(+value);
+							setPagina(1);
+							setLimite(value === 'todos' ? total : +value);
 						}}>
 						<SelectTrigger className='w-20 md:w-[120px]'>
 							<SelectValue placeholder='Registros' />
@@ -129,17 +130,14 @@ export default function Pagination(props: {
 						<SelectContent>
 							<SelectGroup>
 								<SelectLabel>Registros</SelectLabel>
-								{limites.map((limiteMap) => (
+								{limites.filter((limiteMap) => limiteMap < total).map((limiteMap) => (
 									<SelectItem
 										key={limiteMap}
 										value={limiteMap.toString()}>
 										{limiteMap}
 									</SelectItem>
 								))}
-								{((total > limites[limites.length - 1] && total < 1000) ||
-									limites.length < 1) && (
-									<SelectItem value={total.toString()}>Todos</SelectItem>
-								)}
+								<SelectItem value='todos'>Todos</SelectItem>
 							</SelectGroup>
 						</SelectContent>
 					</Select>

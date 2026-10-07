@@ -12,7 +12,7 @@ type TableProps = {
 
 function Table({ className, ...props }: TableProps) {
 	return (
-		<div className={`w-full relative overflow-auto ${props.roundednone === 'false' ? 'rounded-xl' : ''}`}>
+		<div className={`w-full relative overflow-auto bg-card ${props.roundednone === 'false' ? 'rounded-xl' : ''}`}>
 			<table
 				data-slot='table'
 				className={cn('w-full caption-bottom text-sm', className)}
