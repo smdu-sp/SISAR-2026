@@ -14,7 +14,7 @@ interface ITabelaArPrazoAnaliseAdmissibilidadeProps {
 export function TabelaArPrazoAnaliseAdmissibilidade({ sectionTitle, dataInicial, dataFinal, access_token }: ITabelaArPrazoAnaliseAdmissibilidadeProps) {
 
     const [, setIsLoading] = useState(false);
-    const [dadosBrutosApi, setDadosBrutosApi] = useState<IRelatorioPrazoAnaliseRetorno | null>(null);
+    const [, setDadosBrutosApi] = useState<IRelatorioPrazoAnaliseRetorno | null>(null);
     const [dadosTransformados, setDadosTransformados] = useState<IAdmissibilidadesAnalise[]>([]);
     const [cabecalho, setCabecalho] = useState<ICabecalhoRelatorioPrazoAnaliseAdmissibilidade | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -45,8 +45,6 @@ export function TabelaArPrazoAnaliseAdmissibilidade({ sectionTitle, dataInicial,
             try {
                 const response = await gerarRelatorio({ dataInicial, dataFinal, access_token });
 
-                // console.log("Resposta completa da API:", response);
-                // console.log("Estrutura response.data:", response.data);
 
                 if (!response.ok) {
                     setError(response.error || "Erro ao carregar dados");
@@ -64,7 +62,6 @@ export function TabelaArPrazoAnaliseAdmissibilidade({ sectionTitle, dataInicial,
                     // Os dados devem ser um objeto com anos como chaves
                     if (dadosRecebidos && typeof dadosRecebidos === 'object' && !Array.isArray(dadosRecebidos)) {
                         const dadosPlanos = transformarDados(dadosRecebidos);
-                        console.log("Dados transformados:", dadosPlanos);
                         setDadosTransformados(dadosPlanos);
                     } else {
                         console.warn("Dados recebidos não estão no formato esperado:", dadosRecebidos);
@@ -84,7 +81,6 @@ export function TabelaArPrazoAnaliseAdmissibilidade({ sectionTitle, dataInicial,
         fetchData();
     }, [dataInicial, dataFinal, access_token]);
 
-    console.log(dadosBrutosApi)
 
     return (
         <>
