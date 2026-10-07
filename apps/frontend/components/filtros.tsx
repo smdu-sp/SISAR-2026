@@ -94,7 +94,7 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 	}, [searchParams]);
 
 	function atualizaFiltros() {
-		// Preserva params desconhecidos (ex: aba=publicacoes) ao atualizar os filtros
+		// Preserva params desconhecidos (parâmetros que não são filtros) ao atualizar os filtros
 		const params = new URLSearchParams(searchParams.toString());
 		for (const [key, value] of Object.entries(filtros)) {
 			if (value && value !== '') {
@@ -158,7 +158,7 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 					onChange={(e) =>
 						setFiltros((prev) => ({ ...prev, [campo.tag]: e.target.value }))
 					}
-					className='bg-background text-xs'
+					className='bg-card text-xs'
 					placeholder={campo.placeholder}
 				/>
 			</div>
@@ -182,7 +182,7 @@ export function Filtros({ camposFiltraveis }: FiltrosProps) {
 						setFiltros((prev) => ({ ...prev, [campo.tag]: value }))
 					}
 					value={filtros[campo.tag]}>
-					<SelectTrigger className='w-full text-nowrap bg-background'>
+					<SelectTrigger className='w-full text-nowrap bg-card'>
 						<SelectValue placeholder={campo.placeholder} />
 					</SelectTrigger>
 					<SelectContent>

@@ -28,8 +28,8 @@ export default function ModalUpdateAndCreate({
 					variant={'outline'}
 					className={`${
 						isUpdating
-							? 'bg-background hover:bg-primary '
-							: 'bg-primary hover:bg-primary hover:opacity-70'
+							? 'bg-card hover:bg-primary '
+							: 'bg-primary hover:bg-primary hover:opacity-70 h-10 w-10 rounded-full shadow-sm'
 					} group transition-all ease-linear duration-200`}>
 					{isUpdating ? (
 						<SquarePen
@@ -37,10 +37,7 @@ export default function ModalUpdateAndCreate({
 							className='text-primary group-hover:text-white group'
 						/>
 					) : (
-						<Plus
-							size={28}
-							className='text-white group'
-						/>
+						<Plus className='text-white group' />
 					)}
 				</Button>
 			</DialogTrigger>

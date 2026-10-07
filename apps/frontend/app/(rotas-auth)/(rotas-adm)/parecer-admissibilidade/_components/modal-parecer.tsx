@@ -66,7 +66,7 @@ export default function ModalParecer({
 					className={
 						isUpdating
 							? 'bg-background hover:bg-primary'
-							: 'bg-primary hover:bg-primary hover:opacity-70 h-12 w-12 rounded-full shadow-lg'
+							: 'bg-primary hover:bg-primary hover:opacity-70 h-10 w-10 rounded-full shadow-sm'
 					}>
 					{isUpdating ? (
 						<SquarePen className='text-primary' />

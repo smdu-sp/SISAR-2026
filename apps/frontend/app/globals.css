@@ -4,7 +4,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
-@theme {}
+@theme {
+  /* Escala tipográfica: cada degrau do Tailwind +1px em relação ao padrão. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: calc(1 / 0.8125);
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: calc(1.25 / 0.9375);
+  --text-base: 1.0625rem;
+  --text-base--line-height: calc(1.5 / 1.0625);
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: calc(1.75 / 1.1875);
+  --text-xl: 1.3125rem;
+  --text-xl--line-height: calc(1.75 / 1.3125);
+  --text-2xl: 1.5625rem;
+  --text-2xl--line-height: calc(2 / 1.5625);
+  --text-3xl: 1.9375rem;
+  --text-3xl--line-height: calc(2.25 / 1.9375);
+  --text-4xl: 2.3125rem;
+  --text-4xl--line-height: calc(2.5 / 2.3125);
+}
 
 :root {
   /* brand palette */
@@ -206,7 +224,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-sans);
-    font-size: 14px;
+    font-size: 15px;
     line-height: 1.45;
     -webkit-font-smoothing: antialiased;
   }

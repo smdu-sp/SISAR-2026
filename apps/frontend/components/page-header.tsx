@@ -1,17 +1,11 @@
 /** @format */
 
 interface PageHeaderProps {
-	title: string;
+	/** Descrição curta da página. O título fica só na barra superior (breadcrumbs). */
 	subtitle?: string;
 }
 
-export function PageHeader({ title, subtitle }: PageHeaderProps) {
-	return (
-		<div>
-			<h1 className='text-xl font-extrabold tracking-tight'>{title}</h1>
-			{subtitle && (
-				<p className='text-sm text-muted-foreground mt-0.5'>{subtitle}</p>
-			)}
-		</div>
-	);
+export function PageHeader({ subtitle }: PageHeaderProps) {
+	if (!subtitle) return null;
+	return <p className='order-first text-sm text-muted-foreground'>{subtitle}</p>;
 }

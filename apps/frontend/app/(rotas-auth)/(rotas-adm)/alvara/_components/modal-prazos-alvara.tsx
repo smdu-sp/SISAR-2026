@@ -113,7 +113,7 @@ export default function ModalPrazosAlvara({
 					className={
 						isUpdating
 							? ''
-							: 'bg-primary hover:bg-primary hover:opacity-70 h-12 w-12 rounded-full shadow-lg'
+							: 'bg-primary hover:bg-primary hover:opacity-70 h-10 w-10 rounded-full shadow-sm'
 					}>
 					{isUpdating ? <SquarePen /> : <Plus className='text-white' />}
 				</Button>

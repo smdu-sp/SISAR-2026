@@ -46,7 +46,7 @@ export default function AbaDadosIniciais({ processo }: { processo: IProcesso }) 
 					valor={formatarData(processo.data_protocolo)}
 				/>
 				<Campo
-					label='Envio admissibilidade'
+					label='Data de Recebimento em SMUL/ATEC'
 					valor={formatarData(processo.envio_admissibilidade)}
 				/>
 				<Campo

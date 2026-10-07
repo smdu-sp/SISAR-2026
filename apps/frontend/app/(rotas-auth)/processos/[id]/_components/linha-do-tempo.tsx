@@ -232,19 +232,19 @@ function EtapaCard({ etapa, isLast }: { etapa: EtapaTimeline; isLast: boolean })
 						<div className='flex flex-wrap gap-6 text-xs mb-3'>
 							{etapa.inicio && (
 								<div>
-									<div className='text-[10px] font-bold uppercase tracking-wide text-muted-foreground mb-0.5'>Início</div>
+									<div className='text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-0.5'>Início</div>
 									<div className='font-medium'>{etapa.inicio}</div>
 								</div>
 							)}
 							{etapa.dataLimite && (
 								<div>
-									<div className='text-[10px] font-bold uppercase tracking-wide text-muted-foreground mb-0.5'>Data limite</div>
+									<div className='text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-0.5'>Data limite</div>
 									<div className='font-medium'>{etapa.dataLimite}</div>
 								</div>
 							)}
 							{etapa.conclusao && (
 								<div>
-									<div className='text-[10px] font-bold uppercase tracking-wide text-muted-foreground mb-0.5'>Conclusão</div>
+									<div className='text-[11px] font-bold uppercase tracking-wide text-muted-foreground mb-0.5'>Conclusão</div>
 									<div
 										className={cn(
 											'font-medium',

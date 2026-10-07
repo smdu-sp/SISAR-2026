@@ -7,10 +7,7 @@ import { pageContainer } from '@/lib/utils';
 export default function DashboardAdmissibilidadePage() {
 	return (
 		<div className={pageContainer}>
-			<PageHeader
-				title='Dashboard Admissibilidade'
-				subtitle='Indicadores de prazos e registros de admissibilidade'
-			/>
+			<PageHeader subtitle='Indicadores de prazos e registros de admissibilidade' />
 			<DashboardAdmissibilidade />
 		</div>
 	);

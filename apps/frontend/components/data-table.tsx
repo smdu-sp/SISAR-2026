@@ -46,7 +46,7 @@ export default function DataTable<TData, TValue>({
 	});
 	return (
 		<div>
-			<Table className={`bg-background dark:bg-muted/50 border`} roundednone={roundednone.toString()}>
+			<Table className={`bg-card border`} roundednone={roundednone.toString()}>
 				<TableHeader className='bg-primary hover:bg-primary'>
 					{table.getHeaderGroups().map((headerGroup) => (
 						<TableRow

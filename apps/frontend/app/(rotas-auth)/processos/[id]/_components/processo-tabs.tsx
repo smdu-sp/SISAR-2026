@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { calcSituacaoPrazo, rotuloProcessoListagem, seiPreenchido } from '@/lib/listagem-processo';
 import { prazoEtapaAtualListagem, inferirFasePrazoAtual } from '@/lib/prazo-fase';
-import { cn, formatarSei } from '@/lib/utils';
+import { cn, formatarSei, pageContainer } from '@/lib/utils';
 import { dataEnvioAdmissibilidade } from '@/types/admissibilidade';
 import { IConclusao } from '@/types/finalizacao';
 import { IProcesso } from '@/types/processos';
@@ -126,7 +126,7 @@ function UserAvatar({ nome }: { nome: string }) {
 
 function SidebarSectionTitle({ children }: { children: React.ReactNode }) {
 	return (
-		<h3 className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3'>
+		<h3 className='text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3'>
 			{children}
 		</h3>
 	);
@@ -211,7 +211,7 @@ export default function ProcessoTabs({
 		: `${seiBase}/`;
 
 	return (
-		<div className='px-0 md:px-8 container mx-auto pb-10'>
+		<div className={pageContainer}>
 			{/* Link voltar */}
 			<div className='mb-4 pt-2'>
 				<Link
@@ -263,14 +263,14 @@ export default function ProcessoTabs({
 
 							<div className='flex flex-wrap gap-5'>
 								<div>
-									<div className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5'>
+									<div className='text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5'>
 										Etapa atual
 									</div>
 									<div className='text-sm font-semibold'>{etapaAtual}</div>
 								</div>
 								{dataLimite && (
 									<div>
-										<div className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5'>
+										<div className='text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5'>
 											Data limite
 										</div>
 										<div
@@ -284,7 +284,7 @@ export default function ProcessoTabs({
 									</div>
 								)}
 								<div>
-									<div className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5'>
+									<div className='text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-0.5'>
 										Situação
 									</div>
 									<SitPill situacao={situacao} />
@@ -316,7 +316,7 @@ export default function ProcessoTabs({
 			/>
 
 			{/* Layout: conteúdo (tabs) + sidebar */}
-			<div className='grid grid-cols-1 lg:grid-cols-[1fr_288px] gap-6 items-start'>
+			<div className='grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_288px] gap-6 items-start'>
 				{/* Conteúdo com abas */}
 				<div>
 					<Tabs value={abaAtiva} onValueChange={(v) => alterarAba(v as AbaProcesso)}>
@@ -411,7 +411,7 @@ export default function ProcessoTabs({
 								<SidebarSectionTitle>Responsáveis</SidebarSectionTitle>
 								{tecnico && (
 									<div>
-										<div className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2'>
+										<div className='text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-2'>
 											Técnico
 										</div>
 										<div className='flex items-center gap-2'>
@@ -422,7 +422,7 @@ export default function ProcessoTabs({
 								)}
 								{administrativo && (
 									<div>
-										<div className='text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-2'>
+										<div className='text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-2'>
 											Administrativo
 										</div>
 										<div className='flex items-center gap-2'>

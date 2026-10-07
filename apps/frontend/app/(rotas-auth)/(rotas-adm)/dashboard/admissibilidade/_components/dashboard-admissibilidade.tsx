@@ -26,6 +26,9 @@ import {
 } from '@/services/admissibilidade';
 import { format } from 'date-fns';
 import {
+	ArrowDown,
+	ArrowUp,
+	ArrowUpDown,
 	CheckCircle2,
 	Clock,
 	Hourglass,
@@ -33,7 +36,7 @@ import {
 	TrendingUp,
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
 	Cell,
 	Legend,
@@ -78,6 +81,36 @@ function CardMetrica({
 	);
 }
 
+type CampoOrdenacao = 'inicio' | 'final' | 'status';
+
+function CabecalhoOrdenavel({
+	titulo,
+	campo,
+	campoAtivo,
+	direcao,
+	aoOrdenar,
+}: {
+	titulo: string;
+	campo: CampoOrdenacao;
+	campoAtivo: CampoOrdenacao | null;
+	direcao: 'asc' | 'desc';
+	aoOrdenar: (campo: CampoOrdenacao) => void;
+}) {
+	const ativo = campoAtivo === campo;
+	const Icone = !ativo ? ArrowUpDown : direcao === 'asc' ? ArrowUp : ArrowDown;
+	return (
+		<button
+			type='button'
+			onClick={() => aoOrdenar(campo)}
+			className={`flex items-center gap-1 select-none transition-colors hover:text-foreground ${
+				ativo ? 'text-foreground font-medium' : 'text-muted-foreground'
+			}`}>
+			{titulo}
+			<Icone className={`size-3.5 ${ativo ? 'opacity-100' : 'opacity-50'}`} />
+		</button>
+	);
+}
+
 export default function DashboardAdmissibilidade() {
 	const { data: session } = useSession();
 	const token = session?.access_token;
@@ -90,6 +123,36 @@ export default function DashboardAdmissibilidade() {
 	const [registros, setRegistros] = useState<IRegistroAdmissibilidade[]>([]);
 	const [pagina, setPagina] = useState(1);
 	const porPagina = 5;
+
+	const [ordCampo, setOrdCampo] = useState<CampoOrdenacao | null>(null);
+	const [ordDir, setOrdDir] = useState<'asc' | 'desc'>('asc');
+
+	function ordenarPor(campo: CampoOrdenacao) {
+		if (ordCampo === campo) {
+			setOrdDir((d) => (d === 'asc' ? 'desc' : 'asc'));
+		} else {
+			setOrdCampo(campo);
+			setOrdDir('asc');
+		}
+		setPagina(1);
+	}
+
+	const registrosOrdenados = useMemo(() => {
+		if (!ordCampo) return registros;
+		const fator = ordDir === 'asc' ? 1 : -1;
+		return [...registros].sort((a, b) => {
+			if (ordCampo === 'status')
+				return a.status.localeCompare(b.status, 'pt-BR') * fator;
+			const campoData =
+				ordCampo === 'inicio'
+					? 'envioAdmissibilidade'
+					: 'dataDecisaoInterlocutoria';
+			return (
+				(new Date(a[campoData]).getTime() - new Date(b[campoData]).getTime()) *
+				fator
+			);
+		});
+	}, [registros, ordCampo, ordDir]);
 
 	useEffect(() => {
 		if (!token) return;
@@ -120,8 +183,8 @@ export default function DashboardAdmissibilidade() {
 			: [];
 
 	const inicio = (pagina - 1) * porPagina;
-	const registrosPagina = registros.slice(inicio, inicio + porPagina);
-	const totalPaginas = Math.ceil(registros.length / porPagina) || 1;
+	const registrosPagina = registrosOrdenados.slice(inicio, inicio + porPagina);
+	const totalPaginas = Math.ceil(registrosOrdenados.length / porPagina) || 1;
 
 	if (carregando) {
 		return (
@@ -211,10 +274,34 @@ export default function DashboardAdmissibilidade() {
 								<TableHeader>
 									<TableRow>
 										<TableHead>Processo</TableHead>
-										<TableHead>Início</TableHead>
-										<TableHead>Final</TableHead>
+										<TableHead>
+											<CabecalhoOrdenavel
+												titulo='Início'
+												campo='inicio'
+												campoAtivo={ordCampo}
+												direcao={ordDir}
+												aoOrdenar={ordenarPor}
+											/>
+										</TableHead>
+										<TableHead>
+											<CabecalhoOrdenavel
+												titulo='Final'
+												campo='final'
+												campoAtivo={ordCampo}
+												direcao={ordDir}
+												aoOrdenar={ordenarPor}
+											/>
+										</TableHead>
 										<TableHead>Dias</TableHead>
-										<TableHead>Status</TableHead>
+										<TableHead>
+											<CabecalhoOrdenavel
+												titulo='Status'
+												campo='status'
+												campoAtivo={ordCampo}
+												direcao={ordDir}
+												aoOrdenar={ordenarPor}
+											/>
+										</TableHead>
 									</TableRow>
 								</TableHeader>
 								<TableBody>

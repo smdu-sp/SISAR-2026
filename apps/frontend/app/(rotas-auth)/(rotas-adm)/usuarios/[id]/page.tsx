@@ -1,5 +1,6 @@
 /** @format */
 
+import { pageContainer } from '@/lib/utils';
 import { auth } from '@/lib/auth/auth';
 import * as usuario from '@/services/usuarios';
 import * as unidades from '@/services/unidades';
@@ -46,7 +47,7 @@ export default async function UsuarioDetalhePage({
 	}
 
 	return (
-		<div className='w-full px-0 md:px-8 relative pb-20 md:pb-14 h-full md:container mx-auto'>
+		<div className={pageContainer}>
 			<UsuarioDetalhe
 				usuario={usuarioData}
 				unidades={listaUnidades}

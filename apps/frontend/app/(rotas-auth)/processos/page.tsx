@@ -1,5 +1,6 @@
 /** @format */
 
+import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
 import { TableSkeleton } from '@/components/data-table';
 import Pagination from '@/components/pagination';
 import { auth } from '@/lib/auth/auth';
@@ -11,7 +12,6 @@ import { columns as colProcessos } from './_components/columns';
 import { FaseTabs } from './_components/fase-tabs';
 import ModalNovoProcesso from './_components/modal-novo-processo';
 import { pageContainerComBotaoFlutuante } from '@/lib/utils';
-import { PageHeader } from '@/components/page-header';
 
 type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
@@ -28,8 +28,9 @@ async function ProcessosPage({ searchParams }: { searchParams: SearchParams }) {
 
 	return (
 		<div className={pageContainerComBotaoFlutuante}>
-			<PageHeader title='Processos' />
-
+			<BotaoCadastroFlutuante>
+				<ModalNovoProcesso />
+			</BotaoCadastroFlutuante>
 			<ProcessosConteudo searchParams={params} />
 		</div>
 	);
@@ -74,9 +75,6 @@ async function ProcessosConteudo({
 				<Pagination total={+total} pagina={+pagina} limite={+limite} />
 			)}
 
-			<div className='absolute bottom-10 md:bottom-5 right-2 md:right-8 hover:scale-110'>
-				<ModalNovoProcesso />
-			</div>
 		</div>
 	);
 }

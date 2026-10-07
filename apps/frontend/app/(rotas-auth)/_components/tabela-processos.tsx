@@ -20,7 +20,8 @@ import {
 	SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { RefreshCw, X } from 'lucide-react';
 
 interface TabelaProcessosProps {
 	columns: ColumnDef<IProcesso>[];
@@ -77,60 +78,80 @@ export default function TabelaProcessos({ columns, data, children }: TabelaProce
 		startTransition(() => router.push(`${pathname}?${params.toString()}`));
 	}, [searchParams, pathname, router]);
 
+	function limparFiltros() {
+		setTipo('todos');
+		setSit('todas');
+		setBusca('');
+		aplicaBusca('');
+	}
+
 	function handleBuscaKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
 		if (e.key === 'Enter') aplicaBusca(busca);
 	}
 
 	return (
 		<div className='space-y-3'>
-			{/* Linha 1: busca + selects */}
-			<div className='flex flex-wrap items-center gap-2'>
-				<div className='relative flex-1 min-w-[200px] max-w-sm'>
-					<Search size={14} className='absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none' />
+			{/* Filtros: mesmo padrão visual do componente Filtros (rótulo + campo + aplicar/limpar) */}
+			<div className='flex flex-wrap items-end gap-4 w-full'>
+				<div className='flex flex-col w-full md:w-60 text-sm xl:text-base'>
+					<p>Busca</p>
 					<Input
 						value={busca}
 						onChange={(e) => setBusca(e.target.value)}
 						onKeyDown={handleBuscaKeyDown}
-						onBlur={() => aplicaBusca(busca)}
 						placeholder='SEI, requerimento ou processo'
-						className='pl-8 h-8 text-xs bg-background'
 						disabled={isPending}
 					/>
 				</div>
-				<Select value={tipo} onValueChange={(v) => setTipo(v as TipoFiltro)}>
-					<SelectTrigger className='w-[170px] h-8 text-xs bg-background'>
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{TIPO_OPTS.map((o) => (
-							<SelectItem key={o.value} value={o.value} className='text-xs'>
-								{o.label}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
-				<Select value={sit} onValueChange={(v) => setSit(v as SitFiltro)}>
-					<SelectTrigger className='w-[185px] h-8 text-xs bg-background'>
-						<SelectValue />
-					</SelectTrigger>
-					<SelectContent>
-						{SIT_OPTS.map((o) => (
-							<SelectItem key={o.value} value={o.value} className='text-xs'>
-								{o.label}
-							</SelectItem>
-						))}
-					</SelectContent>
-				</Select>
+				<div className='flex flex-col w-full md:w-60 text-sm xl:text-base'>
+					<p>Tipo</p>
+					<Select value={tipo} onValueChange={(v) => setTipo(v as TipoFiltro)}>
+						<SelectTrigger className='w-full text-nowrap'>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							{TIPO_OPTS.map((o) => (
+								<SelectItem key={o.value} value={o.value} className='text-nowrap'>
+									{o.label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+				<div className='flex flex-col w-full md:w-60 text-sm xl:text-base'>
+					<p>Situação</p>
+					<Select value={sit} onValueChange={(v) => setSit(v as SitFiltro)}>
+						<SelectTrigger className='w-full text-nowrap'>
+							<SelectValue />
+						</SelectTrigger>
+						<SelectContent>
+							{SIT_OPTS.map((o) => (
+								<SelectItem key={o.value} value={o.value} className='text-nowrap'>
+									{o.label}
+								</SelectItem>
+							))}
+						</SelectContent>
+					</Select>
+				</div>
+				<div className='isolate flex -space-x-px basis-full w-full xl:basis-auto xl:w-auto shrink-0'>
+					<Button
+						className='rounded-r-none flex-1 xl:flex-none'
+						disabled={isPending}
+						onClick={() => aplicaBusca(busca)}
+						title='Aplicar filtros'>
+						<RefreshCw className={isPending ? 'animate-spin' : ''} />
+					</Button>
+					<Button
+						variant='destructive'
+						disabled={isPending}
+						className='rounded-l-none flex-1 xl:flex-none'
+						onClick={limparFiltros}
+						title='Limpar filtros'>
+						<X />
+					</Button>
+				</div>
 				{filtrosAtivos && (
-					<button
-						onClick={() => { setTipo('todos'); setSit('todas'); }}
-						className='text-xs text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors'
-					>
-						Limpar
-					</button>
-				)}
-				{filtrosAtivos && (
-					<span className='text-xs text-muted-foreground ml-auto'>
+					<span className='text-sm text-muted-foreground ml-auto'>
 						{filtrado.length} de {data.length} na página
 					</span>
 				)}
