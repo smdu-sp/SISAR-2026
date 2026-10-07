@@ -38,11 +38,14 @@ function adicionaDias(data: Date, dias: number): Date {
 async function seedUnidades() {
   const map = new Map<string, string>();
   for (const u of UNIDADES_SETORIAIS) {
-    const reg = await prisma.unidade.upsert({
-      where: { sigla: u.sigla },
-      create: { ...u, status: 1 },
-      update: { nome: u.nome, codigo: u.codigo, status: 1 },
-    });
+    // sigla não é mais única: findFirst + create/update.
+    const existente = await prisma.unidade.findFirst({ where: { sigla: u.sigla } });
+    const reg = existente
+      ? await prisma.unidade.update({
+          where: { id: existente.id },
+          data: { nome: u.nome, codigo: u.codigo, status: 1 },
+        })
+      : await prisma.unidade.create({ data: { ...u, status: 1 } });
     map.set(u.sigla, reg.id);
   }
   return map;

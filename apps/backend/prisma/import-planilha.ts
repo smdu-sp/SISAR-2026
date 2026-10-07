@@ -197,11 +197,14 @@ async function seedReferencias(payload: PlanilhaPayload, adminId: string) {
 
   const unidadeMap = new Map<string, string>();
   for (const u of UNIDADES_SETORIAIS) {
-    const registro = await prisma.unidade.upsert({
-      where: { sigla: u.sigla },
-      create: { ...u, status: 1 },
-      update: { nome: u.nome, codigo: u.codigo, status: 1 },
-    });
+    // sigla não é mais única: findFirst + create/update.
+    const existente = await prisma.unidade.findFirst({ where: { sigla: u.sigla } });
+    const registro = existente
+      ? await prisma.unidade.update({
+          where: { id: existente.id },
+          data: { nome: u.nome, codigo: u.codigo, status: 1 },
+        })
+      : await prisma.unidade.create({ data: { ...u, status: 1 } });
     unidadeMap.set(u.sigla, registro.id);
   }
 
