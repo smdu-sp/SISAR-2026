@@ -14,7 +14,6 @@ import { buscarMeuUsuario } from '@/services/usuarios/query-functions/meu-usuari
 import { IUsuario } from '@/types/usuario';
 import { redirect } from 'next/navigation';
 import FormProfile from './components/form-profile';
-import { PageHeader } from '@/components/page-header';
 import { pageContainer } from '@/lib/utils';
 
 export default async function Perfil() {
@@ -35,9 +34,8 @@ export default async function Perfil() {
 
 	return (
 		<div className={pageContainer}>
-			<PageHeader title='Perfil' />
 
-			<div className='grid grid-cols-1 md:grid-cols-3 gap-8 my-5'>
+			<div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
 				{/* Avatar section */}
 				<Card className='md:col-span-1 h-full '>
 					<CardHeader>

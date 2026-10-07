@@ -159,8 +159,8 @@ export function verificaData(dataInicio: string, dataFim: string): [Date, Date] 
   return [inicio, fim];
 }
 
-export const pageContainer =
-  'w-full max-w-screen-xl mx-auto px-0 md:px-2 pt-2 pb-2 space-y-5';
+/** Largura padrão do conteúdo: 90% da área útil, centralizado. */
+export const pageContainer = 'w-[90%] mx-auto py-5 flex flex-col gap-5';
 
-export const pageContainerComBotaoFlutuante =
-  'w-full max-w-screen-xl mx-auto px-0 md:px-2 pt-2 pb-20 md:pb-14 relative h-full space-y-5';
+/** Igual ao pageContainer; o botão de adicionar (BotaoCadastroFlutuante) sobe para o topo à direita. */
+export const pageContainerComBotaoFlutuante = pageContainer;

@@ -175,7 +175,7 @@ export function TabelaRRQuantitativo({ sectionTitle, period, access_token }: ITa
                 <h3 className="text-lg font-semibold mb-6 text-center">{sectionTitle}</h3>
 
                 <div className=" w-full mb-0">
-                    <Table className="w-full bg-background dark:bg-muted/50 border border-gray-300 shadow-sm" roundednone="true">
+                    <Table className="w-full bg-card border border-gray-300 shadow-sm" roundednone="true">
                         <TableBody>
                             <TableRow className="hover:bg-muted/30">
                                 <TableCell className="py-3 px-6 font-semibold text-neutral-800 dark:text-neutral-200 text-left border-r border-gray-300 text-sm bg-gray-50 dark:bg-muted/30">
@@ -235,7 +235,7 @@ export function TabelaRRQuantitativo({ sectionTitle, period, access_token }: ITa
                 </div>
 
                 <div className="border border-gray-300 border-t-0 shadow-sm">
-                    <Table className="w-full bg-background dark:bg-muted/50" roundednone="true">
+                    <Table className="w-full bg-card" roundednone="true">
                         <TableBody>
                             <TableRow>
                                 <TableCell

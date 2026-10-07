@@ -6,7 +6,6 @@ import { IAlvaras } from '@/types/alvaras';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import FormNovoProcesso from './_components/form-novo-processo';
-import { PageHeader } from '@/components/page-header';
 import { pageContainer } from '@/lib/utils';
 
 export default async function NovoProcessoPage({
@@ -30,7 +29,6 @@ export default async function NovoProcessoPage({
 			<Link href='/processos' className='text-sm text-primary hover:underline'>
 				← Voltar para processos
 			</Link>
-			<PageHeader title='Novo processo' />
 			<FormNovoProcesso seiInicial={sei} tiposAlvara={tiposAlvara} />
 		</div>
 	);

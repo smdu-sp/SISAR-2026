@@ -13,7 +13,6 @@ import { Suspense } from 'react';
 import { parecerColumns } from './_components/columns';
 import ModalParecer from './_components/modal-parecer';
 import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
-import { PageHeader } from '@/components/page-header';
 import { pageContainerComBotaoFlutuante } from '@/lib/utils';
 
 export default function ParecerAdmissibilidadeSuspense({
@@ -56,8 +55,7 @@ async function ParecerAdmissibilidadePage({
 
 	return (
 		<div className={pageContainerComBotaoFlutuante}>
-			<PageHeader title='Pareceres de Admissibilidade' />
-			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 my-5 w-full'>
+			<div className='grid grid-cols-1 max-w-sm mx-auto md:max-w-full gap-y-3 w-full'>
 				<Filtros
 					camposFiltraveis={[
 						{

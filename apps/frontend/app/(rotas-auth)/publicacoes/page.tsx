@@ -1,9 +1,9 @@
 /** @format */
 
+import { BotaoCadastroFlutuante } from '@/components/cadastro/cadastro-lista';
 import DataTable, { TableSkeleton } from '@/components/data-table';
 import { Filtros } from '@/components/filtros';
 import Pagination from '@/components/pagination';
-import { PageHeader } from '@/components/page-header';
 import { auth } from '@/lib/auth/auth';
 import { colegiados, tipos_documento, pageContainerComBotaoFlutuante } from '@/lib/utils';
 import * as publicacao from '@/services/publicacoes';
@@ -58,7 +58,6 @@ async function PublicacoesPage({ searchParams }: { searchParams: SearchParams })
 
 	return (
 		<div className={pageContainerComBotaoFlutuante}>
-			<PageHeader title='Publicações' />
 
 			<Filtros
 				camposFiltraveis={[
@@ -91,9 +90,9 @@ async function PublicacoesPage({ searchParams }: { searchParams: SearchParams })
 				<Pagination total={+total} pagina={+pagina} limite={+limite} />
 			)}
 
-			<div className='absolute bottom-10 md:bottom-5 right-2 md:right-8 hover:scale-110'>
+			<BotaoCadastroFlutuante>
 				<ModalUpdateAndCreate isUpdating={false} />
-			</div>
+			</BotaoCadastroFlutuante>
 		</div>
 	);
 }
