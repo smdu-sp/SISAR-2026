@@ -43,3 +43,17 @@ npm run build && pm2 restart sisar
   um valor diferente de `local` (login via LDAP).
 - Mais de uma instância: o envio de relatórios não duplica; para as tarefas rodarem em uma só,
   use `AGENDADOR=off` nas demais.
+
+## 6. Desenvolvimento
+
+O projeto mantém `apps/frontend` e `packages/api` como npm workspaces, mas a aplicação
+fullstack é um único processo Next.js. Na raiz, use:
+
+```bash
+npm run dev
+```
+
+Esse comando inicia o Next em `http://localhost:3001`, incluindo as rotas `/api/*`.
+O comando `npm run dev:turbo` é opcional e inicia também o watch de compilação separado
+do pacote `@sisar/api`; por isso sua saída mostra os prefixos `@sisar/api:dev:` e
+`@sisar/frontend:dev:`.

@@ -29,17 +29,24 @@ scripts de banco leem este arquivo. Veja `apps/frontend/example.env` para a list
 | `AUTH_SECRET`, `AUTH_URL` | next-auth (sessão das telas) |
 | `NEXT_PUBLIC_API_URL` | URL pública da API, **com barra final** (ex.: `http://localhost:3001/api/`); é embutida no build |
 | `ENVIRONMENT` | `local` aceita o login de qualquer usuário já cadastrado, sem LDAP |
-| `LDAP_SERVER`, `LDAP_DOMAIN`, `LDAP_BASE` | login por LDAP (não local) |
+| `LDAP_SERVER`, `LDAP_DOMAIN`, `LDAP_BASE`, `USER_LDAP`, `PASS_LDAP` | login por LDAP (não local) |
+| `API_FERIADOS_URL` | consulta de feriados para cálculo de dias úteis |
 | `RESEND_API_KEY`, `RESEND_FROM` | envio dos relatórios agendados por e-mail |
 | `AGENDADOR` | `off` desliga as tarefas agendadas nesta instância |
 
 ## Desenvolvimento
 ```bash
 npm install            # instala e gera os clientes Prisma (postinstall)
-npm run dev            # turbo: tipos da API (watch) + Next em http://localhost:3001
+npm run dev            # app fullstack Next (telas + API) em http://localhost:3001
+npm run dev:turbo      # opcional: Next + watch separado de compilação da API
 npm test               # testes da API (Jest)
 npm run lint
 ```
+
+O repositório usa npm workspaces para organizar `apps/frontend` e `packages/api`,
+mas o produto executado em desenvolvimento e produção é um único processo Next.js.
+O comando padrão `npm run dev` inicia somente esse processo; `dev:turbo` existe
+apenas para acompanhar a compilação independente do pacote da API.
 Banco (a partir de `packages/api`, usando o `.env.local` do app):
 ```bash
 npm run db:migrate:deploy -w packages/api   # aplica migrações
