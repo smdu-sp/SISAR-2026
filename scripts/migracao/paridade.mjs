@@ -3,7 +3,7 @@
 // Variáveis: NEST (http://localhost:3055), NEXT (http://localhost:3056/api)
 // Requer usuários de teste criados pelo próprio script (removidos ao final) no banco de desenvolvimento.
 import { spawnSync } from 'node:child_process';
-import { casos } from './casos.mjs';
+import { casos, limpeza } from './casos.mjs';
 
 const NEST = process.env.NEST || 'http://localhost:3055';
 const NEXT = process.env.NEXT || 'http://localhost:3056/api';
@@ -63,12 +63,13 @@ function normalizar(valor) {
 	return valor;
 }
 
-async function chamar(base, caso, tokens) {
+async function chamar(base, caso, tokens, lado = 'nest', estado = {}) {
 	const headers = { 'Content-Type': 'application/json' };
 	if (caso.como) headers.Authorization = `Bearer ${tokens[caso.como].access_token}`;
 	let corpo = caso.corpo;
-	if (typeof corpo === 'function') corpo = corpo(tokens);
-	const r = await fetch(base + caso.caminho, {
+	if (typeof corpo === 'function') corpo = corpo(tokens, lado, estado);
+	const caminho = typeof caso.caminho === 'function' ? caso.caminho(estado, lado) : caso.caminho;
+	const r = await fetch(base + caminho, {
 		method: caso.metodo || 'GET',
 		headers,
 		body: corpo === undefined ? undefined : JSON.stringify(corpo),
@@ -76,10 +77,21 @@ async function chamar(base, caso, tokens) {
 	const tipo = r.headers.get('content-type') || '';
 	const bruto = Buffer.from(await r.arrayBuffer());
 	let corpoResp;
-	if (tipo.includes('application/json')) corpoResp = normalizar(JSON.parse(bruto.toString('utf8')));
+	let json;
+	if (tipo.includes('application/json')) corpoResp = normalizar((json = JSON.parse(bruto.toString('utf8'))));
 	else if (tipo.includes('text/')) corpoResp = bruto.toString('utf8');
 	else corpoResp = `<${tipo} ${bruto.length} bytes>`;
-	return { status: r.status, tipo: tipo.split(';')[0], corpo: corpoResp, origem: r.headers.get('x-sisar-api') };
+	if (caso.guardar && json) caso.guardar(estado, json);
+	return { status: r.status, tipo: tipo.split(';')[0], corpo: corpoResp, origem: r.headers.get('x-sisar-api'), caminho };
+}
+
+/** Remove campos (em qualquer nível) que variam entre os lados, como id e datas de criação. */
+function semCampos(valor, campos) {
+	if (Array.isArray(valor)) return valor.map((v) => semCampos(v, campos));
+	if (valor && typeof valor === 'object') {
+		return Object.fromEntries(Object.entries(valor).filter(([k]) => !campos.includes(k)).map(([k, v]) => [k, semCampos(v, campos)]));
+	}
+	return valor;
 }
 
 function diferenca(a, b, caminho = '') {
@@ -109,21 +121,30 @@ function diferenca(a, b, caminho = '') {
 		for (const modulo of modulos) {
 			const lista = typeof casos[modulo] === 'function' ? await casos[modulo]({ NEST, tokensNest }) : casos[modulo];
 			if (!lista) throw new Error('módulo sem casos: ' + modulo);
-			console.log(`\n### ${modulo} (${lista.length} casos)`);
-			for (const caso of lista) {
+			console.log(`\n### ${modulo}`);
+			// Um "fluxo" é uma sequência executada em cada lado com estado próprio (ex.: criar -> editar -> remover).
+			const passos = lista.flatMap((caso) =>
+				caso.fluxo ? caso.fluxo.map((p, i) => ({ ...p, _fluxo: caso.nome, _novo: i === 0 })) : [caso],
+			);
+			const estados = { nest: {}, next: {} };
+			for (const caso of passos) {
 				total++;
-				const a = await chamar(NEST, caso, tokensNest);
-				const b = await chamar(NEXT, caso, tokensNext);
-				const ignorar = caso.ignorar || [];
-				for (const campo of ignorar) {
-					for (const x of [a.corpo, b.corpo]) if (x && typeof x === 'object') delete x[campo];
+				if (caso._novo) {
+					estados.nest = {};
+					estados.next = {};
 				}
+				const a = await chamar(NEST, caso, tokensNest, 'nest', estados.nest);
+				const b = await chamar(NEXT, caso, tokensNext, 'next', estados.next);
+				const ignorar = caso.ignorar || [];
+				a.corpo = semCampos(a.corpo, ignorar);
+				b.corpo = semCampos(b.corpo, ignorar);
 				const d = b.origem !== 'next' && !caso.semRota ? `atendido por ${b.origem} (rota não migrada)` : a.status !== b.status ? `status nest=${a.status} next=${b.status}` : a.tipo !== b.tipo ? `tipo nest=${a.tipo} next=${b.tipo}` : diferenca(a.corpo, b.corpo);
 				if (d) falhas++;
-				console.log(`${d ? 'DIFERENTE' : 'igual    '} ${caso.metodo || 'GET'} ${caso.caminho} [${caso.como || 'anônimo'}] -> ${a.status}${d ? '\n    ' + d : ''}`);
+				console.log(`${d ? 'DIFERENTE' : 'igual    '} ${caso.metodo || 'GET'} ${caso._fluxo ? '(' + caso._fluxo + ') ' : ''}${a.caminho} [${caso.como || 'anônimo'}] -> ${a.status}${d ? '\n    ' + d : ''}`);
 			}
 		}
 	} finally {
+		for (const comando of limpeza ?? []) sql(comando);
 		removerUsuariosTeste();
 	}
 	console.log(`\n${total - falhas}/${total} iguais`);

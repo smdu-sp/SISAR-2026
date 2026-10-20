@@ -9,15 +9,13 @@ import {
 } from './http/roteador';
 import type { RotaCompilada } from './http/tipos';
 import { container } from './container';
-import { rotasAuth } from './auth/auth.routes';
-import { rotasUsuarios } from './usuarios/usuarios.routes';
-import { rotasPermissoes } from './permissoes/permissoes.routes';
+import { rotasMigradas } from './rotas';
 
 /**
  * Tabela de rotas já migradas para o Next. O que não estiver aqui é repassado
  * ao NestJS enquanto a migração não termina (ver docs/plano-migracao-fullstack.md).
  */
-export const rotasApi: RotaCompilada[] = [...rotasAuth, ...rotasUsuarios, ...rotasPermissoes];
+export const rotasApi: RotaCompilada[] = rotasMigradas;
 
 const RECURSO_PADRAO = 'processos';
 const QUALQUER_LOGADO = '*';
