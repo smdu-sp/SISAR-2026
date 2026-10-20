@@ -133,8 +133,17 @@ function diferenca(a, b, caminho = '') {
 					estados.nest = {};
 					estados.next = {};
 				}
-				const a = await chamar(NEST, caso, tokensNest, 'nest', estados.nest);
-				const b = await chamar(NEXT, caso, tokensNext, 'next', estados.next);
+				// ORDEM=next-primeiro inverte a ordem (útil para lógicas que dependem do estado, como rodízio).
+				let a, b;
+				if (process.env.ORDEM === 'next-primeiro') {
+					b = await chamar(NEXT, caso, tokensNext, 'next', estados.next);
+					a = await chamar(NEST, caso, tokensNest, 'nest', estados.nest);
+				} else {
+					a = await chamar(NEST, caso, tokensNest, 'nest', estados.nest);
+					b = await chamar(NEXT, caso, tokensNext, 'next', estados.next);
+				}
+				// comparar: 'status' compara só o status (resposta com id no texto, por exemplo).
+				if (caso.comparar === 'status') a.corpo = b.corpo = null;
 				const ignorar = caso.ignorar || [];
 				a.corpo = semCampos(a.corpo, ignorar);
 				b.corpo = semCampos(b.corpo, ignorar);
