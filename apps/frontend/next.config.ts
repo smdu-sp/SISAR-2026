@@ -7,7 +7,9 @@ const nextConfig: NextConfig = {
 	// Permite builds/servidores paralelos (ex.: testes) sem disputar a pasta .next.
 	distDir: process.env.NEXT_DIST_DIR || '.next',
 	// Bibliotecas do servidor (API) que não devem ser empacotadas.
-	serverExternalPackages: ['@prisma/client', 'ldapjs', 'exceljs', 'pdfmake', 'resend'],
+	serverExternalPackages: ['@prisma/client', '@prisma/sgu', 'ldapjs', 'exceljs', 'pdfmake', 'resend'],
+	// Regras de negócio/API (antigo backend NestJS) em TypeScript, compiladas pelo Next.
+	transpilePackages: ['@sisar/api'],
 	outputFileTracingRoot: path.join(__dirname, '../../'),
 	experimental: {
 		serverActions: {

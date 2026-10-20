@@ -1,5 +1,4 @@
-import { NextRequest } from 'next/server';
-import { HttpException } from './errors';
+import { HttpException, ehHttpException } from './errors';
 import type { Contexto, Metodo, Rota, RotaCompilada } from './tipos';
 
 /** Transforma "buscar-por-id/:id" e "ar/quantitativo/:mes?/:ano?" em expressão regular. */
@@ -85,7 +84,7 @@ export function encontrarRota(
 }
 
 export function criarContexto(
-	req: NextRequest,
+	req: Request,
 	params: Record<string, string | undefined>,
 ): Contexto {
 	let corpoCache: unknown;
@@ -93,7 +92,7 @@ export function criarContexto(
 	return {
 		req,
 		params,
-		query: (nome) => req.nextUrl.searchParams.get(nome) ?? undefined,
+		query: (nome) => new URL(req.url).searchParams.get(nome) ?? undefined,
 		corpo: async <T,>() => {
 			if (!corpoLido) {
 				corpoLido = true;
@@ -130,7 +129,7 @@ export function montarResposta(resultado: unknown, status: number): Response {
 }
 
 export function respostaDeErro(erro: unknown): Response {
-	if (erro instanceof HttpException) {
+	if (ehHttpException(erro)) {
 		return new Response(JSON.stringify(erro.corpo), {
 			status: erro.status,
 			headers: { 'Content-Type': 'application/json; charset=utf-8' },

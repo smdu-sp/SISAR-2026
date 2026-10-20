@@ -1,5 +1,4 @@
 import jwt from 'jsonwebtoken';
-import type { NextRequest } from 'next/server';
 import { UnauthorizedException } from './errors';
 
 export interface UsuarioPayload {
@@ -14,7 +13,7 @@ export interface UsuarioPayload {
 }
 
 /** Equivale ao ExtractJwt.fromAuthHeaderAsBearerToken do passport-jwt. */
-export function tokenBearer(req: NextRequest): string | null {
+export function tokenBearer(req: Request): string | null {
 	const cabecalho = req.headers.get('authorization');
 	if (!cabecalho) return null;
 	const [esquema, token] = cabecalho.split(' ');

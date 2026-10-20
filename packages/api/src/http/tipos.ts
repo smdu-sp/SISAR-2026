@@ -1,10 +1,9 @@
-import type { NextRequest } from 'next/server';
 import type { Usuario } from '@prisma/client';
 
 export type Metodo = 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE';
 
 export interface Contexto {
-	req: NextRequest;
+	req: Request;
 	/** Parâmetros de rota (`:id`). */
 	params: Record<string, string | undefined>;
 	/** Primeiro valor do parâmetro de query (ou undefined). */

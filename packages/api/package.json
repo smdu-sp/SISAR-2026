@@ -1,0 +1,30 @@
+{
+	"name": "@sisar/api",
+	"version": "0.0.1",
+	"private": true,
+	"description": "Regras de negócio e API do SISAR (antigo backend NestJS), servidas pelo app Next.js.",
+	"main": "./src/index.ts",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./src/index.ts"
+		}
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"test": "jest"
+	},
+	"devDependencies": {
+		"@types/jest": "^29.5.14",
+		"@types/jsonwebtoken": "^9.0.5",
+		"@types/ldapjs": "^3.0.6",
+		"@types/node": "^20.19.43",
+		"jest": "^29.7.0",
+		"prisma": "^5.22.0",
+		"ts-jest": "^29.4.15",
+		"typescript": "^5.9.3"
+	}
+}
