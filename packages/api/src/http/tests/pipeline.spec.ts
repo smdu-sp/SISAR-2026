@@ -16,7 +16,6 @@ import { tratarRequisicao } from '../../api';
 
 process.env.JWT_SECRET = 'segredo-teste';
 process.env.RT_SECRET = 'segredo-refresh';
-delete process.env.API_PROXY_TARGET;
 
 const token = (sub = 'u1', segredo = process.env.JWT_SECRET) =>
 	jwt.sign({ sub, login: 'x', permissao: 'DEV' }, segredo, { expiresIn: '15m' });
@@ -119,9 +118,9 @@ describe('Esteira da API (equivalente aos guards do NestJS)', () => {
 		expect(await invalido.json()).toEqual({ message: 'Unauthorized', statusCode: 401 });
 	});
 
-	it('rota não migrada sem backend configurado: 404 no formato do Nest', async () => {
-		const r = await chamar(req('GET', '/nao-migrado/x', { token: token() }));
+	it('rota inexistente: 404 no formato do Nest', async () => {
+		const r = await chamar(req('GET', '/nao-existe/x', { token: token() }));
 		expect(r.status).toBe(404);
-		expect(await r.json()).toEqual({ message: 'Cannot GET /nao-migrado/x', error: 'Not Found', statusCode: 404 });
+		expect(await r.json()).toEqual({ message: 'Cannot GET /nao-existe/x', error: 'Not Found', statusCode: 404 });
 	});
 });

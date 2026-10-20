@@ -1,4 +1,3 @@
-/* Gerado a partir de apps/backend/src/parecer_admissibilidade/parecer_admissibilidade.controller.ts (scripts/migracao/gerar-rotas.mjs) e revisado. */
 import { container } from '../container';
 import { controller, rota } from '../http/roteador';
 
