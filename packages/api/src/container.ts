@@ -4,40 +4,54 @@
  */
 import { prisma } from './config/prisma';
 import { AppService } from './app.service';
+import { AdmissibilidadeService } from './admissibilidade/admissibilidade.service';
 import { AlvaraTipoService } from './alvara-tipo/alvara-tipo.service';
+import { AnaliseService } from './analise/analise.service';
 import { SGUService } from './sgu/sgu.service';
 import { UsuariosService } from './usuarios/usuarios.service';
 import { AuthService } from './auth/auth.service';
 import { AvisosService } from './avisos/avisos.service';
 import { CategoriaService } from './categoria/categoria.service';
+import { DistribuicaoService } from './distribuicao/distribuicao.service';
+import { FinalizacaoService } from './finalizacao/finalizacao.service';
+import { InicialService } from './inicial/inicial.service';
 import { MotivoInadmissaoService } from './motivo-inadmissao/motivo-inadmissao.service';
 import { ParecerAdmissibilidadeService } from './parecer_admissibilidade/parecer_admissibilidade.service';
 import { PedidoService } from './pedido/pedido.service';
 import { PermissoesService } from './permissoes/permissoes.service';
 import { PublicacoesService } from './publicacoes/publicacoes.service';
+import { ReconsideracaoService } from './reconsideracao/reconsideracao.service';
+import { ReunioesService } from './reunioes/reunioes.service';
 import { SubprefeituraService } from './subprefeitura/subprefeitura.service';
 import { UnidadesService } from './unidades/unidades.service';
 
 function criar() {
 	const app = new AppService();
+	const admissibilidade = new AdmissibilidadeService(prisma, app);
 	const alvaraTipo = new AlvaraTipoService(prisma, app);
+	const analise = new AnaliseService(prisma);
 	const sgu = new SGUService();
 	const usuarios = new UsuariosService(prisma, sgu, app);
 	const auth = new AuthService(usuarios);
 	const avisos = new AvisosService(prisma);
 	const categoria = new CategoriaService(prisma, app);
+	const distribuicao = new DistribuicaoService(prisma);
+	const finalizacao = new FinalizacaoService(prisma, app);
+	const inicial = new InicialService(prisma, app);
 	const motivoInadmissao = new MotivoInadmissaoService(prisma, app);
 	const parecerAdmissibilidade = new ParecerAdmissibilidadeService(prisma, app);
 	const pedido = new PedidoService(prisma, app);
 	const permissoes = new PermissoesService(prisma);
 	const publicacoes = new PublicacoesService(prisma, app);
+	const reconsideracao = new ReconsideracaoService(prisma, inicial);
+	const reunioes = new ReunioesService(prisma);
 	const subprefeitura = new SubprefeituraService(prisma, app);
 	const unidades = new UnidadesService(prisma, app);
 
 	// Equivalente ao OnModuleInit do NestJS.
 	permissoes.onModuleInit().catch((e) => console.error('[permissoes] falha ao iniciar:', e));
 
-	return { prisma, app, alvaraTipo, sgu, usuarios, auth, avisos, categoria, motivoInadmissao, parecerAdmissibilidade, pedido, permissoes, publicacoes, subprefeitura, unidades };
+	return { prisma, app, admissibilidade, alvaraTipo, analise, sgu, usuarios, auth, avisos, categoria, distribuicao, finalizacao, inicial, motivoInadmissao, parecerAdmissibilidade, pedido, permissoes, publicacoes, reconsideracao, reunioes, subprefeitura, unidades };
 }
 
 export type Container = ReturnType<typeof criar>;

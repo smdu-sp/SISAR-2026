@@ -186,6 +186,167 @@ export const casos = {
 	},
 };
 
+// ---------------- Fase 4: processos ----------------
+// requerimento: cada lado cria com nome próprio; publicacao_parecer: hora atual da decisão.
+const IGNORAR_PROCESSO = ['id', 'inicial_id', 'criado_em', 'alterado_em', 'sei', 'requerimento', 'publicacao_parecer', 'comunique_se_id', 'reuniao_id',
+	// rodízio de administrativos depende da ordem de criação (verificado com ORDEM=next-primeiro)
+	'administrativo_responsavel', 'administrativo_responsavel_id'];
+
+async function idsBase({ NEST, tokensNest }) {
+	const h = { headers: { Authorization: `Bearer ${tokensNest.dev.access_token}` } };
+	const get = async (c) => (await fetch(NEST + c, h)).json();
+	const [alvaras, unidades, subprefeituras, pareceres] = await Promise.all([
+		get('/alvara-tipo/lista-completa'),
+		get('/unidades/lista-completa'),
+		get('/subprefeitura/lista-completa'),
+		get('/parecer-admissibilidade/buscar-tudo?pagina=1&limite=5'),
+	]);
+	return {
+		alvara: alvaras[0].id,
+		unidade: unidades[0].id,
+		subprefeitura: subprefeituras[0].id,
+		parecer: (pareceres.data ?? pareceres)[0].id,
+		idDev: sub(tokensNest.dev.access_token),
+	};
+}
+
+const sufixo = Date.now() % 1_000_000;
+const novoProcesso = (ids, tipo_processo = 1) => (_t, lado) => ({
+	sei: `9999${lado === 'nest' ? 1 : 2}${String(sufixo).padStart(6, '0')}${tipo_processo}`,
+	tipo_requerimento: 1,
+	requerimento: `ZZ PARIDADE ${lado}`,
+	aprova_digital: '',
+	processo_fisico: '',
+	data_protocolo: '2026-10-01',
+	envio_admissibilidade: '2026-10-02',
+	alvara_tipo_id: ids.alvara,
+	tipo_processo,
+	nums_sql: ['000.000.0000-0'],
+});
+
+Object.assign(casos, {
+	'processos-leitura': [
+		{ caminho: '/inicial/buscar-tudo?pagina=1&limite=10&status=-1', como: 'dev' },
+		{ caminho: '/inicial/buscar-tudo?pagina=2&limite=5&busca=2018', como: 'usr' },
+		{ caminho: '/inicial/buscar-tudo?pagina=1&limite=3&status=2', como: 'gab' },
+		{ caminho: '/inicial/buscar-tudo-analise?pagina=1&limite=5', como: 'dev' },
+		{ caminho: '/inicial/buscar/4/2018', como: 'dev' },
+		{ caminho: '/inicial/buscar-por-id/2020', como: 'dev' },
+		{ caminho: '/inicial/buscar-por-id/2022', como: 'usr' },
+		{ caminho: '/inicial/buscar-por-id/2020', como: 'gab' },
+		{ caminho: '/inicial/buscar-por-id/999999999', como: 'dev' },
+		{ caminho: '/inicial/buscar-por-id/abc', como: 'dev' },
+		{ caminho: '/inicial/buscar-data-processo/2018-04-03', como: 'dev' },
+		{ caminho: '/inicial/valida-sql/000.000.0000-0', como: 'dev' },
+		{ caminho: '/inicial/verifica-sei/000000201800351891', como: 'dev' },
+		{ caminho: '/inicial/verifica-sei/123', como: 'dev' },
+		{ caminho: '/inicial/busca-processos', como: 'dev' },
+		{ caminho: '/admissibilidade/consulta', como: 'dev' },
+		{ caminho: '/admissibilidade/buscar-tudo?pagina=1&limite=5', como: 'dev' },
+		{ caminho: '/admissibilidade/buscar-id/2020', como: 'dev' },
+		{ caminho: '/admissibilidade/lista', como: 'dev' },
+		{ caminho: '/admissibilidade/lista', como: 'usr' },
+		{ caminho: '/admissibilidade/contar-fora-prazo', como: 'gab' },
+		{ caminho: '/admissibilidade/contar-dentro-prazo', como: 'dev' },
+		{ caminho: '/admissibilidade/admissibilidade-finalizada', como: 'adm' },
+		{ caminho: '/admissibilidade/mediana-admissibilidade', como: 'dev' },
+		{ caminho: '/admissibilidade/registros-admissibilidade', como: 'dev' },
+		{ caminho: '/admissibilidade/registros-admissibilidade', como: 'usr' },
+		{ caminho: '/analise/contexto/2020', como: 'dev' },
+		{ caminho: '/analise/contexto/2022', como: 'dev' },
+		{ caminho: '/analise/contexto/2023', como: 'dev' },
+		{ caminho: '/analise/contexto/999999999', como: 'dev' },
+		{ caminho: '/finalizacao/buscar-tudo', como: 'dev' },
+		{ caminho: '/finalizacao/buscar/2022', como: 'dev' },
+		{ caminho: '/reconsideracao-admissibilidade/2035', como: 'dev' },
+		{ caminho: '/reconsideracao-admissibilidade/2020', como: 'dev' },
+		{ caminho: '/reunioes/lista-completa', como: 'dev' },
+		{ caminho: '/reunioes/buscar/10/2026', como: 'dev' },
+		{ caminho: '/reunioes/buscar-data/2026-10-10', como: 'dev' },
+		{ caminho: '/reunioes/buscar-inicial/2022', como: 'dev' },
+		{ caminho: '/reunioes/por-processo/2022', como: 'usr' },
+		{ caminho: '/reunioes/lista-completa', como: 'usr' },
+	],
+
+	'processos-fluxo': async (contexto) => {
+		const ids = await idsBase(contexto);
+		const ignorar = IGNORAR_PROCESSO;
+		const guardarId = (e, r) => (e.id = r.id);
+		const p = (metodo, caminho, corpo, extra = {}) => ({ metodo, caminho, corpo, como: 'dev', ignorar, ...extra });
+		return [
+			{
+				nome: 'admitir/análise/distribuição/finalização',
+				fluxo: [
+					p('POST', '/inicial/criar', novoProcesso(ids), { guardar: guardarId }),
+					p('GET', (e) => `/inicial/buscar-por-id/${e.id}`),
+					p('PATCH', (e) => `/inicial/atualizar/${e.id}`, { obs: 'paridade' }),
+					p('PATCH', (e) => `/inicial/adiciona-sql/${e.id}`, { sql: '111.111.1111-1' }),
+					p('DELETE', (e) => `/inicial/remove-sql/${e.id}/111.111.1111-1`),
+					p('GET', (e) => `/admissibilidade/buscar-id/${e.id}`),
+					p('POST', (e) => `/admissibilidade/admitir/${e.id}`, {
+						unidade_id: ids.unidade, subprefeitura_id: ids.subprefeitura,
+						data_decisao_interlocutoria: '2026-10-05', tipo_processo: 1,
+					}),
+					p('GET', (e) => `/analise/contexto/${e.id}`),
+					p('POST', (e) => `/analise/comunique-se/${e.id}`, { data: '2026-10-06' }, { guardar: (e, r) => (e.comunique = r.id) }),
+					p('PATCH', (e) => `/analise/comunique-se/${e.comunique}/resposta`, { data_resposta: '2026-10-08' }),
+					p('POST', (e) => `/analise/decisao/${e.id}`, { parecer: 1, parecer_tecnico: 'ok' }),
+					p('POST', '/distribuicao/criar', (_t, _l, e) => ({ inicial_id: e.id, tecnico_responsavel_id: ids.idDev, administrativo_responsavel_id: ids.idDev })),
+					p('PATCH', (e) => `/distribuicao/atualizar/${e.id}`, { obs: 'paridade' }),
+					p('PATCH', (e) => `/distribuicao/tecnico/atualizar/${e.id}`, { tecnico_responsavel_id: ids.idDev }),
+					p('PATCH', (e) => `/distribuicao/administrativo/atualizar/${e.id}`, { administrativo_responsavel_id: ids.idDev }),
+					p('POST', '/finalizacao/criar', (_t, _l, e) => ({
+						inicial_id: e.id, data_apostilamento: '2026-10-10', data_conclusao: '2026-10-10', data_emissao: '2026-10-10',
+						data_outorga: '2026-10-10', data_resposta: '2026-10-10', data_termo: '2026-10-10', num_alvara: 'ZZ-1', obs: 'x', outorga: false,
+					})),
+					p('GET', (e) => `/finalizacao/buscar/${e.id}`),
+					p('PATCH', (e) => `/finalizacao/atualizar/${e.id}`, { obs: 'y' }),
+					p('GET', (e) => `/inicial/buscar-por-id/${e.id}`),
+				],
+			},
+			{
+				nome: 'inadmitir/reconsideração',
+				fluxo: [
+					p('POST', '/inicial/criar', novoProcesso(ids), { guardar: guardarId }),
+					p('POST', (e) => `/admissibilidade/inadmitir/${e.id}`, { parecer_admissibilidade_id: ids.parecer, obs: 'paridade' }),
+					p('GET', (e) => `/reconsideracao-admissibilidade/${e.id}`),
+					p('POST', (e) => `/reconsideracao-admissibilidade/pedido/${e.id}`, { pedido_reconsideracao: '2026-10-07' }),
+					p('PATCH', (e) => `/reconsideracao-admissibilidade/aceitar/${e.id}`),
+					p('GET', (e) => `/inicial/buscar-por-id/${e.id}`),
+				],
+			},
+			{
+				nome: 'GRAPROEM/pré-reunião/recurso',
+				fluxo: [
+					p('POST', '/inicial/criar', novoProcesso(ids, 2), { guardar: guardarId }),
+					p('POST', (e) => `/admissibilidade/admitir/${e.id}`, {
+						unidade_id: ids.unidade, subprefeitura_id: ids.subprefeitura, data_decisao_interlocutoria: '2026-10-05',
+						tipo_processo: 2, interfaces: { interface_smt: false, num_smt: '6068202600000001' },
+					}),
+					p('POST', (e) => `/analise/pre-reuniao/${e.id}`, { data_reuniao: '2026-10-10', data_processo: '2026-10-09', numero_reuniao: '1' }, { guardar: (e, r) => (e.reuniao = r.id) }),
+					p('GET', (e) => `/reunioes/por-processo/${e.id}`),
+					p('PATCH', (e) => `/reunioes/atualizar-data/${e.reuniao}`, { nova_data_reuniao: '2026-10-12', justificativa_remarcacao: 'paridade' }),
+					p('POST', (e) => `/analise/decisao/${e.id}`, { parecer: 2 }),
+					p('POST', (e) => `/analise/recurso/${e.id}`),
+					p('POST', (e) => `/analise/encerrar-recurso/${e.id}`),
+					p('GET', (e) => `/analise/contexto/${e.id}`),
+					p('PATCH', (e) => `/admissibilidade/atualizar-id/${e.id}`, { obs: 'z' }),
+					p('DELETE', (e) => `/admissibilidade/${e.id}`, undefined, { comparar: 'status' }),
+				],
+			},
+		];
+	},
+});
+
+const limpezaProcessos = [
+	...[
+		'suspensoes_prazo', 'controles_prazo', 'comunique_ses', 'decisoes', 'reuniao_processos', 'motivos_inadmissao_inicial',
+		'pedidos_inicial', 'iniciais_sqls', 'avisos', 'admissibilidades', 'conclusoes', 'distribuicoes',
+		'reconsideracoes_admissibilidade', 'interfaces',
+	].map((t) => `DELETE FROM ${t} WHERE inicial_id IN (SELECT id FROM iniciais WHERE requerimento LIKE 'ZZ PARIDADE%')`),
+	"DELETE FROM iniciais WHERE requerimento LIKE 'ZZ PARIDADE%'",
+];
+
 /** CRUD padrão: listas por perfil, busca inexistente e fluxo criar -> buscar -> editar -> listar -> remover. */
 function crud({ prefixo, criar, atualizar, unico = [], remover, metodoRemover = 'DELETE', extrasGet = [], extrasFluxo = [], semListaCompleta }) {
 	const ignorar = ['id', 'criado_em', 'alterado_em', ...unico];
@@ -226,3 +387,5 @@ export const limpeza = [
 	"DELETE FROM motivos_inadmissao WHERE descricao LIKE 'zz_par_%'",
 	"DELETE FROM avisos WHERE titulo LIKE 'zz_par_%'",
 ];
+// processos de teste (fase 4): executados depois das tabelas acima
+limpeza.push(...limpezaProcessos);
