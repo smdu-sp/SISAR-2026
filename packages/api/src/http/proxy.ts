@@ -1,4 +1,3 @@
-import type { NextRequest } from 'next/server';
 
 const CABECALHOS_IGNORADOS = new Set(['host', 'connection', 'content-length', 'transfer-encoding']);
 
@@ -6,7 +5,7 @@ const CABECALHOS_IGNORADOS = new Set(['host', 'connection', 'content-length', 't
  * Transição: rotas ainda não migradas são repassadas ao NestJS (API_PROXY_TARGET).
  * Remover quando o backend antigo for desligado.
  */
-export async function encaminharAoNest(req: NextRequest, caminho: string): Promise<Response> {
+export async function encaminharAoNest(req: Request, caminho: string): Promise<Response> {
 	const alvo = process.env.API_PROXY_TARGET;
 	if (!alvo) {
 		return Response.json(
@@ -21,7 +20,7 @@ export async function encaminharAoNest(req: NextRequest, caminho: string): Promi
 	});
 
 	const comCorpo = !['GET', 'HEAD'].includes(req.method);
-	const resposta = await fetch(alvo.replace(/\/$/, '') + caminho + req.nextUrl.search, {
+	const resposta = await fetch(alvo.replace(/\/$/, '') + caminho + new URL(req.url).search, {
 		method: req.method,
 		headers: cabecalhos,
 		body: comCorpo ? await req.arrayBuffer() : undefined,

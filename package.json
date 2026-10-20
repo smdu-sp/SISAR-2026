@@ -4,7 +4,8 @@
   "private": true,
   "packageManager": "npm@11.5.2",
   "workspaces": [
-    "apps/*"
+    "apps/*",
+    "packages/*"
   ],
   "scripts": {
     "dev": "turbo run dev",
@@ -12,7 +13,9 @@
     "start": "turbo run start",
     "test": "turbo run test",
     "lint": "turbo run lint",
-    "format": "turbo run format"
+    "format": "turbo run format",
+    "postinstall": "node scripts/gerar-prisma.mjs",
+    "prisma:generate": "node scripts/gerar-prisma.mjs"
   },
   "devDependencies": {
     "turbo": "^2.5.0"

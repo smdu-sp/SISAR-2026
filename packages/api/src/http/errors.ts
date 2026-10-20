@@ -18,6 +18,13 @@ function criarCorpo(
 	return { message: objetoOuErro, error: descricao, statusCode };
 }
 
+/** Marca global: reconhece a exceção mesmo com módulos duplicados (recarga a quente). */
+const MARCA = Symbol.for('sisar.HttpException');
+
+export function ehHttpException(erro: unknown): erro is HttpException {
+	return !!erro && typeof erro === 'object' && (erro as Record<symbol, unknown>)[MARCA] === true;
+}
+
 export class HttpException extends Error {
 	readonly corpo: Record<string, unknown>;
 
@@ -34,6 +41,7 @@ export class HttpException extends Error {
 					: ((resposta as { message?: string } | undefined)?.message ?? descricao),
 		);
 		this.corpo = criarCorpo(resposta, descricao, status);
+		(this as unknown as Record<symbol, unknown>)[MARCA] = true;
 	}
 }
 
