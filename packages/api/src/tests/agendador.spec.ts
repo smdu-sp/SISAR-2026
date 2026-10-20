@@ -14,10 +14,9 @@ describe('Agendador', () => {
 		expect(aCadaMinuto(new Date(2026, 9, 21, 10, 15, 42, 500))).toEqual(new Date(2026, 9, 21, 10, 16, 0, 0));
 	});
 
-	it('liga só sem o backend NestJS (ou forçado por AGENDADOR)', () => {
+	it('liga por padrão; AGENDADOR=off desliga', () => {
 		expect(agendadorAtivo({})).toBe(true);
-		expect(agendadorAtivo({ API_PROXY_TARGET: 'http://localhost:3000' })).toBe(false);
-		expect(agendadorAtivo({ API_PROXY_TARGET: 'x', AGENDADOR: 'on' })).toBe(true);
+		expect(agendadorAtivo({ AGENDADOR: 'on' })).toBe(true);
 		expect(agendadorAtivo({ AGENDADOR: 'off' })).toBe(false);
 	});
 

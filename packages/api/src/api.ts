@@ -1,6 +1,5 @@
-import { ForbiddenException, UnauthorizedException, ehHttpException } from './http/errors';
+import { ForbiddenException, NotFoundException, UnauthorizedException, ehHttpException } from './http/errors';
 import { tokenBearer, verificarToken } from './http/autenticacao';
-import { encaminharAoNest } from './http/proxy';
 import {
 	criarContexto,
 	encontrarRota,
@@ -11,10 +10,6 @@ import type { RotaCompilada } from './http/tipos';
 import { container } from './container';
 import { rotasMigradas } from './rotas';
 
-/**
- * Tabela de rotas já migradas para o Next. O que não estiver aqui é repassado
- * ao NestJS enquanto a migração não termina (ver docs/plano-migracao-fullstack.md).
- */
 export const rotasApi: RotaCompilada[] = rotasMigradas;
 
 const RECURSO_PADRAO = 'processos';
@@ -23,7 +18,9 @@ const QUALQUER_LOGADO = '*';
 export async function tratarRequisicao(req: Request, segmentos: string[]): Promise<Response> {
 	const caminho = '/' + segmentos.map(encodeURIComponent).join('/');
 	const achada = encontrarRota(rotasApi, req.method, '/' + segmentos.join('/'));
-	if (!achada) return marcar(await encaminharAoNest(req, caminho), 'nest-proxy');
+	if (!achada) {
+		return respostaDeErro(new NotFoundException(`Cannot ${req.method} ${caminho}`));
+	}
 
 	const { rota, params } = achada;
 	try {
@@ -59,20 +56,9 @@ export async function tratarRequisicao(req: Request, segmentos: string[]): Promi
 
 		if (rota.antes) await rota.antes(ctx);
 		const resultado = await rota.handler(ctx);
-		return marcar(montarResposta(resultado, rota.status ?? (rota.metodo === 'POST' ? 201 : 200)), 'next');
+		return montarResposta(resultado, rota.status ?? (rota.metodo === 'POST' ? 201 : 200));
 	} catch (erro) {
-		return marcar(respostaDeErro(erro), 'next');
+		return respostaDeErro(erro);
 	}
 }
 
-/** Cabeçalho de diagnóstico: mostra quem atendeu (next ou nest-proxy) durante a migração. */
-function marcar(resposta: Response, origem: string): Response {
-	try {
-		resposta.headers.set('x-sisar-api', origem);
-		return resposta;
-	} catch {
-		const copia = new Response(resposta.body, resposta);
-		copia.headers.set('x-sisar-api', origem);
-		return copia;
-	}
-}

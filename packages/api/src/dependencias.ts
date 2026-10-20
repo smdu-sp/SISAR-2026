@@ -1,4 +1,4 @@
-/** Dependências do construtor de cada service. GERADO por scripts/migracao/gerar-container.mjs. */
+/** Dependências do construtor de cada service (usado pelo substituto de @nestjs/testing nos testes). */
 import { PrismaService } from './config/prisma';
 import { AppService } from './app.service';
 import { AdmissibilidadeService } from './admissibilidade/admissibilidade.service';

@@ -1,4 +1,4 @@
-/** Rotas migradas. GERADO por scripts/migracao/gerar-container.mjs. */
+/** Todas as rotas da API. Ao criar um módulo novo, registre aqui o export de rotas dele. */
 import type { RotaCompilada } from './http/tipos';
 import { rotasAdmissibilidade } from './admissibilidade/admissibilidade.routes';
 import { rotasAlvaraTipo } from './alvara-tipo/alvara-tipo.routes';

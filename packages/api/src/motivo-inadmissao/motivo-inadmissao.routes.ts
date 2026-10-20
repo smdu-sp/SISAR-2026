@@ -1,4 +1,3 @@
-/* Gerado a partir de apps/backend/src/motivo-inadmissao/motivo-inadmissao.controller.ts (scripts/migracao/gerar-rotas.mjs) e revisado. */
 import { container } from '../container';
 import { controller, rota } from '../http/roteador';
 

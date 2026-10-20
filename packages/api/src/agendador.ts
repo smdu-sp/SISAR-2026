@@ -1,8 +1,7 @@
 /**
  * Agendador de tarefas (substitui o @nestjs/schedule). Iniciado pelo instrumentation.ts do Next.
- *
- * Liga sozinho quando o backend NestJS não está mais em uso (sem API_PROXY_TARGET), para as
- * tarefas não rodarem em dobro durante a migração. AGENDADOR=on|off força o comportamento.
+ * AGENDADOR=off desliga (ex.: segunda instância só para leitura). A reivindicação atômica do envio
+ * de relatórios evita duplicidade mesmo com mais de uma instância ligada.
  */
 import { container } from './container';
 import { Logger } from './http/logger';
@@ -50,9 +49,7 @@ export const tarefas: Tarefa[] = [
 ];
 
 export function agendadorAtivo(env = process.env): boolean {
-	if (env.AGENDADOR === 'on') return true;
-	if (env.AGENDADOR === 'off') return false;
-	return !env.API_PROXY_TARGET;
+	return env.AGENDADOR !== 'off';
 }
 
 const estado = globalThis as unknown as { __sisarAgendador?: boolean };
@@ -60,7 +57,7 @@ const estado = globalThis as unknown as { __sisarAgendador?: boolean };
 export function iniciarAgendador() {
 	if (estado.__sisarAgendador) return; // evita duplicar na recarga a quente
 	if (!agendadorAtivo()) {
-		logger.log('desligado (backend NestJS ainda em uso ou AGENDADOR=off).');
+		logger.log('desligado (AGENDADOR=off).');
 		return;
 	}
 	estado.__sisarAgendador = true;

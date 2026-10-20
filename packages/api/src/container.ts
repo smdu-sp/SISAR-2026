@@ -1,6 +1,6 @@
 /**
  * Container manual de dependências (substitui a injeção do NestJS).
- * GERADO por scripts/migracao/gerar-container.mjs a partir dos construtores dos services.
+ * Ao criar um service novo: instancie-o aqui (na ordem das dependências) e registre-o em dependencias.ts.
  */
 import { prisma } from './config/prisma';
 import { AppService } from './app.service';
