@@ -41,6 +41,12 @@ export const tarefas: Tarefa[] = [
 		proxima: diariamente(6),
 		executar: () => container().admissibilidade.verificaReconsideracao(),
 	},
+	{
+		// Antes: @Cron(CronExpression.EVERY_MINUTE) em RelatorioAgendamentoScheduler
+		nome: 'envio-relatorios',
+		proxima: aCadaMinuto,
+		executar: () => container().relatorioAgendamento.executarVencidos(),
+	},
 ];
 
 export function agendadorAtivo(env = process.env): boolean {

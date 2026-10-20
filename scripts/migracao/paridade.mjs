@@ -143,7 +143,8 @@ function diferenca(a, b, caminho = '') {
 					b = await chamar(NEXT, caso, tokensNext, 'next', estados.next);
 				}
 				// comparar: 'status' compara só o status (resposta com id no texto, por exemplo).
-				if (caso.comparar === 'status') a.corpo = b.corpo = null;
+				if (caso.comparar === 'status' || caso.comparar === 'tipo') a.corpo = b.corpo = null;
+				if (caso.comparar === 'status') a.tipo = b.tipo = null;
 				const ignorar = caso.ignorar || [];
 				a.corpo = semCampos(a.corpo, ignorar);
 				b.corpo = semCampos(b.corpo, ignorar);

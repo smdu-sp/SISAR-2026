@@ -15,6 +15,8 @@ import { rotasPedido } from './pedido/pedido.routes';
 import { rotasPermissoes } from './permissoes/permissoes.routes';
 import { rotasPublicacoes } from './publicacoes/publicacoes.routes';
 import { rotasReconsideracao } from './reconsideracao/reconsideracao.routes';
+import { rotasRelatorioAgendamento } from './relatorio/agendamento/relatorio-agendamento.routes';
+import { rotasRelatorio } from './relatorio/relatorio.routes';
 import { rotasReunioes } from './reunioes/reunioes.routes';
 import { rotasSubprefeitura } from './subprefeitura/subprefeitura.routes';
 import { rotasUnidades } from './unidades/unidades.routes';
@@ -36,6 +38,8 @@ export const rotasMigradas: RotaCompilada[] = [
 	...rotasPermissoes,
 	...rotasPublicacoes,
 	...rotasReconsideracao,
+	...rotasRelatorioAgendamento,
+	...rotasRelatorio,
 	...rotasReunioes,
 	...rotasSubprefeitura,
 	...rotasUnidades,

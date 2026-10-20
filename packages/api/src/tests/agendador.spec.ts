@@ -22,6 +22,6 @@ describe('Agendador', () => {
 	});
 
 	it('mantém a tarefa diária de reconsideração da admissibilidade', () => {
-		expect(tarefas.map((t) => t.nome)).toContain('reconsideracao-admissibilidade');
+		expect(tarefas.map((t) => t.nome)).toEqual(['reconsideracao-admissibilidade', 'envio-relatorios']);
 	});
 });

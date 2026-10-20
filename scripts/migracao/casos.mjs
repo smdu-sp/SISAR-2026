@@ -338,7 +338,68 @@ Object.assign(casos, {
 	},
 });
 
+// ---------------- Fase 5: relatórios ----------------
+const TIPOS_RELATORIO = ['ar-quantitativo', 'rr-quantitativo', 'ar-progressao-mensal', 'ar-gabinete-prefeito', 'ar-analise-admissibilidade', 'rr-analise-admissibilidade'];
+const FILTROS = 'dataInicial=01-04-2018&dataFinal=30-06-2018&anoInicial=2018&anoFinal=2019&periodo=01-04-2018,30-06-2018';
+
+Object.assign(casos, {
+	relatorios: [
+		{ caminho: '/relatorio/ar/quantitativo', como: 'dev' },
+		{ caminho: '/relatorio/ar/quantitativo/4/2018', como: 'gab' },
+		{ caminho: '/relatorio/ar/quantitativo/4/2018', como: 'usr' },
+		{ caminho: '/relatorio/ar/quantitativo/4/2018', como: null },
+		{ caminho: '/relatorio/rr/quantitativo/5/2018', como: 'adm' },
+		{ caminho: '/relatorio/ar/progressao-mensal/2018/2019', como: 'dev' },
+		{ caminho: '/relatorio/ar/progressao-mensal/2018', como: 'dev' },
+		{ caminho: '/relatorio/ar/prazo-analise-admissibilidade/01-04-2018/30-06-2018', como: 'dev' },
+		{ caminho: '/relatorio/ar/prazo-analise-admissibilidade/data-invalida/30-06-2018', como: 'dev' },
+		{ caminho: '/relatorio/rr/prazo-analise-admissibilidade/01-01-2018/31-12-2019', como: 'gab' },
+		{ caminho: '/relatorio/ar/gabinete-do-prefeito', como: 'dev' },
+		...TIPOS_RELATORIO.flatMap((tipo) => [
+			{ caminho: `/relatorio/exportar/${tipo}/excel?${FILTROS}`, como: 'dev', comparar: 'tipo' },
+			{ caminho: `/relatorio/exportar/${tipo}/pdf?${FILTROS}`, como: 'gab', comparar: 'tipo' },
+		]),
+		{ caminho: '/relatorio/exportar/nao-existe/pdf', como: 'dev' },
+		{ caminho: '/relatorio/exportar/ar-quantitativo/doc', como: 'dev' },
+		{ caminho: '/relatorio/exportar/ar-analise-admissibilidade/pdf', como: 'dev' },
+		{ caminho: '/relatorio/exportar/ar-quantitativo/pdf', como: 'usr' },
+		{ metodo: 'POST', caminho: '/relatorio/enviar-email/ar-quantitativo/pdf', como: 'dev', corpo: { destinatarios: ['a@b.com'], periodo: '01-04-2018,30-06-2018' } },
+		{ metodo: 'POST', caminho: '/relatorio/enviar-email/ar-quantitativo/pdf', como: 'adm', corpo: { destinatarios: ['a@b.com'] } },
+	],
+
+	'envio-relatorios': () => {
+		const ignorar = ['id', 'agendamento_id', 'criado_em', 'alterado_em', 'executado_em', 'ultimo_envio_em', 'nome', 'criado_por_id'];
+		return [
+			{ caminho: '/relatorio-agendamentos', como: 'dev', ignorar },
+			{ caminho: '/relatorio-agendamentos/status-email', como: 'dev' },
+			{ caminho: '/relatorio-agendamentos', como: 'adm' },
+			{ caminho: '/relatorio-agendamentos/nao-existe', como: 'dev' },
+			{ metodo: 'POST', caminho: '/relatorio-agendamentos', como: 'dev', corpo: { nome: 'x', tipo_relatorio: 'nada', destinatarios: ['nao-email'], frequencia: 'MENSAL' } },
+			{ metodo: 'POST', caminho: '/relatorio-agendamentos', como: 'dev', corpo: { nome: 'x', tipo_relatorio: 'ar-quantitativo', destinatarios: ['a@b.com'], frequencia: 'MENSAL' } },
+			{ metodo: 'POST', caminho: '/relatorio-agendamentos', como: 'dev', corpo: { nome: 'x', tipo_relatorio: 'ar-quantitativo', destinatarios: ['a@b.com'], frequencia: 'MENSAL', dia_do_mes: 5, formato_pdf: false, formato_excel: false } },
+			{
+				nome: 'agendamento',
+				fluxo: [
+					{
+						metodo: 'POST', caminho: '/relatorio-agendamentos', como: 'dev', ignorar,
+						corpo: (_t, lado) => ({ nome: `zz_par_env_${lado}`, tipo_relatorio: 'ar-quantitativo', destinatarios: ['B@x.gov.br', 'b@x.gov.br'], frequencia: 'SEMANAL', dia_da_semana: 1, hora: 9, campo_extra: 'removido pelo whitelist' }),
+						guardar: (e, r) => (e.id = r.id),
+					},
+					{ caminho: (e) => `/relatorio-agendamentos/${e.id}`, como: 'dev', ignorar },
+					{ metodo: 'PATCH', caminho: (e) => `/relatorio-agendamentos/${e.id}`, como: 'dev', corpo: { hora: 'nove' }, ignorar },
+					{ metodo: 'PATCH', caminho: (e) => `/relatorio-agendamentos/${e.id}`, como: 'dev', corpo: { frequencia: 'MENSAL', dia_do_mes: 31, minuto: 30 }, ignorar },
+					{ metodo: 'POST', caminho: (e) => `/relatorio-agendamentos/${e.id}/executar`, como: 'dev', ignorar },
+					{ caminho: (e) => `/relatorio-agendamentos/${e.id}/historico`, como: 'dev', ignorar },
+					{ metodo: 'PATCH', caminho: (e) => `/relatorio-agendamentos/${e.id}`, como: 'dev', corpo: { ativo: false }, ignorar },
+					{ metodo: 'DELETE', caminho: (e) => `/relatorio-agendamentos/${e.id}`, como: 'dev', ignorar },
+				],
+			},
+		];
+	},
+});
+
 const limpezaProcessos = [
+	"DELETE FROM relatorio_agendamentos WHERE nome LIKE 'zz_par_%'",
 	...[
 		'suspensoes_prazo', 'controles_prazo', 'comunique_ses', 'decisoes', 'reuniao_processos', 'motivos_inadmissao_inicial',
 		'pedidos_inicial', 'iniciais_sqls', 'avisos', 'admissibilidades', 'conclusoes', 'distribuicoes',
