@@ -30,8 +30,9 @@ scripts de banco leem este arquivo. Veja `example.env` para a lista completa.
 | `JWT_SECRET`, `RT_SECRET` | assinatura dos tokens de acesso (15 min) e refresh (7 dias) |
 | `AUTH_SECRET`, `AUTH_URL` | next-auth (sessão das telas) |
 | `NEXT_PUBLIC_API_URL` | URL da API integrada ao Next, **com barra final** (ex.: `http://localhost:3098/api/`); é embutida no build |
-| `ENVIRONMENT` | `local` aceita o login de qualquer usuário já cadastrado, sem LDAP |
+| `ENVIRONMENT` | `local` aceita o login de qualquer usuário já cadastrado, sem consultar o serviço de autenticação |
 | `LDAP_SERVER`, `LDAP_DOMAIN`, `LDAP_BASE`, `USER_LDAP`, `PASS_LDAP` | login por LDAP (não local) |
+| `LDAP_API_URL` | base da API de autenticação LDAP (`http://api.smul.pmsp`), usada para validar login/senha e buscar dados de novos usuários |
 | `API_FERIADOS_URL` | consulta de feriados para cálculo de dias úteis |
 | `RESEND_API_KEY`, `RESEND_FROM` | envio dos relatórios agendados por e-mail |
 | `AGENDADOR` | `off` desliga as tarefas agendadas nesta instância |
