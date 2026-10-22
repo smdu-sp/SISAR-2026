@@ -8,9 +8,9 @@
                    ],
     "scripts":  {
                     "dev":  "next dev --turbopack -p 3001",
-                    "build": "npm run build:api && next build",
+                    "build":  "npm run build:api && next build",
                     "build:api":  "npm run build -w packages/api",
-                    "start":  "next start -p 3001",
+                    "start":  "next start -p 3098",
                     "test":  "npm test -w packages/api",
                     "lint":  "next lint",
                     "format":  "prettier --write .",

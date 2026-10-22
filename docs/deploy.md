@@ -11,7 +11,7 @@ npm ci                                                     # instala e gera os c
 npm run db:migrate:deploy                                  # aplica as migrações no banco
 npm run db:seed                                             # somente em banco novo
 npm run build                                              # build de produção (tipos da API + Next)
-npm start                                                  # Next em produção na porta 3001
+npm start                                                  # Next em produção na porta 3098
 ```
 Importante: `NEXT_PUBLIC_API_URL` é **embutida no build**; defina o valor final (ex.:
 `https://sisar.exemplo.gov.br/api/`) antes de `npm run build`. `AUTH_URL` deve ser a URL pública do site.
