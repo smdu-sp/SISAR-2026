@@ -34,6 +34,7 @@ import { z } from 'zod';
 import { format } from "date-fns"
 import { FormCombobox, OptionType } from '@/components/form-combobox';
 import * as publicacoes from '@/services/publicacoes';
+import type { ICreatePublicacao } from '@/types/publicacao';
 
 const formSchema = z.object({
 	numero_processo: z.string().min(16).max(19),
@@ -78,7 +79,17 @@ export default function FormPublicacao({ isUpdating, unidades, tecnicos }: FormP
 			return;
 		}
 		startTransition(async () => {
-			const response = await publicacoes.criar(values);
+			const dados: ICreatePublicacao = {
+				numero_processo: values.numero_processo!,
+				tipo_documento: values.tipo_documento!,
+				colegiado: values.colegiado!,
+				tecnico_rf: values.tecnico_rf!,
+				unidade_id: values.unidade_id!,
+				data_emissao: values.data_emissao!,
+				data_publicacao: values.data_publicacao!,
+				prazo: values.prazo!,
+			};
+			const response = await publicacoes.criar(dados);
 			if (response.error) {
 				toast.error('Algo deu errado', { description: response.error });
 			}

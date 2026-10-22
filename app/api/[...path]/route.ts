@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import { tratarRequisicao } from '@sisar/api';
+import { tratarRequisicao } from '../../../src/api';
 
 // A API roda no runtime Node (Prisma, LDAP, geração de PDF/Excel).
 export const runtime = 'nodejs';

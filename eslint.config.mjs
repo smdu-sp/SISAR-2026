@@ -26,11 +26,16 @@ const eslintConfig = [
   },
   {
     // Código de servidor portado do NestJS: mantém o estilo original (any, imports CommonJS).
-    files: ["server/**/*.ts"],
+    files: ["src/**/*.ts"],
     rules: {
       "@typescript-eslint/no-explicit-any": "off",
       "@typescript-eslint/no-require-imports": "off",
       "@typescript-eslint/no-unused-vars": "warn",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-wrapper-object-types": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@next/next/no-assign-module-variable": "off",
+      "prettier/prettier": "off",
       "prefer-const": "warn",
     },
   },

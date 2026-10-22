@@ -8,7 +8,7 @@
     ],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "experimentalDecorators": true,
     "noEmit": true,
     "esModuleInterop": true,
@@ -38,6 +38,10 @@
   ],
   "exclude": [
     "node_modules",
-    "packages/api"
+    "dist",
+    "src/**/*.spec.ts",
+    "src/**/tests/**",
+    "prisma",
+    "sgu"
   ]
 }

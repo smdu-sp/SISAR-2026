@@ -46,11 +46,10 @@ npm run build && pm2 restart sisar
 
 ## 6. Desenvolvimento
 
-O projeto mantém `packages/api` como workspace interno, enquanto a aplicação
-fullstack Next.js está na raiz. Na raiz, use:
+O projeto usa um único pacote na raiz, sem workspace interno ou API separada. Na raiz, use:
 
 ```bash
 npm run dev
 ```
 
-Esse comando inicia o Next em `http://localhost:3001`, incluindo as rotas `/api/*`.
+Esse comando inicia o Next em `http://localhost:3098`, incluindo as rotas `/api/*`.
