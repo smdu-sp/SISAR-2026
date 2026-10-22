@@ -165,6 +165,14 @@ export const TIPOS: Array<{
 		prazo_admissibilidade_smul: 25,
 	},
 	{
+		nome: 'Alvará de Aprovação e Execução de Requalificação - não incide',
+		prazo_analise_smul1: 30,
+		prazo_analise_smul2: 30,
+		prazo_analise_multi1: 60,
+		prazo_analise_multi2: 60,
+		prazo_admissibilidade_smul: 25,
+	},
+	{
 		nome: 'Alvará de Execução de Requalificação',
 		prazo_analise_smul1: 30,
 		prazo_analise_smul2: 30,

@@ -34,6 +34,10 @@ const unidadesSetoriais = [
 ];
 
 const categorias = ['R', 'HIS', 'HMP', 'CAEPP'];
+const pareceresAdmissibilidade = [
+  'Ausência de Documentos',
+  'Não Cumprimento de Requisito',
+];
 
 // Sigla deixou de ser única (unidades unificadas com níveis), então
 // upsert por sigla vira findFirst + create/update manual.
@@ -76,6 +80,14 @@ async function main() {
     });
   }
 
+  for (const parecer of pareceresAdmissibilidade) {
+    await prisma.parecer_Admissibilidade.upsert({
+      where: { parecer },
+      create: { parecer, status: 1 },
+      update: {},
+    });
+  }
+
   await seedTiposAlvara(prisma);
 
   const existingByEmail = await prisma.usuario.findUnique({
@@ -98,6 +110,7 @@ async function main() {
     subprefeitura,
     setores: setores.length,
     categorias: categorias.length,
+    pareceresAdmissibilidade: pareceresAdmissibilidade.length,
     tiposAlvara: TIPOS.length,
     usuario: root,
   });
