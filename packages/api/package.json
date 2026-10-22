@@ -16,12 +16,12 @@
 		"dev": "tsc -p tsconfig.build.json --watch --preserveWatchOutput",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"test": "jest",
-		"prisma:generate": "dotenv -e ../../apps/frontend/.env.local -- prisma generate && dotenv -e ../../apps/frontend/.env.local -- prisma generate --schema=sgu/schema.prisma",
-		"db:migrate:deploy": "dotenv -e ../../apps/frontend/.env.local -- prisma migrate deploy",
-		"db:migrate:dev": "dotenv -e ../../apps/frontend/.env.local -- prisma migrate dev",
-		"db:seed": "dotenv -e ../../apps/frontend/.env.local -- prisma db seed",
+		"prisma:generate": "dotenv -e ../../.env.local -- prisma generate && dotenv -e ../../.env.local -- prisma generate --schema=sgu/schema.prisma",
+		"db:migrate:deploy": "dotenv -e ../../.env.local -- prisma migrate deploy",
+		"db:migrate:dev": "dotenv -e ../../.env.local -- prisma migrate dev",
+		"db:seed": "dotenv -e ../../.env.local -- prisma db seed",
 		"import:planilha:parse": "python prisma/scripts/parse-planilha.py",
-		"import:planilha": "npm run import:planilha:parse && dotenv -e ../../apps/frontend/.env.local -- ts-node --project tsconfig.node.json prisma/import-planilha.ts"
+		"import:planilha": "npm run import:planilha:parse && dotenv -e ../../.env.local -- ts-node --project tsconfig.node.json prisma/import-planilha.ts"
 	},
 	"devDependencies": {
 		"@types/jest": "^29.5.14",

@@ -6,7 +6,7 @@ no mesmo processo, domínio e porta, sem CORS e sem um servidor NestJS separado.
 ## Arquitetura atual
 
 ```text
-apps/frontend/
+app/
   app/api/[...path]/route.ts  # entrada única da API
   middleware.ts               # autenticação e proteção das telas
   instrumentation.ts          # inicialização do agendador
@@ -32,17 +32,11 @@ atendidas diretamente por `/api/[...path]`.
 
 ## Desenvolvimento
 
-O monorepo usa npm workspaces para compartilhar dependências e organizar os
-pacotes, mas o comando padrão inicia o produto como um único app:
+O pacote interno `packages/api` usa npm workspaces para compartilhar o código
+de negócio, mas o produto é um único app Next.js na raiz:
 
 ```bash
 npm run dev
-```
-
-Para executar também o watch independente de compilação do pacote da API:
-
-```bash
-npm run dev:turbo
 ```
 
 ## Manutenção

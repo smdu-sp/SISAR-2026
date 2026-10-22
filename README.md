@@ -4,7 +4,9 @@ Aplicação **fullstack em um único app Next.js**: as telas e a API (`/api/*`) 
 no mesmo domínio e porta (sem CORS). O antigo backend NestJS foi incorporado ao pacote `@sisar/api`.
 
 ```
-apps/frontend/          App Next.js (telas + rota /api/[...path] + middleware + instrumentation)
+app/                    App Next.js (telas + rota /api/[...path])
+components/             Componentes visuais compartilhados
+services/               Acesso à API e funções do servidor
 packages/api/           @sisar/api: regras de negócio, rotas, autenticação, agendador, Prisma
   src/<modulo>/           <modulo>.service.ts + <modulo>.routes.ts (+ tests)
   src/container.ts        instâncias dos services (substitui a injeção do Nest)
@@ -19,8 +21,8 @@ docs/                   Plano e histórico da migração do NestJS para o Next
 - MySQL 8 (banco `sisar`) e acesso de leitura ao SGU
 
 ## Configuração
-Crie `apps/frontend/.env.local` (não versionado). É a **única** fonte de variáveis: o app e os
-scripts de banco leem este arquivo. Veja `apps/frontend/example.env` para a lista completa.
+Crie `.env.local` na raiz (não versionado). É a **única** fonte de variáveis: o app e os
+scripts de banco leem este arquivo. Veja `example.env` para a lista completa.
 
 | Variável | Uso |
 |---|---|
@@ -38,20 +40,18 @@ scripts de banco leem este arquivo. Veja `apps/frontend/example.env` para a list
 ```bash
 npm install            # instala e gera os clientes Prisma (postinstall)
 npm run dev            # app fullstack Next (telas + API) em http://localhost:3001
-npm run dev:turbo      # opcional: Next + watch separado de compilação da API
 npm test               # testes da API (Jest)
 npm run lint
 ```
 
-O repositório usa npm workspaces para organizar `apps/frontend` e `packages/api`,
-mas o produto executado em desenvolvimento e produção é um único processo Next.js.
-O comando padrão `npm run dev` inicia somente esse processo; `dev:turbo` existe
-apenas para acompanhar a compilação independente do pacote da API.
+O repositório usa npm workspaces apenas para o pacote interno `packages/api`.
+O produto executado em desenvolvimento e produção é um único processo Next.js na raiz.
 Banco (a partir de `packages/api`, usando o `.env.local` do app):
 ```bash
-npm run db:migrate:deploy -w packages/api   # aplica migrações
-npm run db:seed -w packages/api             # dados iniciais
-npm run prisma:generate -w packages/api     # regenera clientes (com os servidores parados)
+npm run db:migrate:dev                      # cria/aplica migração em desenvolvimento
+npm run db:migrate:deploy                   # aplica migrações existentes
+npm run db:seed                             # dados iniciais
+npm run prisma:generate                     # regenera clientes (com os servidores parados)
 ```
 
 ## Produção (servidor próprio)

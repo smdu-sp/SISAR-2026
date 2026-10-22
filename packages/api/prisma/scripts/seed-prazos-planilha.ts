@@ -11,7 +11,6 @@ const COMUM = {
 	reconsideracao_smul_tipo: 0,
 	analise_reconsideracao_smul: 15,
 	prazo_emissao_alvara_smul: 10,
-	prazo_admissibilidade_multi: 15,
 	reconsideracao_multi: 3,
 	reconsideracao_multi_tipo: 0,
 	analise_reconsideracao_multi: 15,
@@ -196,7 +195,6 @@ async function main() {
 		await prisma.alvara_Tipo.upsert({
 			where: { nome: tipo.nome },
 			create: {
-				nome: tipo.nome,
 				...tipo,
 				prazo_admissibilidade_multi: tipo.prazo_admissibilidade_smul,
 				...COMUM,

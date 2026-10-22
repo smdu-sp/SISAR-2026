@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
 	serverExternalPackages: ['@prisma/client', '@prisma/sgu', 'ldapjs', 'exceljs', 'pdfmake', 'resend'],
 	// Regras de negócio/API (antigo backend NestJS) em TypeScript, compiladas pelo Next.
 	transpilePackages: ['@sisar/api'],
-	outputFileTracingRoot: path.join(__dirname, '../../'),
+	outputFileTracingRoot: path.join(__dirname, './'),
 	experimental: {
 		serverActions: {
 			bodySizeLimit: '10mb',
