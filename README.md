@@ -50,9 +50,13 @@ Banco (a partir de `packages/api`, usando o `.env.local` do app):
 ```bash
 npm run db:migrate:dev                      # cria/aplica migração em desenvolvimento
 npm run db:migrate:deploy                   # aplica migrações existentes
-npm run db:seed                             # dados iniciais
+npm run db:seed                             # dados iniciais, categorias e tipos de alvará
 npm run prisma:generate                     # regenera clientes (com os servidores parados)
 ```
+
+O seed cadastra ou atualiza, de forma idempotente, as categorias `R`, `HIS`, `HMP`
+e `CAEPP`, além dos tipos de alvará e seus prazos institucionais. Ele não remove
+registros existentes.
 
 ## Produção (servidor próprio)
 Veja [docs/deploy.md](docs/deploy.md).

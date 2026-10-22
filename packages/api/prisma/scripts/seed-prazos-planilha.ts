@@ -6,7 +6,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const COMUM = {
+export const COMUM = {
 	reconsideracao_smul: 3,
 	reconsideracao_smul_tipo: 0,
 	analise_reconsideracao_smul: 15,
@@ -20,7 +20,7 @@ const COMUM = {
 	status: 1,
 };
 
-const TIPOS: Array<{
+export const TIPOS: Array<{
 	nome: string;
 	prazo_analise_smul1: number;
 	prazo_analise_smul2: number;
@@ -190,7 +190,7 @@ const TIPOS: Array<{
 	},
 ];
 
-async function main() {
+export async function seedTiposAlvara(prisma: PrismaClient) {
 	for (const tipo of TIPOS) {
 		await prisma.alvara_Tipo.upsert({
 			where: { nome: tipo.nome },
@@ -210,9 +210,11 @@ async function main() {
 	console.log(`\n${TIPOS.length} tipos de alvará atualizados com prazos da planilha.`);
 }
 
-main()
-	.catch((e) => {
-		console.error(e);
-		process.exit(1);
-	})
-	.finally(() => prisma.$disconnect());
+if (require.main === module) {
+	seedTiposAlvara(prisma)
+		.catch((e) => {
+			console.error(e);
+			process.exit(1);
+		})
+		.finally(() => prisma.$disconnect());
+}

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { seedTiposAlvara, TIPOS } from './scripts/seed-prazos-planilha';
 const prisma = new PrismaClient();
 
 const devUser = {
@@ -31,6 +32,8 @@ const unidadesSetoriais = [
   { sigla: 'SMUL', nome: 'Secretaria Municipal de Urbanismo e Licenciamento', codigo: 'SMUL' },
   { sigla: 'GRAPROEM', nome: 'GRAPROEM', codigo: 'GRAPROEM' },
 ];
+
+const categorias = ['R', 'HIS', 'HMP', 'CAEPP'];
 
 // Sigla deixou de ser única (unidades unificadas com níveis), então
 // upsert por sigla vira findFirst + create/update manual.
@@ -65,6 +68,16 @@ async function main() {
     setores.push(await upsertUnidadePorSigla({ ...u, status: 1 }));
   }
 
+  for (const categoria of categorias) {
+    await prisma.categoria.upsert({
+      where: { categoria },
+      create: { categoria },
+      update: {},
+    });
+  }
+
+  await seedTiposAlvara(prisma);
+
   const existingByEmail = await prisma.usuario.findUnique({
     where: { email: devUser.email },
   });
@@ -80,7 +93,14 @@ async function main() {
         update: { ...devUser, unidade_id: unidade.id },
       });
 
-  console.log({ unidade, subprefeitura, setores: setores.length, usuario: root });
+  console.log({
+    unidade,
+    subprefeitura,
+    setores: setores.length,
+    categorias: categorias.length,
+    tiposAlvara: TIPOS.length,
+    usuario: root,
+  });
 }
 
 main()
