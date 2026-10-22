@@ -1,6 +1,5 @@
 import { ForbiddenException, UnauthorizedException } from '../http/errors';
 import { assinarToken } from '../http/autenticacao';
-import { createClient } from 'ldapjs';
 export class AuthService {
     constructor(usuariosService) {
         this.usuariosService = usuariosService;
@@ -30,48 +29,30 @@ export class AuthService {
             if (usuario)
                 return usuario;
         }
-        const client = createClient({
-            url: process.env.LDAP_SERVER,
+        const autenticado = await fetch(`${process.env.LDAP_API_URL}/auth/ldap/autenticar`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ login, senha }),
         });
-        await new Promise((resolve, reject) => {
-            client.bind(`${login}${process.env.LDAP_DOMAIN}`, senha, (err) => {
-                if (err) {
-                    client.destroy();
-                    reject(new UnauthorizedException('Credenciais incorretas.'));
-                }
-                resolve();
-            });
-        });
+        if (!autenticado.ok)
+            throw new UnauthorizedException('Credenciais incorretas.');
         if (!usuario) {
-            usuario = await new Promise((resolve, reject) => {
-                client.search(process.env.LDAP_BASE, {
-                    filter: `(&(samaccountname=${login}))`,
-                    scope: 'sub',
-                    attributes: ['name', 'mail'],
-                }, (err, res) => {
-                    if (err) {
-                        client.destroy();
-                        reject();
-                    }
-                    res.on('searchEntry', async (entry) => {
-                        const { name, mail } = Object.fromEntries(entry.pojo.attributes.map(({ type, values }) => [type, values[0]]));
-                        const novoUsuario = await this.usuariosService.criar({
-                            nome: name,
-                            login,
-                            email: mail.toLowerCase(),
-                            permissao: 'USR',
-                            cargo: 'ADM',
-                            status: 3,
-                        });
-                        client.destroy();
-                        if (novoUsuario)
-                            reject(new ForbiddenException('Usuário criado, aguardando aprovação.'));
-                        reject(new UnauthorizedException('Não foi possível fazer login no momento.'));
-                    });
-                });
+            const response = await fetch(`${process.env.LDAP_API_URL}/auth/ldap/buscar-por-login/${login}?secretarias=SMUL`);
+            if (!response.ok)
+                throw new UnauthorizedException('Não foi possível fazer login no momento.');
+            const { nome, email } = await response.json();
+            const novoUsuario = await this.usuariosService.criar({
+                nome,
+                login,
+                email: email.toLowerCase(),
+                permissao: 'USR',
+                cargo: 'ADM',
+                status: 3,
             });
+            if (novoUsuario)
+                throw new ForbiddenException('Usuário criado, aguardando aprovação.');
+            throw new UnauthorizedException('Não foi possível fazer login no momento.');
         }
-        client.destroy();
         return usuario;
     }
 }

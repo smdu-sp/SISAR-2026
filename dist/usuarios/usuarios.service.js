@@ -1,6 +1,5 @@
 import { ForbiddenException, InternalServerErrorException, UnauthorizedException } from '../http/errors';
 import { $Enums } from '@prisma/client';
-import { createClient } from 'ldapjs';
 export class UsuariosService {
     constructor(prisma, sgu, app) {
         this.prisma = prisma;
@@ -232,51 +231,15 @@ export class UsuariosService {
             });
             return usuarioReativado;
         }
-        const client = createClient({
-            url: process.env.LDAP_SERVER,
-        });
-        let unidade_id = await this.buscaUnidade(login);
-        await new Promise((resolve, reject) => {
-            client.bind(`${process.env.USER_LDAP}${process.env.LDAP_DOMAIN}`, process.env.PASS_LDAP, (err) => {
-                if (err) {
-                    client.destroy();
-                    reject(new UnauthorizedException('Credenciais incorretas 2.'));
-                }
-                resolve();
-            });
-        });
-        const usuario_ldap = await new Promise((resolve, reject) => {
-            client.search(process.env.LDAP_BASE, {
-                filter: `(&(samaccountname=${login})(company=SMUL))`,
-                scope: 'sub',
-                attributes: ['name', 'mail'],
-            }, (err, res) => {
-                if (err) {
-                    client.destroy();
-                    resolve('erro');
-                }
-                res.on('searchEntry', async (entry) => {
-                    const nome = JSON.stringify(entry.pojo.attributes[0].values[0]).replaceAll('"', '');
-                    const email = JSON.stringify(entry.pojo.attributes[1].values[0]).replaceAll('"', '').toLowerCase();
-                    resolve({ nome, email });
-                });
-                res.on('error', (err) => {
-                    client.destroy();
-                    resolve('erro');
-                });
-                res.on('end', () => {
-                    client.destroy();
-                    resolve('erro');
-                });
-            });
-        });
-        client.destroy();
-        if (!usuario_ldap.email)
+        const unidade_id = await this.buscaUnidade(login);
+        const response = await fetch(`${process.env.LDAP_API_URL}/auth/ldap/buscar-por-login/${login}?secretarias=SMUL`);
+        if (!response.ok)
             throw new UnauthorizedException('Credenciais incorretas.');
+        const { nome, email } = await response.json();
         return {
             login,
-            nome: usuario_ldap.nome,
-            email: usuario_ldap.email,
+            nome,
+            email: email.toLowerCase(),
             unidade_id,
         };
     }
