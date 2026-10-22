@@ -9,6 +9,27 @@ import {
 
 type Linha = Record<string, string>;
 
+export function normalizarNomeSubprefeitura(valor: string): string {
+  const texto = valor.trim().replace(/\s+/g, ' ').replace(/\s*\/\s*/g, '/');
+  if (!texto) return '';
+  if (/^subprefeitura\s+/i.test(texto)) {
+    return texto.replace(/^subprefeitura\s+/i, 'Subprefeitura ');
+  }
+  const artigo = /^sé$/i.test(texto) ? 'da' : 'de';
+  return `Subprefeitura ${artigo} ${texto}`;
+}
+
+export function siglaSubprefeitura(valor: string): string {
+  const nome = normalizarNomeSubprefeitura(valor);
+  const semPrefixo = nome.replace(/^Subprefeitura\s+(?:da|de)\s+/i, '');
+  return semPrefixo
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toUpperCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 /**
  * Importa processos com histórico completo a partir da planilha .xlsx revisada
  * pelos usuários. Não-destrutivo (adiciona; SEIs já existentes = duplicados),
@@ -53,6 +74,51 @@ export class ImportadorPlanilha {
 
   private norm(s: string): string {
     return (s ?? '').trim().toLowerCase();
+  }
+
+  private adicionarAliasSubprefeitura(
+    mapa: Map<string, string>,
+    id: string,
+    ...valores: (string | undefined)[]
+  ): void {
+    for (const valor of valores) {
+      if (valor) mapa.set(this.norm(valor), id);
+    }
+  }
+
+  private async garantirSubprefeitura(
+    valor: string | undefined,
+    mapa: Map<string, string>,
+  ): Promise<void> {
+    const original = (valor ?? '').trim();
+    if (!original) return;
+
+    const nome = normalizarNomeSubprefeitura(original);
+    const sigla = siglaSubprefeitura(original);
+    const existenteId = mapa.get(this.norm(original)) ?? mapa.get(this.norm(nome));
+    if (existenteId) {
+      this.adicionarAliasSubprefeitura(mapa, existenteId, original, nome, sigla);
+      return;
+    }
+
+    const existente = await this.prisma.subprefeitura.findFirst({
+      where: { OR: [{ nome }, { sigla }] },
+      select: { id: true, nome: true, sigla: true },
+    });
+    const subprefeitura = existente ?? (await this.prisma.subprefeitura.create({
+      data: { nome, sigla, status: 1 },
+      select: { id: true, nome: true, sigla: true },
+    }));
+
+    this.adicionarAliasSubprefeitura(
+      mapa,
+      subprefeitura.id,
+      original,
+      nome,
+      sigla,
+      subprefeitura.nome,
+      subprefeitura.sigla,
+    );
   }
 
   private chaveHeader(cell: ExcelJS.Cell | undefined): string {
@@ -273,8 +339,7 @@ export class ImportadorPlanilha {
     const mapaUnidade = new Map(unidades.map((u) => [this.norm(u.sigla), u.id]));
     const mapaSubpref = new Map<string, string>();
     for (const s of subprefs) {
-      mapaSubpref.set(this.norm(s.sigla), s.id);
-      mapaSubpref.set(this.norm(s.nome), s.id);
+      this.adicionarAliasSubprefeitura(mapaSubpref, s.id, s.sigla, s.nome);
     }
     const mapaCategoria = new Map(
       categorias.map((c) => [this.norm(c.categoria), c.id]),
@@ -345,6 +410,11 @@ export class ImportadorPlanilha {
           });
           continue;
         }
+
+        await this.garantirSubprefeitura(
+          adm.get(sei)?.[0]?.['adm_subprefeitura'],
+          mapaSubpref,
+        );
 
         const filhos = this.montarFilhos(p, sei, processoFisico, alvara_tipo_id, {
           adm, recon, concl, decisoes, reunioes, comuniques, suspensoes,
