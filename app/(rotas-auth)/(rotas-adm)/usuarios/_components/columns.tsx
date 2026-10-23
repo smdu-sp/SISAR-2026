@@ -11,6 +11,21 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { ExternalLink } from 'lucide-react';
 
+const statusUsuario: { label: string; variant: 'default' | 'destructive' | 'secondary' }[] = [
+	{
+		label: 'ativo',
+		variant: 'default'
+	},
+	{
+		label: 'inativo',
+		variant: 'destructive'
+	},
+	{
+		label: 'aguardando aprovação',
+		variant: 'secondary'
+	}
+]
+
 export const columns: ColumnDef<IUsuario>[] = [
 	{
 		accessorKey: 'nome',
@@ -31,8 +46,8 @@ export const columns: ColumnDef<IUsuario>[] = [
 			const status = row.original.status;
 			return (
 				<div className='flex items-center justify-center'>
-					<Badge variant={`${status == false ? 'destructive' : 'default'}`}>
-						{status ? 'Ativo' : 'Inativo'}
+					<Badge variant={statusUsuario[status-1]?.variant || 'default'}>
+						{statusUsuario[status-1]?.label || 'Nenhum'}
 					</Badge>
 				</div>
 			);

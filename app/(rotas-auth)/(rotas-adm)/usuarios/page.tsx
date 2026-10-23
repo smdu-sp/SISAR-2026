@@ -7,10 +7,10 @@ import Pagination from '@/components/pagination';
 import { auth } from '@/lib/auth/auth';
 import * as usuario from '@/services/usuarios';
 import { IPaginadoUsuario, IUsuario } from '@/types/usuario';
-import { Suspense } from 'react';
 import { columns } from './_components/columns';
 import ModalUpdateAndCreate from './_components/modal-update-create';
 import { pageContainerComBotaoFlutuante } from '@/lib/utils';
+import { Suspense } from 'react';
 
 export default async function UsuariosSuspense({
 	searchParams,

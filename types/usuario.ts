@@ -30,7 +30,7 @@ export interface IUsuario {
 	ferias?: IFerias[];
 	substitutos?: ISubstituto[];
 	avatar?: string;
-	status: boolean;
+	status: number;
 	ultimoLogin: Date;
 	criadoEm: Date;
 	atualizadoEm: Date;

@@ -445,6 +445,8 @@ model Usuario {
   email          String         @unique
   cargo          Cargo          @default(ADM)
   permissao      Permissao      @default(USR)
+  // 1 = Ativo; 2 = Inativo; 3 = Aguardando aprovação (default, usado ao autocriar via login LDAP).
+  // "4" não é um status real: é só um valor sentinela aceito nos filtros de listagem para "todos".
   status         Int            @default(3)
   tecnico        Distribuicao[] @relation(name: "tecnico")
   administrativo Distribuicao[] @relation(name: "administrativo")

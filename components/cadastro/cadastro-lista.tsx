@@ -163,7 +163,7 @@ export function ModalCadastroLista<T extends ICadastroItem>({
 }
 
 /** Botão de adicionar: aparece no topo à direita do conteúdo (order-first no contêiner da página). */
-export function BotaoCadastroFlutuante({ children }: { children: ReactNode }) {
+export function BotaoCadastroFlutuante({ children }: { children?: ReactNode }) {
 	return (
 		<div className='order-first self-end'>
 			{children}
