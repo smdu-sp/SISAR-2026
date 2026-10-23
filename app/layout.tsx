@@ -5,19 +5,22 @@ import { AuthProvider } from '@/providers/AuthProvider';
 import { QueryProvider } from '@/providers/QueryProvider';
 import { ThemeProvider } from '@/providers/ThemeProvider';
 import type { Metadata } from 'next';
-import { Hanken_Grotesk, IBM_Plex_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 
-const hankenGrotesk = Hanken_Grotesk({
-	subsets: ['latin'],
+const hankenGrotesk = localFont({
+	src: './fonts/hanken-grotesk-variable.woff2',
+	weight: '400 800',
 	variable: '--font-hanken',
 	display: 'swap',
-	weight: ['400', '500', '600', '700', '800'],
 });
 
-const ibmPlexMono = IBM_Plex_Mono({
-	subsets: ['latin'],
-	weight: ['400', '500', '600'],
+const ibmPlexMono = localFont({
+	src: [
+		{ path: './fonts/ibm-plex-mono-400.woff2', weight: '400' },
+		{ path: './fonts/ibm-plex-mono-500.woff2', weight: '500' },
+		{ path: './fonts/ibm-plex-mono-600.woff2', weight: '600' },
+	],
 	variable: '--font-ibm-mono',
 	display: 'swap',
 });
