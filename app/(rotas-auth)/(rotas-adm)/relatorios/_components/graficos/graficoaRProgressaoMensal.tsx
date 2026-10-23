@@ -9,7 +9,7 @@ interface AreaChartsApexProps {
     title: string;
     categories?: string[];
     data?: unknown[];
-    series?: ApexAxisChartSeries | ApexNonAxisChartSeries | undefined;
+    series?: ApexCharts.ApexOptions['series'];
     height: string | number | undefined;
 }
 
