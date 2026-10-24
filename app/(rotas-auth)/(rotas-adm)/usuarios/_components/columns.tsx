@@ -6,6 +6,7 @@ import { IUsuario } from '@/types/usuario';
 import { ColumnDef } from '@tanstack/react-table';
 import ModalUpdateCreate from './modal-update-create';
 import ModalDelete from './modal-delete';
+import ModalAprovar from './modal-aprovar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -57,6 +58,7 @@ export const columns: ColumnDef<IUsuario>[] = [
 		accessorKey: 'actions',
 		header: () => <p className='text-center'>Ações</p>,
 		cell: ({ row }) => {
+			const status = row.original.status;
 			return (
 				<div
 					className='flex gap-2 items-center justify-center'
@@ -73,10 +75,14 @@ export const columns: ColumnDef<IUsuario>[] = [
 						user={row.original}
 						isUpdating={true}
 					/>
-					<ModalDelete
-						status={!row.original.status}
-						id={row.original.id}
-					/>
+					{status === 3 ? (
+						<ModalAprovar id={row.original.id} />
+					) : (
+						<ModalDelete
+							status={status === 2}
+							id={row.original.id}
+						/>
+					)}
 				</div>
 			);
 		},
