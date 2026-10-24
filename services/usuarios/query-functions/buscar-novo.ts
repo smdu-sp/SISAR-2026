@@ -13,7 +13,7 @@ export async function buscarNovo(login: string, access_token: string): Promise<I
 
 	const baseURL = process.env.NEXT_PUBLIC_API_URL;
 	try {
-		const usuarioNovo = await fetch(`${baseURL}usuarios/buscar-novo/${login}`, {
+		const usuarioNovo = await fetch(`${baseURL}usuarios/buscar-novo?login=${encodeURIComponent(login)}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
