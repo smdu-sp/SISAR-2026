@@ -66,7 +66,7 @@ export class UsuariosService {
         );
     }
     const usuario: Usuario = await this.prisma.usuario.create({
-      data: { ...createUsuarioDto }
+      data: { ...createUsuarioDto, status: createUsuarioDto.status ?? (criador ? 1 : 3) },
     });
     if (!usuario)
       throw new InternalServerErrorException(

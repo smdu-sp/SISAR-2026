@@ -53,7 +53,7 @@ export interface ICreateUsuario {
 	permissao?: IPermissao;
 	cargo?: string;
 	unidade_id?: string;
-	status?: boolean;
+	status?: number;
 	nomeSocial?: string;
 }
 
